@@ -34,6 +34,7 @@
     <div class="adm-nav-item" data-sec="users" onclick="showSection('users')"><span class="icon">👥</span> Usuários</div>
     <div class="adm-nav-item" data-sec="herbs" onclick="showSection('herbs')"><span class="icon">🍃</span> Chás e Infusões</div>
     <div class="adm-nav-item" data-sec="products" onclick="showSection('products')"><span class="icon">📦</span> Produtos</div>
+    <div class="adm-nav-item" data-sec="suppliers" onclick="showSection('suppliers')"><span class="icon">🏪</span> Fornecedores</div>
     <div class="adm-nav-item" data-sec="news" onclick="showSection('news')"><span class="icon">📰</span> Notícias</div>
     <div class="adm-nav-sep"></div>
     <div class="adm-nav-item" onclick="window.location='/'"><span class="icon">🍵</span> Ir ao App</div>
@@ -55,6 +56,7 @@
         <div class="adm-stat"><div class="adm-stat-val" id="statUsers">—</div><div class="adm-stat-label">Usuários</div></div>
         <div class="adm-stat"><div class="adm-stat-val" id="statHerbs">—</div><div class="adm-stat-label">Chás cadastrados</div></div>
         <div class="adm-stat"><div class="adm-stat-val" id="statProducts">—</div><div class="adm-stat-label">Produtos</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="statSuppliers">—</div><div class="adm-stat-label">Fornecedores</div></div>
         <div class="adm-stat"><div class="adm-stat-val" id="statNews">—</div><div class="adm-stat-label">Notícias</div></div>
       </div>
     </div>
@@ -103,6 +105,22 @@
         <table class="adm-table">
           <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Data</th><th>Ações</th></tr></thead>
           <tbody id="productsBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ SUPPLIERS ════════ -->
+    <div class="adm-section" id="sec-suppliers" style="display:none">
+      <div class="adm-header">
+        <div><div class="adm-title">Fornecedores</div><div class="adm-subtitle">Produtores e distribuidores de chás</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="adm-btn primary" onclick="openSupplierForm()">+ Novo fornecedor</button>
+        </div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Fornecedor</th><th>Tipo</th><th>Cidade</th><th>Certificação</th><th>Ervas</th><th>Ações</th></tr></thead>
+          <tbody id="suppliersBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -225,6 +243,33 @@
 </div>
 
 <!-- TOAST -->
+<!-- SUPPLIER FORM -->
+<div class="adm-modal-overlay" id="supplierModal" onclick="if(event.target===this)closeSupplierForm()">
+  <div class="adm-modal">
+    <div class="adm-modal-title" id="supplierFormTitle">Novo Fornecedor</div>
+    <input type="hidden" id="sfId">
+    <div class="adm-form-group"><label class="adm-form-label">Nome *</label><input type="text" id="sfName" class="adm-form-input" placeholder="Ex: Ervas & Raízes"></div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Tipo</label><input type="text" id="sfType" class="adm-form-input" placeholder="Produtor Orgânico"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Cidade</label><input type="text" id="sfCity" class="adm-form-input" placeholder="São Paulo, SP"></div>
+    </div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Desde</label><input type="text" id="sfSince" class="adm-form-input" placeholder="2008"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Certificação</label><input type="text" id="sfCert" class="adm-form-input" placeholder="IBD Orgânico"></div>
+    </div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Envio</label><input type="text" id="sfShip" class="adm-form-input" placeholder="Todo Brasil"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Pedido mínimo</label><input type="text" id="sfMinOrder" class="adm-form-input" placeholder="R$ 80"></div>
+    </div>
+    <div class="adm-form-group"><label class="adm-form-label">Ervas (separar por vírgula)</label><input type="text" id="sfHerbs" class="adm-form-input" placeholder="Camomila, Melissa, Erva Cidreira"></div>
+    <label class="adm-form-check"><input type="checkbox" id="sfActive" checked> Ativo</label>
+    <div class="adm-form-actions">
+      <button class="adm-btn" onclick="closeSupplierForm()">Cancelar</button>
+      <button class="adm-btn primary" onclick="saveSupplier()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="adm-toast" id="admToast"></div>
 
 <!-- SCRIPTS -->

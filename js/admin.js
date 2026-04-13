@@ -62,6 +62,7 @@ function showSection(id){
   if(id==='herbs')loadHerbs();
   if(id==='products')loadProducts();
   if(id==='news')loadNews();
+  if(id==='suppliers')loadSuppliers();
 }
 
 // ── TOAST ──
@@ -73,15 +74,17 @@ function admToast(msg){
 
 // ── DASHBOARD ──
 async function loadDashboard(){
-  const [users,herbs,products,news]=await Promise.all([
+  const [users,herbs,products,suppliers,news]=await Promise.all([
     sb.from('user_profiles').select('id',{count:'exact',head:true}),
     sb.from('admin_herbs').select('id',{count:'exact',head:true}),
     sb.from('admin_products').select('id',{count:'exact',head:true}),
+    sb.from('admin_suppliers').select('id',{count:'exact',head:true}),
     sb.from('admin_news').select('id',{count:'exact',head:true}),
   ]);
   document.getElementById('statUsers').textContent=users.count||0;
   document.getElementById('statHerbs').textContent=herbs.count||0;
   document.getElementById('statProducts').textContent=products.count||0;
+  document.getElementById('statSuppliers').textContent=suppliers.count||0;
   document.getElementById('statNews').textContent=news.count||0;
 }
 
@@ -326,6 +329,73 @@ async function deleteNews(id,title){
   if(!confirm(`Excluir "${title}"?`))return;
   await sb.from('admin_news').delete().eq('id',id);
   admToast('Notícia excluída');loadNews();loadDashboard();
+}
+
+// ══════════════════════════════════════
+// SUPPLIERS
+// ══════════════════════════════════════
+let allSuppliers=[];
+async function loadSuppliers(){
+  const {data}=await sb.from('admin_suppliers').select('*').order('created_at',{ascending:false});
+  allSuppliers=data||[];
+  renderSuppliersAdmin(allSuppliers);
+}
+function renderSuppliersAdmin(list){
+  const tbody=document.getElementById('suppliersBody');
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--adm-muted);padding:2rem">Nenhum fornecedor cadastrado.</td></tr>';return;}
+  tbody.innerHTML=list.map(s=>`<tr>
+    <td><strong>${esc(s.name)}</strong></td>
+    <td><span class="adm-badge gold">${esc(s.type||'')}</span></td>
+    <td style="font-size:.78rem">${esc(s.city||'')}</td>
+    <td style="font-size:.78rem">${esc(s.certification||'')}</td>
+    <td style="font-size:.72rem;color:var(--adm-muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(s.herbs||[]).map(h=>esc(h)).join(', ')}</td>
+    <td style="white-space:nowrap">
+      <button class="adm-btn" onclick="editSupplier('${s.id}')">Editar</button>
+      <button class="adm-btn danger" onclick="deleteSupplier('${s.id}','${esc(s.name)}')">Excluir</button>
+    </td>
+  </tr>`).join('');
+}
+function openSupplierForm(s){
+  const m=document.getElementById('supplierModal');
+  document.getElementById('supplierFormTitle').textContent=s?'Editar Fornecedor':'Novo Fornecedor';
+  document.getElementById('sfId').value=s?.id||'';
+  document.getElementById('sfName').value=s?.name||'';
+  document.getElementById('sfType').value=s?.type||'';
+  document.getElementById('sfCity').value=s?.city||'';
+  document.getElementById('sfSince').value=s?.since||'';
+  document.getElementById('sfCert').value=s?.certification||'';
+  document.getElementById('sfShip').value=s?.shipping||'';
+  document.getElementById('sfMinOrder').value=s?.min_order||'';
+  document.getElementById('sfHerbs').value=(s?.herbs||[]).join(', ');
+  document.getElementById('sfActive').checked=s?.active!==false;
+  m.classList.add('on');
+}
+function editSupplier(id){openSupplierForm(allSuppliers.find(s=>s.id===id));}
+function closeSupplierForm(){document.getElementById('supplierModal').classList.remove('on');}
+async function saveSupplier(){
+  const id=document.getElementById('sfId').value;
+  const row={
+    name:document.getElementById('sfName').value.trim(),
+    type:document.getElementById('sfType').value.trim()||null,
+    city:document.getElementById('sfCity').value.trim()||null,
+    since:document.getElementById('sfSince').value.trim()||null,
+    certification:document.getElementById('sfCert').value.trim()||null,
+    shipping:document.getElementById('sfShip').value.trim()||null,
+    min_order:document.getElementById('sfMinOrder').value.trim()||null,
+    herbs:document.getElementById('sfHerbs').value.split(',').map(s=>s.trim()).filter(Boolean),
+    active:document.getElementById('sfActive').checked,
+  };
+  if(!row.name){admToast('Nome é obrigatório');return;}
+  let error;
+  if(id){({error}=await sb.from('admin_suppliers').update(row).eq('id',id));}
+  else{row.created_by=admUser.id;({error}=await sb.from('admin_suppliers').insert(row));}
+  if(error){admToast('Erro: '+error.message);return;}
+  closeSupplierForm();admToast(id?'Fornecedor atualizado':'Fornecedor criado');loadSuppliers();loadDashboard();
+}
+async function deleteSupplier(id,name){
+  if(!confirm(`Excluir "${name}"?`))return;
+  await sb.from('admin_suppliers').delete().eq('id',id);
+  admToast('Fornecedor excluído');loadSuppliers();loadDashboard();
 }
 
 // ── UTILS ──
