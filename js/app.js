@@ -1,0 +1,2299 @@
+// ── UTILS ─────────────────────────────────────────────────────────────────
+
+/** Escapa HTML para prevenir XSS ao interpolar dados em innerHTML */
+function esc(s){
+  if(s==null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── DATA ──────────────────────────────────────────────────────────────────
+
+const HERBS = [
+  {id:1,n:"Camomila",lat:"Matricaria chamomilla",icon:"🌼",cat:"Calmante",ef:"Calmante suave, anti-inflamatória, digestiva",detail:"Apigenina se liga aos receptores GABA, promovendo relaxamento. Ideal para insônia leve, cólicas e digestão irritada. Segura para crianças, idosos e gestantes.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2-3x ao dia",tags:["calmante","digestiva","anti-inflamatória","sono"],momento:["tarde","qualquer"]},
+  {id:2,n:"Valeriana",lat:"Valeriana officinalis",icon:"🌸",cat:"Sono",ef:"Sedativa potente, insônia, ansiedade grave",detail:"Actua diretamente no GABA. Reduz tempo para adormecer em 30-60 min. Não associar com álcool ou benzodiazepínicos. Evitar em depressão.",safe:["hipertensos"],avoid:["gestantes","antes de dirigir"],temp:"85°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"1x à noite",tags:["sono","ansiedade","sedativa","calmante"],momento:["noite"]},
+  {id:3,n:"Maracujá",lat:"Passiflora edulis",icon:"🍃",cat:"Calmante",ef:"Ansiolítico natural, relaxante, sono",detail:"Comparado a benzodiazepínicos suaves em estudos clínicos. Ideal para ansiedade com componente físico (taquicardia, tensão muscular). Seguro para uso diário.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia + noite",tags:["ansiedade","sono","calmante","taquicardia"],momento:["noite","tarde"]},
+  {id:4,n:"Melissa",lat:"Melissa officinalis",icon:"🍃",cat:"Calmante",ef:"Calmante, antidepressiva suave, digestiva",detail:"Inibe MAO-B, elevando serotonina e dopamina naturalmente. Excelente para quem 'não consegue parar de pensar'. Sabor agradável de limão. Sem risco de dependência.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["ansiedade","digestiva","calmante","antidepressiva"],momento:["tarde","noite","qualquer"]},
+  {id:5,n:"Gengibre",lat:"Zingiber officinale",icon:"🫚",cat:"Digestivo",ef:"Anti-náusea, digestivo, termogênico, antigripal",detail:"Procinético: acelera esvaziamento gástrico. Anti-inflamatório que inibe COX-2 e LOX. Eficaz quanto ibuprofeno para dor menstrual em estudos. Usar fresco para máximo efeito.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"3-4 fatias frescas / 300ml",freq:"conforme necessidade",tags:["digestivo","náusea","inflamação","termogênico","gripe"],momento:["manha","qualquer"]},
+  {id:6,n:"Chá Verde",lat:"Camellia sinensis",icon:"🍵",cat:"Estimulante",ef:"Foco, antioxidante, termogênico, metabolismo",detail:"L-teanina + cafeína: estado único de foco calmo. EGCG: antioxidante mais estudado do mundo. Tomar 30min antes de exercício potencializa queima de gordura.",safe:[],avoid:["gestantes","insônia","hipertensos sensíveis","após 16h"],temp:"75°C",tempo:"3-4 min",dose:"1 col. sopa / 200ml",freq:"1-2x manhã",tags:["foco","energia","metabolismo","antioxidante"],momento:["manha","tarde"]},
+  {id:7,n:"Hibisco",lat:"Hibiscus sabdariffa",icon:"🌺",cat:"Cardiovascular",ef:"Hipotensor, antioxidante, emagrecimento, vitamina C",detail:"Estudo JAMA: 3 xícaras/dia reduziram PA sistólica em média 7mmHg. Rico em antocianinas. Inibe amilase, reduzindo absorção de carboidratos. Vermelho intenso, sabor ácido.",safe:[],avoid:["gestantes","pressão baixa","uso com diuréticos"],temp:"90°C",tempo:"8 min",dose:"2 col. sopa / 300ml",freq:"2-3x ao dia",tags:["pressão","antioxidante","emagrecimento","vitamina C"],momento:["qualquer"]},
+  {id:8,n:"Alecrim",lat:"Rosmarinus officinalis",icon:"🌿",cat:"Estimulante",ef:"Foco, memória, circulação, estimulante",detail:"1,8-cineol no aroma já melhora desempenho cognitivo. Estimula circulação cerebral e periférica. Excelente para manhãs lentas e concentração. Sem cafeína.",safe:["hipertensos"],avoid:["gestantes (doses altas)","epilepsia"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 200ml",freq:"1-2x ao dia",tags:["foco","memória","energia","circulação"],momento:["manha","tarde"]},
+  {id:9,n:"Hortelã",lat:"Mentha piperita",icon:"🌿",cat:"Digestivo",ef:"Digestiva, carminativa, descongestionante, fresca",detail:"Mentol relaxa musculatura lisa intestinal. Alivia IBS em estudos clínicos. Descongestionante das vias aéreas. Frio potencializa o efeito mentolado.",safe:["hipertensos","crianças (sem óleo essencial)"],avoid:["gestantes (doses altas)","bebês (óleo)","refluxo grave"],temp:"85°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["digestivo","gases","congestão","frescor"],momento:["qualquer"]},
+  {id:10,n:"Erva-doce",lat:"Pimpinella anisum",icon:"🌾",cat:"Digestivo",ef:"Carminativa, antigases, cólicas, expectorante",detail:"Carminativo clássico: relaxa musculatura intestinal e libera gases. Seguro até para bebês (muito diluído). Combina muito bem com camomila e hortelã.",safe:["hipertensos","crianças","gestantes (uso moderado)"],avoid:[],temp:"90°C",tempo:"7 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["gases","cólicas","digestivo","expectorante"],momento:["qualquer"]},
+  {id:11,n:"Canela",lat:"Cinnamomum zeylanicum",icon:"🌿",cat:"Metabólico",ef:"Termogênica, regula glicemia, anti-inflamatória",detail:"Regula insulina, evita pico glicêmico. Termogênica e adocicada: reduz desejo por doces. Cassia tem cumarina (limitar). Prefira canela-do-ceilão.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"95°C",tempo:"10 min",dose:"1 pau ou 1 col. / 300ml",freq:"2x ao dia",tags:["metabolismo","glicemia","termogênico","digestivo"],momento:["manha","tarde"]},
+  {id:12,n:"Cúrcuma",lat:"Curcuma longa",icon:"🫚",cat:"Anti-inflamatório",ef:"Anti-inflamatório potente, hepático, antioxidante",detail:"Curcumina: inibe COX-2. Eficaz quanto ibuprofeno em artrite em estudos. Adicionar pimenta-do-reino aumenta absorção em 2000%. Leite dourado com leite vegetal.",safe:["hipertensos"],avoid:["gestantes (doses altas)","pedras na vesícula","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá + pitada pimenta / 250ml",freq:"2x ao dia",tags:["anti-inflamatório","fígado","articulações","antioxidante"],momento:["qualquer"]},
+  {id:13,n:"Alfazema",lat:"Lavandula angustifolia",icon:"💜",cat:"Calmante",ef:"Ansiolítica, sedativa suave, dor de cabeça",detail:"Estudo Lasea: eficaz quanto lorazepam para ansiedade leve. Reduz ondas beta cerebrais. Aroma + infusão combinados têm efeito sinérgico.",safe:["hipertensos"],avoid:["gestantes"],temp:"85°C",tempo:"8 min",dose:"1 col. sopa flores / 250ml",freq:"2x ao dia",tags:["ansiedade","sono","dor de cabeça","calmante"],momento:["tarde","noite"]},
+  {id:14,n:"Boldo",lat:"Peumus boldus",icon:"🍃",cat:"Digestivo",ef:"Hepático, digestivo, alivia peso pós-refeição",detail:"Colagogo clássico: estimula produção e fluxo de bile. Alivia sensação de peso em 20-30 min. Não usar por mais de 6 semanas seguidas.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","uso prolongado"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeição gordurosa",tags:["fígado","digestivo","bile","ressaca"],momento:["qualquer"]},
+  {id:15,n:"Alcachofra",lat:"Cynara scolymus",icon:"🌱",cat:"Digestivo",ef:"Detox fígado, reduz colesterol, diurética",detail:"Cinarina: aumenta produção de bile. Colerético + detox suave e progressivo. Combina com boldo para digestão pesada.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","alergia a asteráceas"],temp:"90°C",tempo:"10 min",dose:"1-2 col. sopa / 300ml",freq:"2x ao dia",tags:["fígado","colesterol","digestivo","detox"],momento:["qualquer"]},
+  {id:16,n:"Guaco",lat:"Mikania glomerata",icon:"🍃",cat:"Respiratório",ef:"Broncodilatador, expectorante, tosse, gripe",detail:"Regulamentado pela ANVISA como fitoterápico. Broncodilatador natural mais eficaz. Pode ser usado como xarope ou chá. 3-4x ao dia em crises.",safe:["hipertensos"],avoid:["gestantes","uso prolongado sem supervisão"],temp:"90°C",tempo:"10 min",dose:"2 col. sopa / 300ml",freq:"3-4x ao dia (gripe)",tags:["tosse","bronquite","gripe","expectorante"],momento:["qualquer"]},
+  {id:17,n:"Capim-Limão",lat:"Cymbopogon citratus",icon:"🌾",cat:"Calmante",ef:"Calmante, digestivo, antigripal, febre",detail:"Sabor cítrico agradável. Calmante sem sonolência intensa. Antipirétic e antigripal suave. Muito consumido no Brasil.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"90°C",tempo:"8 min",dose:"2-3 folhas frescas / 300ml",freq:"3x ao dia",tags:["calmante","febre","digestivo","cítrico"],momento:["qualquer"]},
+  {id:18,n:"Folha de Amora",lat:"Morus nigra",icon:"🍃",cat:"Hormonal",ef:"Menopausa, suores noturnos, fitoestrogênios",detail:"Fitoestrogênios reduzem sintomas da menopausa. Estudo: reduz calores em 50% em 8 semanas. Hipoglicemiante suave.",safe:["hipertensos"],avoid:["gestantes","câncer hormônio-dependente"],temp:"88°C",tempo:"10 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia",tags:["menopausa","hormônios","fitoestrogênio","hipoglicemiante"],momento:["tarde","noite"]},
+  {id:19,n:"Erva Cidreira",lat:"Lippia alba",icon:"🍃",cat:"Calmante",ef:"Calmante suave, digestiva, ansiedade",detail:"Calmante brasileiro clássico. Suave e seguro para toda a família. Ideal para estresse diário leve sem causar sedação.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["calmante","ansiedade","digestivo","família"],momento:["tarde","noite","qualquer"]},
+  {id:20,n:"Espinheira Santa",lat:"Maytenus ilicifolia",icon:"🌿",cat:"Digestivo",ef:"Gastrite, úlcera, acidez, antiácido natural",detail:"Antiácido e cicatrizante natural da mucosa gástrica. Regulado pela ANVISA. Tomar em jejum e antes das refeições.",safe:["hipertensos"],avoid:["gestantes","amamentação"],temp:"88°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia em jejum",tags:["gastrite","úlcera","acidez","estômago"],momento:["qualquer"]},
+  {id:21,n:"Carqueja",lat:"Baccharis trimera",icon:"🌿",cat:"Metabólico",ef:"Termogênica, digestiva, saciedade, diabetes",detail:"Termogênica e reduz absorção de gordura. Auxiliar no emagrecimento. Amargo: combinar com canela para suavizar.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"antes das refeições",tags:["emagrecimento","termogênico","diabetes","fígado"],momento:["manha","tarde"]},
+  {id:22,n:"Ginkgo Biloba",lat:"Ginkgo biloba",icon:"🍃",cat:"Cognitivo",ef:"Memória, circulação cerebral, concentração",detail:"Aumenta fluxo sanguíneo cerebral. Resultados em 4-6 semanas de uso contínuo. Evitar com anticoagulantes.",safe:["hipertensos"],avoid:["gestantes","anticoagulantes","antes de cirurgia"],temp:"90°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"2x ao dia",tags:["memória","foco","circulação","cognitivo"],momento:["manha","tarde"]},
+  {id:23,n:"Hibisco Azul",lat:"Clitoria ternatea",icon:"💙",cat:"Cognitivo",ef:"Antioxidante, memória, ansiedade, muda de cor",detail:"Muda de roxo para rosa/vermelho com limão (antocianinas sensíveis ao pH). Antioxidante cerebral. Estudos mostram melhora em testes cognitivos.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"5 min",dose:"1-2 col. sopa / 250ml",freq:"1-2x ao dia",tags:["cognitivo","antioxidante","memória","beleza"],momento:["tarde","qualquer"]},
+  {id:24,n:"Calêndula",lat:"Calendula officinalis",icon:"🌸",cat:"Pele",ef:"Cicatrizante, anti-inflamatória, antifúngica",detail:"Cicatrizante interno e externo. Anti-inflamatória da mucosa e pele. Usar também como compressa.",safe:["hipertensos"],avoid:["gestantes","alergia a asteráceas"],temp:"88°C",tempo:"8 min",dose:"1-2 col. sopa flores / 250ml",freq:"2-3x ao dia",tags:["pele","cicatrizante","anti-inflamatório","gastrite"],momento:["qualquer"]},
+  {id:25,n:"Rooibos",lat:"Aspalathus linearis",icon:"🍃",cat:"Antioxidante",ef:"Antioxidante potente, sem cafeína, anti-aging",detail:"Antioxidante 50x mais potente que chá verde segundo alguns estudos. Sem cafeína: ideal à tarde e noite. Rico em minerais.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"95°C",tempo:"5-7 min",dose:"1-2 col. sopa / 300ml",freq:"a qualquer hora",tags:["antioxidante","sem cafeína","anti-aging","pele"],momento:["tarde","noite","qualquer"]},
+  {id:26,n:"Ashwagandha",lat:"Withania somnifera",icon:"🌿",cat:"Adaptogênico",ef:"Reduz cortisol, estresse, energia, libido",detail:"Reduce cortisol em até 30% em estudos. Adaptogênico: acalma sob estresse, energiza sob fadiga. Resultados em 4-8 semanas.",safe:["hipertensos"],avoid:["gestantes","hipertireoidismo","doenças autoimunes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá pó / 250ml",freq:"2x ao dia",tags:["adaptogênico","estresse","cortisol","libido"],momento:["tarde","noite"]},
+  {id:27,n:"Guaraná",lat:"Paullinia cupana",icon:"🫐",cat:"Estimulante",ef:"Estimulante, foco, metabolismo, emagrecimento",detail:"Cafeína de liberação mais lenta que o café. Menos pico e queda. Rico em taninos e guaranina.",safe:[],avoid:["gestantes","hipertensos","insônia","crianças","após 15h"],temp:"85°C",tempo:"5 min",dose:"1/2 col. chá pó / 250ml",freq:"1x manhã",tags:["energia","foco","metabolismo","estimulante"],momento:["manha"]},
+  {id:28,n:"Tomilho",lat:"Thymus vulgaris",icon:"🌿",cat:"Respiratório",ef:"Expectorante, antisséptico, tosse, bronquite",detail:"Timol: antisséptico pulmonar potente. Usado como xarope na Europa há séculos. Dissolve muco e desinfeta vias aéreas.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia",tags:["tosse","expectorante","bronquite","antisséptico"],momento:["qualquer"]},
+];
+
+const SUPPLIERS = [
+  {id:1,name:"Ervas & Raízes",type:"Produtor Orgânico",city:"São Paulo, SP",since:"2008",cert:"IBD Orgânico",ship:"Todo Brasil",minOrder:"R$ 80",herbs:["Camomila","Melissa","Erva Cidreira","Calêndula","Alfazema"],color:"#2d5a3a"},
+  {id:2,name:"Casa das Plantas",type:"Ervateiro Tradicional",city:"Belo Horizonte, MG",since:"1992",cert:"Artesanal",ship:"Sul/Sudeste",minOrder:"R$ 50",herbs:["Boldo","Guaco","Carqueja","Arruda","Erva-doce"],color:"#4a3a1a"},
+  {id:3,name:"Phytofarm Brasil",type:"Distribuidor Nacional",city:"Curitiba, PR",since:"2005",cert:"GMP + ANVISA",ship:"Todo Brasil",minOrder:"R$ 120",herbs:["Ginkgo Biloba","Ashwagandha","Bacopa","Valeriana","Rooibos"],color:"#2a3a5a"},
+  {id:4,name:"Verde Vivo",type:"Orgânico & Biodinâmico",city:"Florianópolis, SC",since:"2015",cert:"Demeter Biodinâmico",ship:"Todo Brasil",minOrder:"R$ 100",herbs:["Cúrcuma","Gengibre","Canela","Hibisco","Capim-Limão"],color:"#3a5a2a"},
+  {id:5,name:"Temperos do Cerrado",type:"Produtor Regional",city:"Goiânia, GO",since:"2010",cert:"Agroecológico",ship:"Centro-Oeste/Norte",minOrder:"R$ 60",herbs:["Espinheira Santa","Barbatimão","Sucupira","Jatobá","Pau-terra"],color:"#5a4a1a"},
+  {id:6,name:"TeaImport",type:"Importador Especializado",city:"São Paulo, SP",since:"2012",cert:"SIF + Vigilância",ship:"Todo Brasil",minOrder:"R$ 150",herbs:["Chá Verde","Chá Branco","Rooibos","Hibisco Azul","Tulsi"],color:"#1a3a5a"},
+];
+
+const PRODUCTS = [
+  {id:1,name:"Camomila Orgânica",sup:"Ervas & Raízes",icon:"🌼",cat:"Folhas Secas",price:12.90,unit:"50g",stock:"in",supId:1},
+  {id:2,name:"Melissa Premium",sup:"Ervas & Raízes",icon:"🍃",cat:"Folhas Secas",price:14.50,unit:"30g",stock:"in",supId:1},
+  {id:3,name:"Blend Serenidade",sup:"Ervas & Raízes",icon:"💜",cat:"Blends",price:28.90,unit:"60g",stock:"in",supId:1},
+  {id:4,name:"Boldo do Chile",sup:"Casa das Plantas",icon:"🍃",cat:"Folhas Secas",price:8.90,unit:"50g",stock:"in",supId:2},
+  {id:5,name:"Guaco 100% Natural",sup:"Casa das Plantas",icon:"🌿",cat:"Folhas Secas",price:11.90,unit:"40g",stock:"low",supId:2},
+  {id:6,name:"Ginkgo Biloba Extrato",sup:"Phytofarm Brasil",icon:"🍃",cat:"Extratos",price:34.90,unit:"30g",stock:"in",supId:3},
+  {id:7,name:"Ashwagandha Raiz Pó",sup:"Phytofarm Brasil",icon:"🌿",cat:"Pós",price:42.90,unit:"100g",stock:"in",supId:3},
+  {id:8,name:"Valeriana Orgânica",sup:"Phytofarm Brasil",icon:"🌸",cat:"Folhas Secas",price:18.90,unit:"30g",stock:"in",supId:3},
+  {id:9,name:"Cúrcuma + Pimenta",sup:"Verde Vivo",icon:"🫚",cat:"Blends",price:22.90,unit:"80g",stock:"in",supId:4},
+  {id:10,name:"Gengibre Desidratado",sup:"Verde Vivo",icon:"🫚",cat:"Especiarias",price:16.90,unit:"100g",stock:"in",supId:4},
+  {id:11,name:"Hibisco Flores Secas",sup:"Verde Vivo",icon:"🌺",cat:"Flores",price:13.90,unit:"40g",stock:"in",supId:4},
+  {id:12,name:"Chá Verde Sencha",sup:"TeaImport",icon:"🍵",cat:"Chás Finos",price:38.90,unit:"50g",stock:"in",supId:6},
+  {id:13,name:"Rooibos Orgânico",sup:"TeaImport",icon:"🍃",cat:"Chás Finos",price:29.90,unit:"80g",stock:"in",supId:6},
+  {id:14,name:"Hibisco Azul",sup:"TeaImport",icon:"💙",cat:"Chás Finos",price:45.90,unit:"30g",stock:"low",supId:6},
+  {id:15,name:"Kit Blend Digestivo",sup:"Verde Vivo",icon:"🌿",cat:"Kits",price:54.90,unit:"kit 3 ervas",stock:"in",supId:4},
+  {id:16,name:"Infusor Aço Inox",sup:"Ervas & Raízes",icon:"🫖",cat:"Acessórios",price:24.90,unit:"1 unid",stock:"in",supId:1},
+];
+
+// STATE — safe localStorage parser with fallback
+function safeLoad(key, fallback){
+  try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(fallback) ? (Array.isArray(v) ? v : fallback) : (v && typeof v === 'object' ? v : fallback); }
+  catch(e){ return fallback; }
+}
+let favorites = safeLoad('erb_favs', []);
+let blendTray = safeLoad('erb_tray', []);
+let savedRecipes = safeLoad('erb_recipes', []);
+let cart = safeLoad('erb_cart', []);
+let activeFilters = {search:'',cat:'Todos',safe:'',avoid:'',momento:''};
+let wizState = {sintomas:[],hora:'',sabor:''};
+let activeSup = 'Todos';
+let activeShopCat = 'Todos';
+let currentHerb = null;
+
+// ── NAVIGATION ──
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(id==='favs') renderFavs();
+  if(id==='suppliers') renderSuppliers();
+  if(id==='shop') renderShop();
+  if(id==='roda') initRoda();
+  if(id==='perfil') renderPerfil();
+}
+
+// ── FILTER STATE — 3 independent dimensions ──
+// activeFilters.cat   = category string | 'Todos'
+// activeFilters.safe  = safe/avoid id string | ''
+// activeFilters.momento = moment id string | ''
+
+// ── RING DATA ──
+const CATS = ['Todos','Calmante','Sono','Digestivo','Estimulante','Respiratório','Metabólico','Cognitivo','Hormonal','Cardiovascular','Anti-inflamatório','Antioxidante','Adaptogênico','Pele'];
+const SAFE_OPTIONS = [{id:'gestantes',label:'Seguro Gestantes',cls:'safe'},{id:'hipertensos',label:'Seguro Hipertensos',cls:'safe'},{id:'crianças',label:'Seguro Crianças',cls:'safe'},{id:'sem-cafeina',label:'Sem Cafeína',cls:'safe'},{id:'evitar-gestantes',label:'Evitar Gestantes',cls:'danger'},{id:'evitar-hipertensos',label:'Evitar Hipertensos',cls:'danger'}];
+
+const WHEEL_CATS = ['Calmante','Sono','Digestivo','Estimulante','Respiratório','Metabólico','Cognitivo','Hormonal','Cardiovasc.','Anti-inflam.','Antioxidante','Adaptogên.','Pele'];
+const CAT_COLORS = ['#2d5a4a','#1e3d5c','#5a3a1a','#3a5a1e','#1e4a3a','#5a4a1a','#3a2d6b','#6b3a5a','#6b2d3a','#4a1e4a','#2d4a6b','#3d5a2a','#5a3a4a'];
+
+const RING2 = [
+  {id:'gestantes', label:'Gestantes', color:'#2d5a3a', type:'safe'},
+  {id:'hipertensos',label:'Hipertensos',color:'#1e3d5c', type:'safe'},
+  {id:'crianças',  label:'Crianças',   color:'#3a4a2a', type:'safe'},
+  {id:'sem-cafeina',label:'S/ Cafeína',color:'#4a3a2a', type:'safe'},
+  {id:'evitar-gestantes',  label:'Evitar Gest.', color:'#5a2a2a', type:'avoid'},
+  {id:'evitar-hipertensos',label:'Evitar Hiper.',color:'#4a2a3a', type:'avoid'},
+];
+
+// Ring 3: moment — each has tags that map to herb tags
+const RING3 = [
+  {id:'manha', label:'Manhã',   color:'#7a5c2a', tags:['energia','estimulante','termogênico','foco'],
+   desc:'Ervas energizantes, termogênicas e de foco para começar o dia com disposição.'},
+  {id:'tarde',  label:'Tarde',   color:'#3a5a2a', tags:['foco','digestivo','antioxidante'],
+   desc:'Ervas digestivas e de foco para a tarde produtiva, sem comprometer o sono.'},
+  {id:'noite',  label:'Noite',   color:'#1a2a4a', tags:['sono','calmante','ansiedade'],
+   desc:'Ervas calmantes e sedativas para relaxar e preparar o corpo para o descanso.'},
+  {id:'qualquer',label:'Sempre', color:'#2d3a2d', tags:['digestivo','anti-inflamatório','antioxidante'],
+   desc:'Ervas de uso livre, seguras e benéficas em qualquer horário do dia.'},
+];
+
+// Context descriptions per ring selection
+const CAT_CONTEXT = {
+  'Calmante':'Ervas que reduzem excitação do sistema nervoso, aliviam ansiedade e promovem relaxamento físico e mental.',
+  'Sono':'Ervas sedativas e hipnóticas que facilitam adormecer e melhoram a qualidade do sono profundo.',
+  'Digestivo':'Ervas que estimulam a digestão, eliminam gases, protegem a mucosa e suportam fígado e vesícula.',
+  'Estimulante':'Ervas que elevam energia, foco e disposição através de cafeína natural ou compostos adaptogênicos.',
+  'Respiratório':'Ervas broncodilatadoras, expectorantes e descongestionantes para vias aéreas e pulmões.',
+  'Metabólico':'Ervas termogênicas que aceleram o metabolismo, regulam glicemia e apoiam o emagrecimento.',
+  'Cognitivo':'Ervas nootrópicas que melhoram memória, concentração, circulação cerebral e clareza mental.',
+  'Hormonal':'Ervas com fitoestrogênios e reguladores do ciclo feminino, menopausa e equilíbrio endócrino.',
+  'Cardiovascular':'Ervas hipotensoras, vasodilatadoras e protetoras do coração e sistema circulatório.',
+  'Anti-inflamatório':'Ervas que inibem vias inflamatórias (COX-2, LOX), aliviando dores e inflamações sistêmicas.',
+  'Antioxidante':'Ervas ricas em polifenóis, antocianinas e catequinas que combatem radicais livres e envelhecimento.',
+  'Adaptogênico':'Ervas que equilibram o organismo sob estresse — acalmam quando agitado, energizam quando fatigado.',
+  'Pele':'Ervas depurativas, cicatrizantes e antioxidantes que melhoram a pele de dentro para fora.',
+};
+
+const SAFE_CONTEXT = {
+  'gestantes':'Filtrando apenas ervas seguras e comprovadas para gestantes. Excluindo estimulantes, abortivos e contraindicados.',
+  'hipertensos':'Mostrando ervas seguras para hipertensos. Excluindo estimulantes e vasoconstritores.',
+  'crianças':'Ervas suaves e seguras para uso infantil, sem sedativos fortes nem estimulantes.',
+  'sem-cafeina':'Excluindo todas as ervas com cafeína, mateína ou guaranina. Ideal para à noite ou sensíveis.',
+  'evitar-gestantes':'Atenção: estas ervas devem ser evitadas na gestação. Use com acompanhamento profissional.',
+  'evitar-hipertensos':'Atenção: estas ervas podem elevar pressão ou interagir com anti-hipertensivos.',
+};
+
+// HERB_MOMENTO agora integrado em HERBS[].momento
+
+// ── WHEEL ENGINE ──
+let wheelHov1=-1, wheelHov2=-1, wheelHov3=-1;
+const wheelCanvas = document.getElementById('filterWheel');
+const wheelCtx = wheelCanvas.getContext('2d');
+const WHEEL_SIZE = 320, WHEEL_CX = WHEEL_SIZE/2, WHEEL_CY = WHEEL_SIZE/2;
+const R_OUTERER = 152, R_MIDDLEDLE = 108, R_INNER = 70, R_CENTER = 36; // ring radii (px)
+
+function lightenW(hex,amt){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.min(255,r+Math.round(90*amt))},${Math.min(255,g+Math.round(90*amt))},${Math.min(255,b+Math.round(90*amt))})`;
+}
+
+function getRing(mx,my){
+  const dx=mx-WHEEL_CX, dy=my-WHEEL_CY, d=Math.sqrt(dx*dx+dy*dy);
+  if(d<R_CENTER) return {ring:0,idx:-1};
+  let a=Math.atan2(dy,dx)+Math.PI/2;
+  if(a<0)a+=2*Math.PI; if(a>=2*Math.PI)a-=2*Math.PI;
+  if(d<=R_INNER)  return {ring:3, idx:Math.floor(a/(2*Math.PI/RING3.length))%RING3.length};
+  if(d<=R_MIDDLE) return {ring:2, idx:Math.floor(a/(2*Math.PI/RING2.length))%RING2.length};
+  if(d<=R_OUTER) return {ring:1, idx:Math.floor(a/(2*Math.PI/WHEEL_CATS.length))%WHEEL_CATS.length};
+  return {ring:0,idx:-1};
+}
+
+function drawRingSlices(n, rOuter, rInner, items, getColor, isSel, isHov, getLabel){
+  const arc=2*Math.PI/n, start=-Math.PI/2;
+  items.forEach((item,i)=>{
+    const a0=start+i*arc, a1=a0+arc;
+    const sel=isSel(i), hov=isHov(i);
+    // slice
+    wheelCtx.beginPath(); wheelCtx.moveTo(WHEEL_CX,WHEEL_CY);
+    wheelCtx.arc(WHEEL_CX,WHEEL_CY,rOuter,a0,a1); wheelCtx.closePath();
+    wheelCtx.fillStyle = sel ? lightenW(getColor(i),.42) : hov ? lightenW(getColor(i),.2) : getColor(i);
+    wheelCtx.fill();
+    // border
+    wheelCtx.strokeStyle = sel ? 'rgba(200,168,75,.7)' : 'rgba(11,10,8,.65)';
+    wheelCtx.lineWidth = sel ? 1.5 : 1;
+    wheelCtx.stroke();
+    // selected glow ring
+    if(sel){
+      wheelCtx.beginPath(); wheelCtx.moveTo(WHEEL_CX,WHEEL_CY);
+      wheelCtx.arc(WHEEL_CX,WHEEL_CY,rOuter-1,a0+.02,a1-.02); wheelCtx.closePath();
+      wheelCtx.strokeStyle='rgba(240,217,138,.35)'; wheelCtx.lineWidth=2; wheelCtx.stroke();
+    }
+    // label
+    const mA=a0+arc/2, lr=(rOuter+rInner)/2;
+    const lx=WHEEL_CX+lr*Math.cos(mA), ly=WHEEL_CY+lr*Math.sin(mA);
+    wheelCtx.save(); wheelCtx.translate(lx,ly); wheelCtx.rotate(mA+Math.PI/2);
+    wheelCtx.fillStyle = sel?'#f0d98a': hov?'#e6c96e':'rgba(235,225,205,.75)';
+    const fsize = rOuter===R_OUTER ? 9 : rOuter===R_MIDDLE ? 8 : 8;
+    wheelCtx.font=`${sel?'500':'400'} ${fsize}px Jost,sans-serif`;
+    wheelCtx.textAlign='center'; wheelCtx.textBaseline='middle';
+    const lbl=getLabel(i); const parts=lbl.split(' ');
+    if(parts.length>1){ wheelCtx.fillText(parts[0],0,-5); wheelCtx.fillText(parts.slice(1).join(' '),0,5); }
+    else wheelCtx.fillText(lbl,0,0);
+    wheelCtx.restore();
+  });
+}
+
+function drawWheel(){
+  wheelCtx.clearRect(0,0,WHEEL_SIZE,WHEEL_SIZE);
+
+  // Ring 1: Categories (outer)
+  drawRingSlices(WHEEL_CATS.length, R_OUTER, R_MIDDLE, WHEEL_CATS,
+    i=>CAT_COLORS[i],
+    i=>activeFilters.cat===WHEEL_CATS[i],
+    i=>wheelHov1===i,
+    i=>WHEEL_CATS[i]);
+
+  // Ring 2: Safe/Avoid (middle)
+  drawRingSlices(RING2.length, R_MIDDLE, R_INNER, RING2,
+    i=>RING2[i].color,
+    i=>activeFilters.safe===RING2[i].id,
+    i=>wheelHov2===i,
+    i=>RING2[i].label);
+
+  // Ring 3: Momento (inner)
+  drawRingSlices(RING3.length, R_INNER, R_CENTER, RING3,
+    i=>RING3[i].color,
+    i=>activeFilters.momento===RING3[i].id,
+    i=>wheelHov3===i,
+    i=>RING3[i].label);
+
+  // Ring separator lines
+  [R_MIDDLE,R_INNER].forEach(r=>{
+    wheelCtx.beginPath(); wheelCtx.arc(WHEEL_CX,WHEEL_CY,r,0,Math.PI*2);
+    wheelCtx.strokeStyle='rgba(200,168,75,.3)'; wheelCtx.lineWidth=1.5; wheelCtx.stroke();
+  });
+  // outer ring
+  wheelCtx.beginPath(); wheelCtx.arc(WHEEL_CX,WHEEL_CY,R_OUTER+3,0,Math.PI*2);
+  wheelCtx.strokeStyle='rgba(200,168,75,.12)'; wheelCtx.lineWidth=1; wheelCtx.stroke();
+
+  // Center
+  wheelCtx.beginPath(); wheelCtx.arc(WHEEL_CX,WHEEL_CY,R_CENTER,0,Math.PI*2);
+  wheelCtx.fillStyle='#0b0a08'; wheelCtx.fill();
+  wheelCtx.strokeStyle='rgba(200,168,75,.45)'; wheelCtx.lineWidth=1.5; wheelCtx.stroke();
+
+  updateWheelCenter();
+  updateFilterContext();
+  buildLegend();
+}
+
+// Hover
+wheelCanvas.addEventListener('mousemove',e=>{
+  const rect=wheelCanvas.getBoundingClientRect();
+  const {ring,idx}=getRing(e.clientX-rect.left, e.clientY-rect.top);
+  wheelHov1=ring===1?idx:-1; wheelHov2=ring===2?idx:-1; wheelHov3=ring===3?idx:-1;
+  wheelCanvas.style.cursor=(ring>0&&idx>=0)?'pointer':'default';
+  drawWheel();
+});
+wheelCanvas.addEventListener('mouseleave',()=>{ wheelHov1=wheelHov2=wheelHov3=-1; drawWheel(); });
+
+// Click — each ring is fully independent
+function handleWheelClick(ring,idx){
+  if(ring===1 && idx>=0){
+    const cat=WHEEL_CATS[idx];
+    activeFilters.cat = activeFilters.cat===cat ? 'Todos' : cat;
+  } else if(ring===2 && idx>=0){
+    const item=RING2[idx];
+    activeFilters.safe = activeFilters.safe===item.id ? '' : item.id;
+  } else if(ring===3 && idx>=0){
+    const m=RING3[idx];
+    activeFilters.momento = activeFilters.momento===m.id ? '' : m.id;
+  }
+  drawWheel(); buildFilters(); renderHerbs();
+}
+wheelCanvas.addEventListener('click',e=>{
+  const rect=wheelCanvas.getBoundingClientRect();
+  const {ring,idx}=getRing(e.clientX-rect.left,e.clientY-rect.top);
+  handleWheelClick(ring,idx);
+});
+wheelCanvas.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  const t=e.touches[0], rect=wheelCanvas.getBoundingClientRect();
+  const {ring,idx}=getRing(t.clientX-rect.left,t.clientY-rect.top);
+  handleWheelClick(ring,idx);
+},{passive:false});
+
+function updateWheelCenter(){
+  const activeCount = [
+    activeFilters.cat&&activeFilters.cat!=='Todos',
+    activeFilters.safe!=='',
+    activeFilters.momento!=='',
+  ].filter(Boolean).length;
+  const el=document.getElementById('wcCat');
+  if(activeCount===0){ el.textContent='Toque\num anel'; el.style.fontSize='.55rem'; }
+  else { el.textContent=`${activeCount} filtro${activeCount>1?'s':''}`;  el.style.fontSize='.65rem'; }
+  // lines
+  const parts=[];
+  if(activeFilters.cat&&activeFilters.cat!=='Todos') parts.push(activeFilters.cat);
+  if(activeFilters.safe) parts.push(RING2.find(r=>r.id===activeFilters.safe)?.label||'');
+  if(activeFilters.momento) parts.push(RING3.find(r=>r.id===activeFilters.momento)?.label||'');
+  document.getElementById('wcSafe').textContent=parts.join(' + ');
+}
+
+function updateFilterContext(){
+  const box=document.getElementById('filterContext');
+  if(!box) return;
+  const lines=[];
+  if(activeFilters.momento){
+    const m=RING3.find(r=>r.id===activeFilters.momento);
+    if(m) lines.push({label:`Momento: ${m.label}`, text:m.desc, color:'#4a6a9a'});
+  }
+  if(activeFilters.cat&&activeFilters.cat!=='Todos'){
+    const text=CAT_CONTEXT[activeFilters.cat]||'';
+    if(text) lines.push({label:`Categoria: ${activeFilters.cat}`, text, color:'#c8a84b'});
+  }
+  if(activeFilters.safe){
+    const text=SAFE_CONTEXT[activeFilters.safe]||'';
+    if(text){
+      const item=RING2.find(r=>r.id===activeFilters.safe);
+      lines.push({label:`Filtro de segurança: ${item?.label||''}`, text, color:item?.type==='avoid'?'#c86060':'#4a8a5a'});
+    }
+  }
+  if(!lines.length){ box.innerHTML=''; box.style.display='none'; return; }
+  box.style.display='block';
+  box.innerHTML=lines.map(l=>`
+    <div style="margin-bottom:${lines.length>1?.75:0}rem;padding-left:.75rem;border-left:2px solid ${l.color}">
+      <div style="font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:${l.color};margin-bottom:2px">${l.label}</div>
+      <div style="font-size:.78rem;color:var(--cream2);line-height:1.6">${l.text}</div>
+    </div>`).join('');
+}
+
+function buildLegend(){
+  const leg=document.getElementById('wheelLegend');
+  leg.innerHTML='';
+  const rings=[
+    {label:'Categoria',    color:'#c8a84b', active: activeFilters.cat&&activeFilters.cat!=='Todos' ? activeFilters.cat : null},
+    {label:'Segurança',    color:'#4a8a5a', active: activeFilters.safe ? (RING2.find(r=>r.id===activeFilters.safe)?.label||null) : null},
+    {label:'Momento',      color:'#4a6a9a', active: activeFilters.momento ? (RING3.find(r=>r.id===activeFilters.momento)?.label||null) : null},
+  ];
+  rings.forEach(({label,color,active})=>{
+    const d=document.createElement('div');
+    d.className='legend-item'+(active?' active':'');
+    d.innerHTML=`<span class="legend-dot" style="background:${color};${active?'':'opacity:.4'}"></span>`+
+      `<span style="color:${active?color:'var(--muted)'}">${active?active:label}</span>`+
+      (active?`<span style="color:var(--muted);font-size:.65rem;margin-left:4px">✕</span>`:'');
+    if(active){
+      d.style.cursor='pointer';
+      d.onclick=()=>{
+        if(label==='Categoria') activeFilters.cat='Todos';
+        else if(label==='Segurança') activeFilters.safe='';
+        else activeFilters.momento='';
+        drawWheel(); buildFilters(); renderHerbs();
+      };
+    }
+    leg.appendChild(d);
+  });
+}
+
+// ── COLLAPSE TOGGLE ──
+let filtersOpen=false;
+function toggleFilters(){
+  filtersOpen=!filtersOpen;
+  document.getElementById('filtersCollapse').classList.toggle('open',filtersOpen);
+  document.getElementById('toggleArrow').classList.toggle('open',filtersOpen);
+}
+
+function clearAllFilters(){
+  activeFilters={search:'',cat:'Todos',safe:'',avoid:'',momento:''};
+  document.getElementById('searchInput').value='';
+  drawWheel(); buildFilters(); renderHerbs();
+  toast('Filtros limpos');
+}
+
+function buildFilters(){
+  const row = document.getElementById('filterRow');
+  row.innerHTML = '';
+  // ── label helper ──
+  const addLabel = (txt,color)=>{
+    const l=document.createElement('div');
+    l.style.cssText=`width:100%;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:${color};margin:6px 0 3px;font-weight:400`;
+    l.textContent=txt; row.appendChild(l);
+  };
+  addLabel('Categoria','#c8a84b');
+  CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='fchip'+(activeFilters.cat===c?' on':'');
+    b.textContent=c;
+    b.onclick=()=>{ activeFilters.cat=c; drawWheel(); buildFilters(); renderHerbs(); };
+    row.appendChild(b);
+  });
+  addLabel('Momento do dia','#4a6a9a');
+  RING3.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='fchip'+(activeFilters.momento===m.id?' on':'');
+    b.textContent=m.label;
+    b.onclick=()=>{ activeFilters.momento=activeFilters.momento===m.id?'':m.id; drawWheel(); buildFilters(); renderHerbs(); };
+    row.appendChild(b);
+  });
+  addLabel('Segurança','#4a8a5a');
+  SAFE_OPTIONS.forEach(s=>{
+    const b=document.createElement('button');
+    const isOn = activeFilters.safe===s.id;
+    b.className=`fchip ${s.cls}`+(isOn?' on':'');
+    b.textContent=s.label;
+    b.onclick=()=>{
+      if(s.cls==='safe') activeFilters.safe = activeFilters.safe===s.id?'':s.id;
+      else activeFilters.safe = activeFilters.safe===s.id?'':s.id;
+      drawWheel(); buildFilters(); renderHerbs();
+    };
+    row.appendChild(b);
+  });
+}
+
+/** Pure filter logic — testable without DOM */
+function filterHerbs(herbs, query, filters){
+  return herbs.filter(h=>{
+    const txt = (h.n+h.lat+h.ef+h.tags.join(' ')).toLowerCase();
+    if(query && !txt.includes(query)) return false;
+    if(filters.cat!=='Todos' && h.cat!==filters.cat) return false;
+    if(filters.momento && !(h.momento||[]).includes(filters.momento)) return false;
+    if(filters.safe==='gestantes' && !h.safe.includes('gestantes')) return false;
+    if(filters.safe==='hipertensos' && !h.safe.includes('hipertensos')) return false;
+    if(filters.safe==='crianças' && !h.safe.includes('crianças')) return false;
+    if(filters.safe==='sem-cafeina' && h.avoid.some(a=>a.includes('cafeína'))) return false;
+    if(filters.safe==='evitar-gestantes' && !h.avoid.some(a=>a.includes('gestantes'))) return false;
+    if(filters.safe==='evitar-hipertensos' && !h.avoid.some(a=>a.includes('hipertensos'))) return false;
+    return true;
+  });
+}
+
+let _herbCardsBuilt = false;
+
+function buildHerbCards(){
+  if(_herbCardsBuilt) return;
+  const grid = document.getElementById('herbGrid');
+  grid.innerHTML = HERBS.map(h=>`
+    <div class="herb-card" data-herb-id="${h.id}" onclick="openHerbModal(${h.id})">
+      <div class="hc-top">
+        <span style="font-size:1.3rem">${h.icon}</span>
+        <button class="hc-fav ${favorites.includes(h.id)?'on':''}" onclick="toggleFav(event,${h.id})" title="Favoritar" aria-label="Favoritar ${esc(h.n)}">♥</button>
+      </div>
+      <div class="hc-name">${esc(h.n)}</div>
+      <div class="hc-latin">${esc(h.lat)}</div>
+      <div class="hc-effect">${esc(h.ef)}</div>
+      <div class="hc-tags">
+        <span class="htag htag-cat">${esc(h.cat)}</span>
+        ${(h.momento||[]).map(m=>{const mo=RING3.find(r=>r.id===m); return mo?`<span class="htag" style="background:${mo.color}22;border:0.5px solid ${mo.color}44;color:${mo.color}">${esc(mo.label)}</span>`:''}).join('')}
+        ${h.safe.slice(0,1).map(s=>`<span class="htag htag-safe">✓ ${esc(s)}</span>`).join('')}
+        ${h.avoid.length?`<span class="htag htag-warn">⚠ ${esc(h.avoid[0])}</span>`:''}
+      </div>
+    </div>
+  `).join('');
+  _herbCardsBuilt = true;
+}
+
+function renderHerbs(){
+  buildHerbCards();
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const visibleIds = new Set(filterHerbs(HERBS, q, activeFilters).map(h=>h.id));
+  const grid = document.getElementById('herbGrid');
+  const cards = grid.querySelectorAll('.herb-card');
+  cards.forEach(card => {
+    const id = parseInt(card.dataset.herbId);
+    card.style.display = visibleIds.has(id) ? '' : 'none';
+    // Update fav state without full rebuild
+    const favBtn = card.querySelector('.hc-fav');
+    if(favBtn) favBtn.classList.toggle('on', favorites.includes(id));
+  });
+  // Update count summary
+  let countEl = grid.querySelector('.herb-count');
+  const hasFilter = activeFilters.cat!=='Todos'||activeFilters.safe||activeFilters.momento||q;
+  if(!countEl){ countEl=document.createElement('div'); countEl.className='herb-count'; countEl.style.cssText='font-size:.75rem;color:var(--muted);margin-bottom:.75rem;grid-column:1/-1'; grid.prepend(countEl); }
+  countEl.textContent = hasFilter ? `${visibleIds.size} de ${HERBS.length} ervas` : '';
+  countEl.style.display = hasFilter ? '' : 'none';
+  // No-results message
+  let noRes = grid.querySelector('.no-results');
+  if(!visibleIds.size && !noRes){ noRes=document.createElement('div'); noRes.className='no-results'; noRes.style.gridColumn='1/-1'; noRes.textContent='Nenhuma erva encontrada com esses filtros'; grid.appendChild(noRes); }
+  if(noRes) noRes.style.display = visibleIds.size ? 'none' : '';
+}
+
+// ── HERB MODAL ──
+function openHerbModal(id){
+  currentHerb = HERBS.find(h=>h.id===id);
+  const h = currentHerb;
+  const inTray = blendTray.includes(h.id);
+  document.getElementById('modalContent').innerHTML=`
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div style="font-size:2rem;margin-bottom:.5rem">${h.icon}</div>
+    <div class="modal-herb-name">${esc(h.n)}</div>
+    <div class="modal-latin">${esc(h.lat)}</div>
+    <div class="modal-section">
+      <div class="modal-label">Sobre</div>
+      <div class="modal-text">${esc(h.detail)}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-label">Como preparar</div>
+      <div class="prep-grid">
+        <div class="prep-item"><div class="prep-val">${esc(h.temp)}</div><div class="prep-key">Temperatura</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.tempo)}</div><div class="prep-key">Infusão</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.dose)}</div><div class="prep-key">Dose</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.freq)}</div><div class="prep-key">Frequência</div></div>
+      </div>
+    </div>
+    ${h.avoid.length?`<div class="warn-box">⚠ Contraindicações: ${h.avoid.map(a=>esc(a)).join(', ')}</div>`:''}
+    ${h.safe.length?`<div class="safe-box">✓ Seguro para: ${h.safe.map(s=>esc(s)).join(', ')}</div>`:''}
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="add-blend-btn" style="flex:1" onclick="addToTray(${h.id})">${inTray?'✓ No Blend':'+ Adicionar ao Blend'}</button>
+      <button class="add-blend-btn" style="flex:1;background:rgba(200,168,75,.15)" onclick="openTimer(${h.id})">⏱ Preparar agora</button>
+    </div>
+  `;
+  document.getElementById('herbModal').classList.add('on');
+}
+
+function closeModal(e){
+  if(!e||e.target===document.getElementById('herbModal'))
+    document.getElementById('herbModal').classList.remove('on');
+}
+
+// ── FAVORITES ──
+function toggleFav(e,id){
+  e.stopPropagation();
+  if(favorites.includes(id)) favorites=favorites.filter(f=>f!==id);
+  else favorites.push(id);
+  localStorage.setItem('erb_favs',JSON.stringify(favorites));
+  renderHerbs();
+  toast(favorites.includes(id)?'Adicionado aos favoritos':'Removido dos favoritos');
+}
+
+function renderFavs(){
+  const grid=document.getElementById('favGrid');
+  const favHerbs=HERBS.filter(h=>favorites.includes(h.id));
+  if(!favHerbs.length){ grid.innerHTML='<div class="no-results">Nenhum favorito ainda. Explore as ervas e clique em ♥</div>'; }
+  else { grid.innerHTML=favHerbs.map(h=>`
+    <div class="fav-card" onclick="openHerbModal(${h.id})">
+      <div class="fav-icon">${h.icon}</div>
+      <div><div class="fav-name">${esc(h.n)}</div><div class="fav-lat">${esc(h.lat)}</div><div class="fav-ef">${esc(h.ef.substring(0,50))}...</div></div>
+    </div>`).join(''); }
+  const sr=document.getElementById('savedRecipes');
+  if(savedRecipes.length){
+    sr.innerHTML=`<div class="sec-title" style="font-size:1.1rem;margin-bottom:.75rem">Blends Salvos</div>`+
+    savedRecipes.map((r,i)=>`
+      <div class="recipe-card">
+        <div class="recipe-header">
+          <div class="recipe-name">${esc(r.name)}</div>
+          <div class="recipe-tagline">${esc(r.tagline)}</div>
+        </div>
+        <div class="recipe-body">
+          ${r.ingredients.map(ing=>`<div class="ing-row"><div><div class="ing-name">${esc(ing.n)}</div></div><div class="ing-amount">${esc(ing.amount)}</div></div>`).join('')}
+          <button onclick="deleteSavedRecipe(${i})" style="margin-top:.75rem;background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer">🗑 Remover</button>
+        </div>
+      </div>`).join('');
+  } else { sr.innerHTML=''; }
+}
+
+function deleteSavedRecipe(i){ savedRecipes.splice(i,1); localStorage.setItem('erb_recipes',JSON.stringify(savedRecipes)); renderFavs(); }
+
+// ── BLEND TRAY ──
+function addToTray(id){
+  if(!blendTray.includes(id)) blendTray.push(id);
+  localStorage.setItem('erb_tray',JSON.stringify(blendTray));
+  renderTray(); closeModal();
+  goPage('blend');
+  document.querySelectorAll('.nav-tab')[1].click();
+  toast('Erva adicionada ao blend!');
+}
+
+function renderTray(){
+  const items=document.getElementById('trayItems');
+  if(!blendTray.length){ items.innerHTML='<span class="tray-empty">Adicione ervas da busca ao blend</span>'; return; }
+  const herbs=HERBS.filter(h=>blendTray.includes(h.id));
+  items.innerHTML=herbs.map(h=>`
+    <span class="tray-item">${h.icon} ${esc(h.n)}
+      <button class="tray-remove" onclick="removeTray(${h.id})">✕</button>
+    </span>`).join('');
+}
+
+function removeTray(id){ blendTray=blendTray.filter(i=>i!==id); localStorage.setItem('erb_tray',JSON.stringify(blendTray)); renderTray(); }
+
+// ── WIZARD ──
+const WIZ_SINTOMAS=['Insônia','Ansiedade','Dor de estômago','Gases','Estresse','Gripe/Tosse','Dor de cabeça','Cansaço','Foco','Pressão alta','TPM','Emagrecimento'];
+const WIZ_HORA=['Ao acordar','Manhã','Pós-refeição','Tarde','À noite','Antes de dormir'];
+const WIZ_SABOR=['Doce','Suave','Cítrico','Amargo','Picante','Floral'];
+
+function buildWizard(){
+  const ss=document.getElementById('wizSintomas');
+  WIZ_SINTOMAS.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='wizard-chip'+(wizState.sintomas.includes(s)?' on':'');
+    b.textContent=s;
+    b.onclick=()=>{
+      if(wizState.sintomas.includes(s)) wizState.sintomas=wizState.sintomas.filter(x=>x!==s);
+      else wizState.sintomas.push(s);
+      b.classList.toggle('on');
+    };
+    ss.appendChild(b);
+  });
+  const sh=document.getElementById('wizHora');
+  WIZ_HORA.forEach(h=>{
+    const b=document.createElement('button');
+    b.className='wizard-chip'+(wizState.hora===h?' on':'');
+    b.textContent=h;
+    b.onclick=()=>{ wizState.hora=h; sh.querySelectorAll('.wizard-chip').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+    sh.appendChild(b);
+  });
+  const sv=document.getElementById('wizSabor');
+  WIZ_SABOR.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='wizard-chip'+(wizState.sabor===s?' on':'');
+    b.textContent=s;
+    b.onclick=()=>{ wizState.sabor=s; sv.querySelectorAll('.wizard-chip').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+    sv.appendChild(b);
+  });
+}
+
+// ── BLEND RECIPES ──
+const BLEND_DB = {
+  'Insônia':{ name:'Infusão do Silêncio', tagline:'Serenidade profunda para noites difíceis',
+    ings:[{id:1,n:'Camomila',amount:'1 col. sopa cheia'},{id:3,n:'Maracujá',amount:'1 col. sopa'},{id:4,n:'Melissa',amount:'1 col. sopa'}],
+    steps:['Ferva a água até 85°C (não ferver muito).','Misture as ervas numa infusora.','Cubra e deixe em infusão por 10 minutos.','Coe e beba morno, 40 min antes de dormir.','Evite telas e luzes fortes após tomar.'],
+    effects:['Sedação suave','Reduz ruminação mental','Sem dependência'],
+    obs:'Potencialize com aromaterapia de lavanda no quarto.' },
+  'Ansiedade':{ name:'Blend da Calma Profunda', tagline:'Para momentos de tensão e nervosismo',
+    ings:[{id:3,n:'Maracujá',amount:'2 col. sopa'},{id:13,n:'Alfazema',amount:'1 col. sopa flores'},{id:4,n:'Melissa',amount:'1 col. sopa'}],
+    steps:['Aqueça água a 85°C.','Adicione as ervas e cubra bem.','Infusão de 8-10 minutos.','Coe, adicione mel se desejar.','Beba lentamente, respirando fundo.'],
+    effects:['Ansiolítico natural','Sem sonolência forte','Ação em 20-30 min'],
+    obs:'Use 2-3x ao dia em períodos de estresse intenso.' },
+  'Dor de estômago':{ name:'Elixir do Conforto Gástrico', tagline:'Alívio suave e aromático para o estômago',
+    ings:[{id:1,n:'Camomila',amount:'1 col. sopa cheia'},{id:9,n:'Hortelã',amount:'1 col. sopa'},{id:10,n:'Erva-doce',amount:'1/2 col. sopa'}],
+    steps:['Ferva água a 90°C.','Junte as três ervas juntas.','Cubra e infuse por 8 minutos.','Coe e beba morno em pequenos goles.','Deite de lado direito após tomar.'],
+    effects:['Antiespasmódico','Alivia gases e cólicas','Anti-inflamatório da mucosa'],
+    obs:'Para gastrite: substituir hortelã por espinheira santa.' },
+  'Gases':{ name:'Blend Carminativo', tagline:'Liberte os gases e alivie o desconforto',
+    ings:[{id:10,n:'Erva-doce',amount:'1 col. sopa'},{id:9,n:'Hortelã',amount:'1 col. sopa'},{id:11,n:'Canela',amount:'1 pedaço pequeno'}],
+    steps:['Aqueça a 90°C.','Junte as ervas.','Infusão coberta por 7 minutos.','Coe e beba ainda quente.','Massageie a barriga em círculos.'],
+    effects:['Carminativo potente','Relaxa musculatura intestinal','Efeito em 15-20 min'],
+    obs:'Excelente após refeições com leguminosas.' },
+  'Estresse':{ name:'Chai da Serenidade', tagline:'Conforto quente para dias pesados',
+    ings:[{id:19,n:'Erva Cidreira',amount:'2 col. sopa'},{id:17,n:'Capim-Limão',amount:'2 folhas frescas'},{id:1,n:'Camomila',amount:'1 col. sopa'}],
+    steps:['Ferva água a 88°C.','Amasse levemente o capim-limão antes.','Infuse coberto por 8 minutos.','Adicione mel a gosto.','Beba com calma, longe das telas.'],
+    effects:['Reduz cortisol','Calmante sem sedação','Aroma terapêutico'],
+    obs:'Combine com 5 minutos de respiração lenta.' },
+  'Foco':{ name:'Poção do Foco Profundo', tagline:'Clareza mental e concentração sustentada',
+    ings:[{id:6,n:'Chá Verde',amount:'1 col. sopa'},{id:8,n:'Alecrim',amount:'1 col. sopa'},{id:11,n:'Canela',amount:'1/2 col. chá'}],
+    steps:['Aqueça água a 75°C (não ferver).','Junte as ervas.','Infusão curta: 4 minutos apenas.','Coe e beba morno.','Tomar 30 min antes de estudar ou trabalhar.'],
+    effects:['L-teanina + cafeína: foco calmo','Sem ansiedade','Melhora memória de trabalho'],
+    obs:'Ideal pela manhã. Evitar após 15h.' },
+  'Cansaço':{ name:'Tônico Revigorante', tagline:'Energia limpa e sustentada para o dia',
+    ings:[{id:5,n:'Gengibre',amount:'4 fatias frescas'},{id:11,n:'Canela',amount:'1 pau pequeno'},{id:17,n:'Capim-Limão',amount:'2 folhas'}],
+    steps:['Ferva água a 95°C.','Adicione gengibre e canela primeiro.','Cozinhe por 5 minutos em fogo baixo.','Desligue, adicione capim-limão.','Infuse tampado por 5 min. Coe.'],
+    effects:['Termogênico','Circulação ativa','Energia sem pico'],
+    obs:'Com raspas de limão e mel: sabor excepcional.' },
+  'Gripe/Tosse':{ name:'Antigripal Poderoso', tagline:'Combate a gripe com força da natureza',
+    ings:[{id:5,n:'Gengibre',amount:'5 fatias frescas'},{id:16,n:'Guaco',amount:'2 col. sopa'},{id:28,n:'Tomilho',amount:'1 col. sopa'}],
+    steps:['Ferva água a 100°C.','Adicione todas as ervas.','Infusão coberta por 12 minutos.','Coe, adicione mel + limão.','Tomar 3-4x ao dia na fase aguda.'],
+    effects:['Broncodilatador','Expectorante','Antiviral natural'],
+    obs:'Potencializar com inalação de vapor de eucalipto.' },
+  'Emagrecimento':{ name:'Blend Queima-Gordura', tagline:'Acelera o metabolismo de forma natural',
+    ings:[{id:6,n:'Chá Verde',amount:'1 col. sopa'},{id:21,n:'Carqueja',amount:'1 col. sopa'},{id:7,n:'Hibisco',amount:'1 col. sopa'}],
+    steps:['Aqueça água a 80°C.','Misture as três ervas.','Infusão de 5-7 minutos.','Coe e beba sem adoçar.','Tomar 30 min antes das refeições.'],
+    effects:['Termogênico','Inibe absorção de carboidratos','Diurético suave'],
+    obs:'Associar com caminhada de 30 min diários.' },
+  'Pressão alta':{ name:'Infusão Hipotensora', tagline:'Apoio natural para pressão equilibrada',
+    ings:[{id:7,n:'Hibisco',amount:'2 col. sopa'},{id:4,n:'Melissa',amount:'1 col. sopa'},{id:17,n:'Capim-Limão',amount:'2 folhas'}],
+    steps:['Ferva água a 90°C.','Adicione as ervas.','Infusão coberta por 10 minutos.','Coe e beba sem adoçar (mel mínimo).','3 xícaras ao dia por 6+ semanas.'],
+    effects:['Hipotensor suave','Vasodilatador','Ansiolítico complementar'],
+    obs:'NÃO substituir medicação. Monitorar PA regularmente.' },
+  'TPM':{ name:'Blend da Lua', tagline:'Conforto e equilíbrio no período menstrual',
+    ings:[{id:1,n:'Camomila',amount:'2 col. sopa'},{id:4,n:'Melissa',amount:'1 col. sopa'},{id:10,n:'Erva-doce',amount:'1 col. sopa'}],
+    steps:['Ferva água a 88°C.','Misture as ervas com carinho.','Infusão de 10 minutos coberta.','Adicione mel e canela a gosto.','3x ao dia nos dias de maior desconforto.'],
+    effects:['Antiespasmódico uterino','Alivia irritabilidade','Anti-inflamatório'],
+    obs:'Adicionar folha de amora para menopausa.' },
+  'default':{ name:'Blend Equilibrante', tagline:'Harmonia e bem-estar para o dia a dia',
+    ings:[{id:19,n:'Erva Cidreira',amount:'2 col. sopa'},{id:17,n:'Capim-Limão',amount:'2 folhas'},{id:5,n:'Gengibre',amount:'2 fatias'}],
+    steps:['Ferva água a 88°C.','Junte as ervas.','Infusão coberta por 8 minutos.','Coe e personalize com mel ou limão.'],
+    effects:['Equilíbrio geral','Digestivo','Calmante suave'],
+    obs:'Ajuste as proporções ao seu gosto e necessidade.' },
+};
+
+function getSaborAdj(sabor,rec){
+  const adj={
+    'Doce':'Adicione 1 col. chá de alcaçuz ou canela para adoçar naturalmente, sem açúcar.',
+    'Suave':'Reduza as quantidades em 30% e infuse por menos tempo (5 min) para sabor mais delicado.',
+    'Cítrico':'Adicione casca de limão siciliano (1 tira) durante a infusão. Espete no final.',
+    'Amargo':'Adicione 1/4 col. de carqueja ou boldo. Beba puro.',
+    'Picante':'Adicione 2 fatias de gengibre fresco e uma pitada de pimenta caiena.',
+    'Floral':'Adicione 1 col. sopa de camomila ou rosas secas para perfumar.',
+  };
+  return adj[sabor]||'';
+}
+
+function getHoraAdj(hora){
+  const adj={
+    'Ao acordar':'Em jejum, com água a 85°C. Espere 20 min para o café.',
+    'Manhã':'Com café da manhã leve. Evitar combinação com café.',
+    'Pós-refeição':'15-20 min após comer, ainda morno.',
+    'Tarde':'Temperatura ambiente ou gelado é ótimo.',
+    'À noite':'Beba 1h antes de dormir. Luz baixa no ambiente.',
+    'Antes de dormir':'30-40 min antes de deitar. Celular fora do alcance.',
+  };
+  return adj[hora]||'';
+}
+
+function generateBlend(){
+  const sintoma = wizState.sintomas[0]||'default';
+  const obs = document.getElementById('wizObs').value;
+  const rec = BLEND_DB[sintoma]||BLEND_DB['default'];
+  const saborTip = getSaborAdj(wizState.sabor, rec);
+  const horaTip = getHoraAdj(wizState.hora);
+  const obsWarnings = obs.toLowerCase();
+  let alertBox='';
+  if(obsWarnings.includes('grávid')||obsWarnings.includes('gestante')) alertBox=`<div class="warn-box">⚠ Gestante detectada: Camomila, Erva Cidreira e Capim-Limão são seguros. Evite arruda, alfazema em doses altas e ervas estimulantes.</div>`;
+  else if(obsWarnings.includes('pressão alta')||obsWarnings.includes('hipertens')) alertBox=`<div class="warn-box">⚠ Hipertensão detectada: Evite guaraná e estimulantes fortes. Hibisco e melissa são excelentes complementos.</div>`;
+  else if(obsWarnings.includes('sem cafeína')||obsWarnings.includes('cafeina')) alertBox=`<div class="warn-box">ℹ Sem cafeína: esta combinação não contém cafeína. Você pode tomar à noite.</div>`;
+
+  document.getElementById('blendResult').innerHTML=`
+    ${alertBox}
+    <div class="recipe-card">
+      <div class="recipe-header">
+        <div class="recipe-name">${esc(rec.name)}</div>
+        <div class="recipe-tagline">${esc(rec.tagline)}</div>
+      </div>
+      <div class="recipe-body">
+        <div class="recipe-ing-title">Ingredientes e Quantidades</div>
+        ${rec.ings.map(ing=>`
+          <div class="ing-row">
+            <div>
+              <div class="ing-name">${esc(ing.n)}</div>
+              <div class="ing-latin" style="font-size:.7rem;color:var(--muted);font-style:italic">${esc(HERBS.find(h=>h.id===ing.id)?.lat||'')}</div>
+            </div>
+            <div class="ing-amount">${esc(ing.amount)}</div>
+          </div>`).join('')}
+        <div style="padding:8px 0;border-bottom:0.5px solid rgba(255,255,255,.04);color:var(--cream2);font-size:.82rem">
+          <span style="color:var(--muted)">Água:</span> 250-300ml &nbsp;|&nbsp; <span style="color:var(--muted)">Temp:</span> 85-90°C &nbsp;|&nbsp; <span style="color:var(--muted)">Infusão:</span> 8-10 min
+        </div>
+        <div class="steps-section">
+          <div class="recipe-ing-title">Modo de Preparo</div>
+          ${rec.steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${esc(s)}</div></div>`).join('')}
+          ${saborTip?`<div class="step"><div class="step-num">✦</div><div class="step-text"><strong style="color:var(--gold2)">Sabor ${esc(wizState.sabor)}:</strong> ${esc(saborTip)}</div></div>`:''}
+          ${horaTip?`<div class="step"><div class="step-num">⏰</div><div class="step-text"><strong style="color:var(--gold2)">${esc(wizState.hora)||'Uso geral'}:</strong> ${esc(horaTip)}</div></div>`:''}
+        </div>
+        <div class="effect-badges">
+          ${rec.effects.map(e=>`<span class="eff-badge">${esc(e)}</span>`).join('')}
+        </div>
+        ${rec.obs?`<div style="margin-top:.75rem;font-size:.78rem;color:var(--muted);font-style:italic;line-height:1.5">💡 ${esc(rec.obs)}</div>`:''}
+        <button class="save-recipe-btn" onclick="saveRecipe('${esc(rec.name)}')">♥ Salvar este blend</button>
+      </div>
+    </div>`;
+}
+
+function saveRecipe(name){
+  const sintoma=wizState.sintomas[0]||'default';
+  const rec=BLEND_DB[sintoma]||BLEND_DB['default'];
+  if(savedRecipes.find(r=>r.name===rec.name)){ toast('Blend já foi salvo!'); return; }
+  savedRecipes.unshift({name:rec.name,tagline:rec.tagline,ingredients:rec.ings});
+  localStorage.setItem('erb_recipes',JSON.stringify(savedRecipes));
+  toast('Blend salvo nos favoritos!');
+  document.querySelector('.save-recipe-btn').innerHTML='✓ Salvo <span class="saved-tag">✓</span>';
+}
+
+// ── SUPPLIERS ──
+const SUP_TYPES=['Todos','Produtor Orgânico','Ervateiro Tradicional','Distribuidor Nacional','Orgânico & Biodinâmico','Produtor Regional','Importador Especializado'];
+
+function renderSuppliers(){
+  const sf=document.getElementById('supFilter');
+  sf.innerHTML='';
+  SUP_TYPES.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='fchip'+(activeSup===t?' on':'');
+    b.textContent=t;
+    b.onclick=()=>{ activeSup=t; renderSuppliers(); };
+    sf.appendChild(b);
+  });
+  const list=SUPPLIERS.filter(s=>activeSup==='Todos'||s.type===activeSup);
+  document.getElementById('supGrid').innerHTML=list.map(s=>`
+    <div class="sup-card">
+      <div class="sup-header">
+        <div>
+          <div class="sup-name">${esc(s.name)}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${esc(s.city)}</div>
+        </div>
+        <span class="sup-type" style="background:${s.color}22;border-color:${s.color}55;color:${s.color}">${esc(s.type.split(' ')[0])}</span>
+      </div>
+      <div class="sup-body">
+        <div class="sup-row"><span>Desde</span>${esc(s.since)}</div>
+        <div class="sup-row"><span>Certificação</span>${esc(s.cert)}</div>
+        <div class="sup-row"><span>Envio</span>${esc(s.ship)}</div>
+        <div class="sup-row"><span>Pedido mínimo</span>${esc(s.minOrder)}</div>
+        <div class="sup-herbs">
+          ${s.herbs.map(h=>`<span class="sup-herb-tag">${esc(h)}</span>`).join('')}
+        </div>
+        <button class="shop-btn" onclick="filterShopBySup(${s.id})">Ver produtos na loja →</button>
+      </div>
+    </div>`).join('');
+}
+
+function filterShopBySup(supId){
+  goPage('shop');
+  document.querySelectorAll('.nav-tab')[4].classList.add('on');
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{ if(i!==4)t.classList.remove('on'); });
+  // highlight supplier filter
+}
+
+// ── SHOP ──
+const SHOP_CATS=['Todos','Folhas Secas','Blends','Chás Finos','Extratos','Pós','Especiarias','Flores','Kits','Acessórios'];
+
+function renderShop(){
+  const sc=document.getElementById('shopCats');
+  sc.innerHTML='';
+  SHOP_CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='fchip'+(activeShopCat===c?' on':'');
+    b.textContent=c;
+    b.onclick=()=>{ activeShopCat=c; renderProds(); document.querySelectorAll('#shopCats .fchip').forEach(x=>x.classList.remove('on')); b.classList.add('on'); };
+    sc.appendChild(b);
+  });
+  renderProds();
+  updateCartCount();
+}
+
+function renderProds(){
+  const list=PRODUCTS.filter(p=>activeShopCat==='Todos'||p.cat===activeShopCat);
+  document.getElementById('prodGrid').innerHTML=list.map(p=>{
+    const inCart=cart.some(c=>c.id===p.id);
+    return `<div class="prod-card">
+      <div class="prod-img">${p.icon}</div>
+      <div class="prod-body">
+        <div class="prod-name">${esc(p.name)}</div>
+        <div class="prod-supplier">${esc(p.sup)}</div>
+        <div class="prod-price">R$ ${p.price.toFixed(2)} <span class="prod-unit">${esc(p.unit)}</span></div>
+        <div class="prod-footer">
+          <span class="stock-badge ${p.stock==='in'?'in-stock':'low-stock'}">${p.stock==='in'?'Em estoque':'Últimas unidades'}</span>
+          <button class="add-cart ${inCart?'added':''}" onclick="addCart(${p.id})">${inCart?'✓ No carrinho':'+ Carrinho'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addCart(id){
+  const prod=PRODUCTS.find(p=>p.id===id);
+  const existing=cart.find(c=>c.id===id);
+  if(existing) existing.qty++;
+  else cart.push({...prod,qty:1});
+  localStorage.setItem('erb_cart',JSON.stringify(cart));
+  updateCartCount(); renderProds();
+  toast(`${prod.name} adicionado ao carrinho`);
+}
+
+function updateCartCount(){
+  const total=cart.reduce((s,c)=>s+c.qty,0);
+  document.getElementById('cartCount').textContent=total?`(${total})`:'';
+}
+
+function openCart(){
+  const ol=document.getElementById('cartOverlay');
+  ol.classList.toggle('on');
+  if(ol.classList.contains('on')) renderCart();
+}
+
+function closeCartOverlay(e){ if(e.target===document.getElementById('cartOverlay')) openCart(); }
+
+function renderCart(){
+  const ci=document.getElementById('cartItems');
+  const cf=document.getElementById('cartFooter');
+  if(!cart.length){ ci.innerHTML='<div class="empty-cart">Seu carrinho está vazio</div>'; cf.innerHTML=''; return; }
+  ci.innerHTML=cart.map(c=>`
+    <div class="cart-item">
+      <div class="cart-item-icon">${c.icon}</div>
+      <div class="cart-item-info">
+        <div class="cart-item-name">${esc(c.name)}</div>
+        <div class="cart-item-sup">${esc(c.sup)} · ${esc(c.unit)}</div>
+        <div class="cart-qty">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-val">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+      </div>
+      <div class="cart-item-price">R$ ${(c.price*c.qty).toFixed(2)}</div>
+    </div>`).join('');
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0);
+  const frete=sub>150?0:15.9;
+  cf.innerHTML=`<div class="cart-total">
+    <div class="total-row"><span>Subtotal</span><span>R$ ${sub.toFixed(2)}</span></div>
+    <div class="total-row"><span>Frete</span><span>${frete===0?'Grátis':'R$ '+frete.toFixed(2)}</span></div>
+    ${frete>0?`<div style="font-size:.68rem;color:var(--muted);text-align:right">Frete grátis acima de R$ 150</div>`:''}
+    <div class="total-final"><span>Total</span><span>R$ ${(sub+frete).toFixed(2)}</span></div>
+    <button class="checkout-btn" onclick="toast('Redirecionando para checkout...')">Finalizar pedido →</button>
+    <button onclick="clearCart()" style="width:100%;margin-top:.5rem;background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer">Esvaziar carrinho</button>
+  </div>`;
+}
+
+function changeQty(id,delta){
+  const item=cart.find(c=>c.id===id);
+  if(item){ item.qty+=delta; if(item.qty<=0) cart=cart.filter(c=>c.id!==id); }
+  localStorage.setItem('erb_cart',JSON.stringify(cart));
+  updateCartCount(); renderCart(); renderProds();
+}
+function clearCart(){ cart=[]; localStorage.setItem('erb_cart','[]'); updateCartCount(); renderCart(); renderProds(); }
+
+// ════════════════════════════════════════
+// ── RODA DOS CHÁS ──
+// ════════════════════════════════════════
+const RODA_LAYERS = [
+  {id:'sintoma', label:'Sintoma'},
+  {id:'sistema', label:'Sistema'},
+  {id:'momento', label:'Momento'},
+  {id:'sabor',   label:'Sabor'},
+];
+const RODA_DATA = {
+  sintoma:[
+    {name:'Insônia',color:'#1e3d5c',herbs:[{n:'Valeriana',icon:'🌸',ef:'Sedativa potente'},{n:'Maracujá',icon:'🍃',ef:'Ansiolítico natural'},{n:'Camomila',icon:'🌼',ef:'Apigenina / GABA'},{n:'Melissa',icon:'🍃',ef:'Inibe excitação neural'},{n:'Lúpulo',icon:'🌿',ef:'Sedativo forte'}],combo:['Valeriana + Maracujá','Camomila + Melissa'],prep:{temp:'85°C',tempo:'10 min',dose:'2 col / 250ml',freq:'1x à noite'}},
+    {name:'Ansiedade',color:'#2d5a4a',herbs:[{n:'Maracujá',icon:'🍃',ef:'Ansiolítico clínico'},{n:'Alfazema',icon:'💜',ef:'Reduz ondas beta'},{n:'Ashwagandha',icon:'🌿',ef:'Reduz cortisol 30%'},{n:'Melissa',icon:'🍃',ef:'Eleva serotonina'},{n:'Tília',icon:'🌸',ef:'Age em 30 min'}],combo:['Maracujá + Melissa','Alfazema + Ashwagandha'],prep:{temp:'85°C',tempo:'8 min',dose:'2 col / 250ml',freq:'2-3x ao dia'}},
+    {name:'Foco',color:'#3a2d6b',herbs:[{n:'Ginkgo Biloba',icon:'🍃',ef:'Circulação cerebral'},{n:'Chá Verde',icon:'🍵',ef:'L-teanina + cafeína'},{n:'Alecrim',icon:'🌿',ef:'1,8-cineol cognitivo'},{n:'Bacopa',icon:'🌱',ef:'Memória longo prazo'},{n:'Erva-mate',icon:'🌿',ef:'Mateína + vitaminas B'}],combo:['Ginkgo + Chá Verde','Alecrim + Bacopa'],prep:{temp:'75°C',tempo:'4 min',dose:'1 col / 200ml',freq:'manhã'}},
+    {name:'Digestão',color:'#5a3a1a',herbs:[{n:'Boldo',icon:'🍃',ef:'Estimula bile'},{n:'Hortelã',icon:'🌿',ef:'Antiespasmódico'},{n:'Erva-doce',icon:'🌾',ef:'Carminativa clássica'},{n:'Gengibre',icon:'🫚',ef:'Procinético'},{n:'Alcachofra',icon:'🌱',ef:'Colerético'}],combo:['Boldo + Alcachofra','Hortelã + Erva-doce'],prep:{temp:'90°C',tempo:'7 min',dose:'1 col / 250ml',freq:'após refeições'}},
+    {name:'Energia',color:'#6b5a2d',herbs:[{n:'Guaraná',icon:'🫐',ef:'Estimulante potente'},{n:'Ginseng',icon:'🌿',ef:'Tônico nervoso'},{n:'Erva-mate',icon:'🌿',ef:'Energia sustentada'},{n:'Gengibre',icon:'🫚',ef:'Termogênico'},{n:'Canela',icon:'🌿',ef:'Glicemia estável'}],combo:['Guaraná + Canela','Ginseng + Gengibre'],prep:{temp:'85°C',tempo:'5 min',dose:'1 col / 250ml',freq:'manhã'}},
+    {name:'Gripe',color:'#2d4a3a',herbs:[{n:'Guaco',icon:'🍃',ef:'Broncodilatador ANVISA'},{n:'Gengibre',icon:'🫚',ef:'Antiviral natural'},{n:'Tomilho',icon:'🌿',ef:'Antisséptico pulmonar'},{n:'Sabugueiro',icon:'🌸',ef:'Encurta gripe 2-4d'},{n:'Pitanga',icon:'🍃',ef:'Antifebril nativo'}],combo:['Guaco + Gengibre','Tomilho + Sabugueiro'],prep:{temp:'95°C',tempo:'10 min',dose:'2 col / 300ml',freq:'3-4x ao dia'}},
+    {name:'Pressão Alta',color:'#6b2d3a',herbs:[{n:'Hibisco',icon:'🌺',ef:'-7mmHg sistólica'},{n:'Alho',icon:'🧄',ef:'Vasodilatador'},{n:'Melissa',icon:'🍃',ef:'Relaxa artérias'},{n:'Cúrcuma',icon:'🫚',ef:'Elasticidade vascular'},{n:'Cavalinha',icon:'🌾',ef:'Diurética'}],combo:['Hibisco + Melissa','Alho + Cúrcuma'],prep:{temp:'90°C',tempo:'10 min',dose:'2 col / 300ml',freq:'2-3x ao dia'}},
+    {name:'Emagrecimento',color:'#2d5a2d',herbs:[{n:'Chá Verde',icon:'🍵',ef:'EGCG queima gordura'},{n:'Carqueja',icon:'🌿',ef:'Termogênico'},{n:'Hibisco',icon:'🌺',ef:'Inibe amilase'},{n:'Gengibre',icon:'🫚',ef:'Termogênico'},{n:'Garcinia',icon:'🍃',ef:'Inibe lipase'}],combo:['Chá Verde + Gengibre','Carqueja + Hibisco'],prep:{temp:'80°C',tempo:'6 min',dose:'1 col / 250ml',freq:'antes das refeições'}},
+  ],
+  sistema:[
+    {name:'Nervoso',color:'#3a2d6b',herbs:[{n:'Valeriana',icon:'🌸',ef:'Sedativa SNC'},{n:'Ginkgo',icon:'🍃',ef:'Circulação cerebral'},{n:'Melissa',icon:'🍃',ef:'Inibe MAO-B'},{n:'Ashwagandha',icon:'🌿',ef:'Reduz cortisol'},{n:'Bacopa',icon:'🌱',ef:'Memória'}],combo:['Ginkgo + Bacopa','Valeriana + Melissa'],prep:{temp:'85°C',tempo:'8 min',dose:'1 col',freq:'2x dia'}},
+    {name:'Digestivo',color:'#5a3a1a',herbs:[{n:'Boldo',icon:'🍃',ef:'Hepático'},{n:'Hortelã',icon:'🌿',ef:'Antiespasmódico'},{n:'Erva-doce',icon:'🌾',ef:'Carminativa'},{n:'Alcachofra',icon:'🌱',ef:'Colerética'},{n:'Gengibre',icon:'🫚',ef:'Procinético'}],combo:['Boldo + Alcachofra','Hortelã + Erva-doce'],prep:{temp:'90°C',tempo:'8 min',dose:'1 col',freq:'após refeições'}},
+    {name:'Cardiovascular',color:'#6b2d3a',herbs:[{n:'Hibisco',icon:'🌺',ef:'Hipotensor'},{n:'Alho',icon:'🧄',ef:'Vasodilatador'},{n:'Cúrcuma',icon:'🫚',ef:'Artérias'},{n:'Castanha Índia',icon:'🍃',ef:'Venoso'},{n:'Ginkgo',icon:'🍃',ef:'Microcirculação'}],combo:['Hibisco + Alho','Cúrcuma + Gengibre'],prep:{temp:'90°C',tempo:'10 min',dose:'2 col',freq:'2x dia'}},
+    {name:'Respiratório',color:'#1e4a3a',herbs:[{n:'Guaco',icon:'🍃',ef:'Broncodilatador'},{n:'Tomilho',icon:'🌿',ef:'Expectorante'},{n:'Eucalipto',icon:'🌿',ef:'Descongestionante'},{n:'Alcaçuz',icon:'🌿',ef:'Suaviza mucosa'},{n:'Sabugueiro',icon:'🌸',ef:'Antiviral'}],combo:['Guaco + Tomilho','Eucalipto + Hortelã'],prep:{temp:'95°C',tempo:'10 min',dose:'2 col',freq:'3x dia'}},
+    {name:'Hormonal',color:'#6b3a5a',herbs:[{n:'Maca Peruana',icon:'🌾',ef:'Equilibra hormônios'},{n:'Folha de Amora',icon:'🍃',ef:'Fitoestrogênios'},{n:'Sálvia',icon:'🌿',ef:'Menopausa'},{n:'Dong Quai',icon:'🌸',ef:'MTC feminina'},{n:'Pata de Vaca',icon:'🍃',ef:'Hipoglicemiante'}],combo:['Maca + Dong Quai','Folha Amora + Sálvia'],prep:{temp:'88°C',tempo:'10 min',dose:'2 col',freq:'2x dia'}},
+    {name:'Renal',color:'#2d4a6b',herbs:[{n:'Cavalinha',icon:'🌾',ef:'Diurética potente'},{n:'Quebra Pedra',icon:'🌿',ef:'Cálculos'},{n:'Cana do Brejo',icon:'🌱',ef:'ITU e rins'},{n:'Dente-de-leão',icon:'🌼',ef:'Diurético suave'},{n:'Bardana',icon:'🌿',ef:'Depurativo'}],combo:['Cavalinha + Quebra Pedra','Dente-de-leão + Bardana'],prep:{temp:'90°C',tempo:'10 min',dose:'2 col',freq:'3x dia'}},
+  ],
+  momento:[
+    {name:'Ao Acordar',color:'#7a5c2a',herbs:[{n:'Gengibre + Limão',icon:'🫚',ef:'Alcaliniza e ativa'},{n:'Chá Verde',icon:'🍵',ef:'Energia focada'},{n:'Canela',icon:'🌿',ef:'Regula glicemia'},{n:'Hortelã',icon:'🌿',ef:'Desperta sentidos'},{n:'Alecrim',icon:'🌿',ef:'Circulação cerebral'}],combo:['Gengibre + Limão + Mel','Chá Verde + Hortelã'],prep:{temp:'85°C',tempo:'5 min',dose:'1 col',freq:'em jejum'}},
+    {name:'Pré-Treino',color:'#5a3a1a',herbs:[{n:'Guaraná',icon:'🫐',ef:'Energia e resistência'},{n:'Gengibre',icon:'🫚',ef:'Termogênico'},{n:'Erva-mate',icon:'🌿',ef:'+24% VO2max'},{n:'Pimenta Caiena',icon:'🌶',ef:'Capsaicina'},{n:'Maca Peruana',icon:'🌾',ef:'Desempenho'}],combo:['Guaraná + Gengibre','Erva-mate + Pimenta'],prep:{temp:'80°C',tempo:'5 min',dose:'1 col',freq:'30min antes'}},
+    {name:'Pós-Refeição',color:'#3a4a1a',herbs:[{n:'Hortelã',icon:'🌿',ef:'Digestiva'},{n:'Erva-doce',icon:'🌾',ef:'Carminativa'},{n:'Boldo',icon:'🍃',ef:'Estimula bile'},{n:'Gengibre',icon:'🫚',ef:'Procinético'},{n:'Louro',icon:'🍃',ef:'Carminativo'}],combo:['Hortelã + Erva-doce','Boldo + Gengibre'],prep:{temp:'90°C',tempo:'7 min',dose:'1 col',freq:'logo após comer'}},
+    {name:'Tarde',color:'#2d4a2d',herbs:[{n:'Chá Verde',icon:'🍵',ef:'Foco + calma'},{n:'Rooibos',icon:'🍃',ef:'Sem cafeína'},{n:'Alecrim',icon:'🌿',ef:'Clareza mental'},{n:'Tulsi',icon:'🌱',ef:'Anti-estresse'},{n:'Hibisco',icon:'🌺',ef:'Refrescante'}],combo:['Chá Verde + Hortelã','Rooibos + Hibisco'],prep:{temp:'80°C',tempo:'5 min',dose:'1 col',freq:'14h-16h'}},
+    {name:'À Noite',color:'#1a2a4a',herbs:[{n:'Camomila',icon:'🌼',ef:'Calmante universal'},{n:'Melissa',icon:'🍃',ef:'Mente quieta'},{n:'Maracujá',icon:'🍃',ef:'Ansiolítico'},{n:'Alfazema',icon:'💜',ef:'Ondas beta'},{n:'Valeriana',icon:'🌸',ef:'Insônia'}],combo:['Camomila + Melissa','Maracujá + Valeriana'],prep:{temp:'85°C',tempo:'10 min',dose:'2 col',freq:'1h antes dormir'}},
+    {name:'Detox',color:'#2a3a1a',herbs:[{n:'Cúrcuma + Pimenta',icon:'🫚',ef:'Anti-inflamatório'},{n:'Dente-de-leão',icon:'🌼',ef:'Fígado e rins'},{n:'Alcachofra',icon:'🌱',ef:'Bile e detox'},{n:'Cardo Mariano',icon:'🌸',ef:'Hepatoprotetor'},{n:'Boldo',icon:'🍃',ef:'Colagogo'}],combo:['Gengibre + Limão + Cúrcuma','Dente-de-leão + Alcachofra'],prep:{temp:'90°C',tempo:'10 min',dose:'2 col',freq:'em jejum'}},
+  ],
+  sabor:[
+    {name:'Amargo',color:'#2d4a2d',herbs:[{n:'Boldo',icon:'🍃',ef:'Amargo hepático'},{n:'Carqueja',icon:'🌿',ef:'Amargo termogênico'},{n:'Alcachofra',icon:'🌱',ef:'Amargo colerético'},{n:'Losna',icon:'🌿',ef:'Estimulante gástrico'},{n:'Dente-de-leão',icon:'🌼',ef:'Amargo tônico'}],combo:['Boldo + Canela','Carqueja + Limão'],prep:{temp:'90°C',tempo:'8 min',dose:'1 col',freq:'pós refeições'}},
+    {name:'Doce',color:'#5a3a1a',herbs:[{n:'Alcaçuz',icon:'🌿',ef:'50x mais doce'},{n:'Erva-doce',icon:'🌾',ef:'Anis doce'},{n:'Canela',icon:'🌿',ef:'Doce-especiada'},{n:'Camomila',icon:'🌼',ef:'Floral suave'},{n:'Stevia',icon:'🌱',ef:'Zero calorias'}],combo:['Camomila + Alcaçuz','Erva-doce + Canela'],prep:{temp:'88°C',tempo:'7 min',dose:'1 col',freq:'qualquer hora'}},
+    {name:'Cítrico',color:'#4a5a1a',herbs:[{n:'Capim-Limão',icon:'🌾',ef:'Cítrico calmante'},{n:'Erva Cidreira',icon:'🍃',ef:'Limão + calma'},{n:'Melissa',icon:'🍃',ef:'Limão mel'},{n:'Hibisco',icon:'🌺',ef:'Ácido frutado'},{n:'Rosa',icon:'🌹',ef:'Floral cítrico'}],combo:['Capim-limão + Gengibre','Melissa + Hibisco'],prep:{temp:'88°C',tempo:'7 min',dose:'2 col',freq:'qualquer hora'}},
+    {name:'Picante',color:'#6b2a1a',herbs:[{n:'Gengibre',icon:'🫚',ef:'Picante termogênico'},{n:'Canela',icon:'🌿',ef:'Doce-picante'},{n:'Cravo',icon:'🌿',ef:'Aromático forte'},{n:'Cardamomo',icon:'🌱',ef:'Especiado exótico'},{n:'Pimenta',icon:'🌶',ef:'Capsaicina'}],combo:['Gengibre + Canela + Cravo','Cardamomo + Cúrcuma'],prep:{temp:'95°C',tempo:'10 min',dose:'1 col',freq:'manhã'}},
+    {name:'Floral',color:'#6b3a5a',herbs:[{n:'Camomila',icon:'🌼',ef:'Floral clássico'},{n:'Jasmim',icon:'🌸',ef:'Intenso floral'},{n:'Rosa',icon:'🌹',ef:'Refinado'},{n:'Alfazema',icon:'💜',ef:'Medicinal'},{n:'Tília',icon:'🌸',ef:'Floral mel'}],combo:['Camomila + Rosa','Jasmim + Alfazema'],prep:{temp:'85°C',tempo:'7 min',dose:'2 col',freq:'tarde e noite'}},
+    {name:'Mentolado',color:'#1a4a3a',herbs:[{n:'Hortelã',icon:'🌿',ef:'Mentol intenso'},{n:'Eucalipto',icon:'🌿',ef:'Cineol fresco'},{n:'Tomilho',icon:'🌿',ef:'Mentolado herbal'},{n:'Manjericão',icon:'🌿',ef:'Fresco herbáceo'},{n:'Capim-Limão',icon:'🌾',ef:'Cítrico fresco'}],combo:['Hortelã + Eucalipto','Tomilho + Hortelã'],prep:{temp:'85°C',tempo:'5 min',dose:'1 col',freq:'qualquer hora'}},
+  ],
+};
+
+let rodaActiveLayer='sintoma', rodaHovIdx=-1, rodaSelIdx=-1;
+const RODA_COLORS_MAP={sintoma:['#1e3d5c','#2d5a4a','#3a2d6b','#5a3a1a','#6b5a2d','#2d4a3a','#6b2d3a','#2d5a2d'],sistema:['#3a2d6b','#5a3a1a','#6b2d3a','#1e4a3a','#6b3a5a','#2d4a6b'],momento:['#7a5c2a','#5a3a1a','#3a4a1a','#2d4a2d','#1a2a4a','#2a3a1a'],sabor:['#2d4a2d','#5a3a1a','#4a5a1a','#6b2a1a','#6b3a5a','#1a4a3a']};
+
+function initRoda(){
+  const lay=document.getElementById('rodaLayers');
+  lay.innerHTML='';
+  RODA_LAYERS.forEach(l=>{
+    const b=document.createElement('button');
+    b.className='roda-layer-btn'+(rodaActiveLayer===l.id?' on':'');
+    b.textContent=l.label;
+    b.onclick=()=>{ rodaActiveLayer=l.id; rodaSelIdx=-1; initRoda(); renderRodaPanel(null); };
+    lay.appendChild(b);
+  });
+  rodaHovIdx=-1;
+  drawRoda();
+}
+
+function drawRoda(){
+  const cv=document.getElementById('rodaCanvas');
+  if(!cv)return;
+  const ctx=cv.getContext('2d');
+  const W=340,CX=W/2,CY=W/2,R=162,IR=38;
+  ctx.clearRect(0,0,W,W);
+  const slices=RODA_DATA[rodaActiveLayer];
+  const cols=RODA_COLORS_MAP[rodaActiveLayer];
+  const n=slices.length, arc=2*Math.PI/n, start=-Math.PI/2;
+  slices.forEach((s,i)=>{
+    const a0=start+i*arc, a1=a0+arc;
+    const sel=rodaSelIdx===i, hov=rodaHovIdx===i;
+    ctx.beginPath(); ctx.moveTo(CX,CY); ctx.arc(CX,CY,sel?R+5:R,a0,a1); ctx.closePath();
+    const c=cols[i]||'#3a3a3a';
+    ctx.fillStyle=sel?lightenW(c,.4):hov?lightenW(c,.2):c; ctx.fill();
+    ctx.strokeStyle=sel?'rgba(200,168,75,.7)':'rgba(11,10,8,.65)'; ctx.lineWidth=sel?1.5:1; ctx.stroke();
+    if(sel){ctx.beginPath();ctx.moveTo(CX,CY);ctx.arc(CX,CY,R+4,a0+.02,a1-.02);ctx.closePath();ctx.strokeStyle='rgba(240,217,138,.3)';ctx.lineWidth=2;ctx.stroke();}
+    const mA=a0+arc/2, lr=(R+IR)/2;
+    const lx=CX+lr*Math.cos(mA), ly=CY+lr*Math.sin(mA);
+    ctx.save(); ctx.translate(lx,ly); ctx.rotate(mA+Math.PI/2);
+    ctx.fillStyle=sel?'#f0d98a':hov?'#e6c96e':'rgba(235,225,205,.8)';
+    ctx.font=`${sel?'500':'400'} ${n>7?'9':'10'}px Jost,sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const parts=s.name.split(' ');
+    if(parts.length>1){ctx.fillText(parts[0],0,-5.5);ctx.fillText(parts.slice(1).join(' '),0,5.5);}
+    else ctx.fillText(s.name,0,0);
+    ctx.restore();
+  });
+  // outer glow ring
+  ctx.beginPath();ctx.arc(CX,CY,R+7,0,Math.PI*2);ctx.strokeStyle='rgba(200,168,75,.1)';ctx.lineWidth=1;ctx.stroke();
+  // center
+  ctx.beginPath();ctx.arc(CX,CY,IR,0,Math.PI*2);ctx.fillStyle='#0b0a08';ctx.fill();
+  ctx.strokeStyle='rgba(200,168,75,.45)';ctx.lineWidth=1.5;ctx.stroke();
+  // center text
+  const sel=rodaSelIdx>=0?slices[rodaSelIdx]:null;
+  const lbl=document.getElementById('rodaCenter');
+  if(lbl){lbl.querySelector('.roda-center-label').textContent=sel?sel.name:'Toque\num setor';}
+}
+
+function getRodaIdx(mx,my){
+  const cv=document.getElementById('rodaCanvas');
+  if(!cv)return-1;
+  const CX=170,CY=170,R=162,IR=38;
+  const dx=mx-CX,dy=my-CY,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<IR||d>R+8)return-1;
+  let a=Math.atan2(dy,dx)+Math.PI/2; if(a<0)a+=2*Math.PI; if(a>=2*Math.PI)a-=2*Math.PI;
+  const n=RODA_DATA[rodaActiveLayer].length;
+  return Math.floor(a/(2*Math.PI/n))%n;
+}
+
+function initRodaEvents(){
+  const cv=document.getElementById('rodaCanvas');
+  if(!cv||cv._hasEvents)return; cv._hasEvents=true;
+  cv.addEventListener('mousemove',e=>{ const r=cv.getBoundingClientRect(); rodaHovIdx=getRodaIdx(e.clientX-r.left,e.clientY-r.top); cv.style.cursor=rodaHovIdx>=0?'pointer':'default'; drawRoda(); });
+  cv.addEventListener('mouseleave',()=>{ rodaHovIdx=-1; drawRoda(); });
+  cv.addEventListener('click',e=>{ const r=cv.getBoundingClientRect(); const i=getRodaIdx(e.clientX-r.left,e.clientY-r.top); if(i>=0){rodaSelIdx=i===rodaSelIdx?-1:i; drawRoda(); renderRodaPanel(i>=0?RODA_DATA[rodaActiveLayer][i]:null);} });
+  cv.addEventListener('touchstart',e=>{ e.preventDefault(); const t=e.touches[0],r=cv.getBoundingClientRect(); const i=getRodaIdx(t.clientX-r.left,t.clientY-r.top); if(i>=0){rodaSelIdx=i===rodaSelIdx?-1:i; drawRoda(); renderRodaPanel(i>=0?RODA_DATA[rodaActiveLayer][i]:null);} },{passive:false});
+}
+
+// override initRoda to attach events after draw
+const _origInitRoda=window.initRoda;
+window.initRoda=function(){
+  const lay=document.getElementById('rodaLayers'); if(!lay)return;
+  lay.innerHTML='';
+  RODA_LAYERS.forEach(l=>{
+    const b=document.createElement('button');
+    b.className='roda-layer-btn'+(rodaActiveLayer===l.id?' on':'');
+    b.textContent=l.label;
+    b.onclick=()=>{ rodaActiveLayer=l.id; rodaSelIdx=-1; window.initRoda(); renderRodaPanel(null); };
+    lay.appendChild(b);
+  });
+  rodaHovIdx=-1; drawRoda(); initRodaEvents();
+};
+
+function renderRodaPanel(slice){
+  const p=document.getElementById('rodaPanel');
+  if(!slice){p.innerHTML='<div class="roda-empty"><div style="font-size:2rem;opacity:.3;margin-bottom:.75rem">☕</div><div>Selecione um setor da roda para ver as ervas recomendadas</div></div>';return;}
+  const colDot=RODA_COLORS_MAP[rodaActiveLayer][RODA_DATA[rodaActiveLayer].indexOf(slice)]||'#c8a84b';
+  p.innerHTML=`<div class="roda-result">
+    <div class="roda-result-header">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:10px;height:10px;border-radius:50%;background:${colDot};flex-shrink:0"></div>
+        <div class="roda-result-name">${slice.name}</div>
+      </div>
+    </div>
+    <div style="font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem">Ervas recomendadas</div>
+    ${slice.herbs.map(h=>`
+      <div class="roda-herb-item" onclick="findHerbAndOpen('${h.n}')">
+        <div class="roda-herb-icon">${h.icon}</div>
+        <div><div class="roda-herb-name">${h.n}</div><div class="roda-herb-ef">${h.ef}</div></div>
+      </div>`).join('')}
+    <div class="roda-combo">
+      <div class="roda-combo-title">Combinações</div>
+      ${slice.combo.map(c=>`<span class="roda-combo-chip">☕ ${c}</span>`).join('')}
+    </div>
+    <div class="roda-prep">
+      <div class="roda-combo-title" style="margin-bottom:.4rem">Preparo</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        <span style="font-size:.72rem;padding:3px 10px;background:rgba(255,255,255,.04);border:0.5px solid var(--faint);border-radius:6px;color:var(--muted)">🌡 ${slice.prep.temp}</span>
+        <span style="font-size:.72rem;padding:3px 10px;background:rgba(255,255,255,.04);border:0.5px solid var(--faint);border-radius:6px;color:var(--muted)">⏱ ${slice.prep.tempo}</span>
+        <span style="font-size:.72rem;padding:3px 10px;background:rgba(255,255,255,.04);border:0.5px solid var(--faint);border-radius:6px;color:var(--muted)">🥄 ${slice.prep.dose}</span>
+        <span style="font-size:.72rem;padding:3px 10px;background:rgba(255,255,255,.04);border:0.5px solid var(--faint);border-radius:6px;color:var(--muted)">📅 ${slice.prep.freq}</span>
+      </div>
+    </div>
+    <button class="roda-start-btn" onclick="openTimerFromRoda(${JSON.stringify(slice).replace(/'/g,'&#39;')})">⏱ Preparar este chá agora</button>
+  </div>`;
+}
+
+function findHerbAndOpen(name){
+  const h=HERBS.find(x=>x.n===name||name.includes(x.n));
+  if(h) openHerbModal(h.id);
+}
+
+function openTimerFromRoda(slice){
+  const mins=parseInt(slice.prep.tempo)||8;
+  const steps=[
+    {title:`Aqueça a água`,desc:`Ferva e deixe esfriar até ${slice.prep.temp}. Nunca use água fervendo em ervas delicadas.`,duration:0},
+    {title:`Adicione as ervas`,desc:`Use ${slice.prep.dose}. Coloque na infusora ou diretamente na xícara.`,duration:0},
+    {title:`Infusão`,desc:`Tampa a xícara para não perder os óleos essenciais. Aguarde ${slice.prep.tempo}.`,duration:mins*60},
+    {title:`Coe e aproveite`,desc:`Coe, adicione mel ou limão se desejar. Beba morno. Frequência: ${slice.prep.freq}.`,duration:0},
+  ];
+  launchTimer(slice.name, steps);
+}
+
+// ════════════════════════════════════════
+// ── PERFIL ──
+// ════════════════════════════════════════
+const PERFIL_SAUDE_OPTS=['Hipertensão','Diabetes','Ansiedade','Insônia','Gastrite','Grávida','Amamentando','Criança','Sem restrições'];
+const PERFIL_OBJ_OPTS=['Melhorar sono','Reduzir ansiedade','Mais energia','Focar mais','Emagrecer','Digestão','Imunidade','Desintoxicar','Beleza da pele'];
+const PERFIL_SABOR_OPTS=['Doce','Suave','Cítrico','Amargo','Picante','Floral','Mentolado'];
+const PERFIL_MOMENTO_OPTS=['Ao acordar','Manhã','Tarde','Noite','Antes de dormir','Pós-refeição'];
+
+let perfilState = safeLoad('erb_perfil', {nome:"",saude:[],objetivos:[],sabores:[],momentos:[],restricoes:""});
+
+function renderPerfil(){
+  document.getElementById('perfilNome').value=perfilState.nome||'';
+  document.getElementById('perfilRestricoes').value=perfilState.restricoes||'';
+  renderChipGroup('perfilSaude',PERFIL_SAUDE_OPTS,'saude');
+  renderChipGroup('perfilObjetivos',PERFIL_OBJ_OPTS,'objetivos');
+  renderChipGroup('perfilSabores',PERFIL_SABOR_OPTS,'sabores');
+  renderChipGroup('perfilMomentos',PERFIL_MOMENTO_OPTS,'momentos');
+  renderPerfilRecomendacoes();
+}
+
+function renderChipGroup(containerId, opts, key){
+  const el=document.getElementById(containerId);
+  el.innerHTML='';
+  opts.forEach(o=>{
+    const b=document.createElement('button');
+    b.className='perfil-chip'+(perfilState[key]?.includes(o)?' on':'');
+    b.textContent=o;
+    b.onclick=()=>{
+      if(!perfilState[key])perfilState[key]=[];
+      if(perfilState[key].includes(o)) perfilState[key]=perfilState[key].filter(x=>x!==o);
+      else perfilState[key].push(o);
+      b.classList.toggle('on');
+      renderPerfilRecomendacoes();
+    };
+    el.appendChild(b);
+  });
+}
+
+function savePerfil(){
+  perfilState.nome=document.getElementById('perfilNome').value;
+  perfilState.restricoes=document.getElementById('perfilRestricoes').value;
+  localStorage.setItem('erb_perfil',JSON.stringify(perfilState));
+  toast(`Perfil de ${perfilState.nome||'usuário'} salvo!`);
+  renderPerfilRecomendacoes();
+}
+
+function renderPerfilRecomendacoes(){
+  const el=document.getElementById('perfilRecomendacoes');
+  if(!el)return;
+  const obj=perfilState.objetivos||[];
+  const saude=perfilState.saude||[];
+  const momentos=perfilState.momentos||[];
+  if(!obj.length&&!saude.length){el.innerHTML='';return;}
+
+  // Smart recs based on profile
+  const recs=[];
+  if(obj.includes('Melhorar sono')||obj.includes('Reduzir ansiedade')) recs.push({name:'Blend da Noite',herbs:'Camomila + Maracujá + Melissa',why:'Baseado nos seus objetivos de sono e ansiedade',color:'#1e3d5c'});
+  if(obj.includes('Mais energia')||obj.includes('Focar mais')) recs.push({name:'Blend do Foco',herbs:'Chá Verde + Alecrim + Ginkgo',why:'Para energia e concentração ao longo do dia',color:'#3a2d6b'});
+  if(obj.includes('Digestão')) recs.push({name:'Digestivo Diário',herbs:'Boldo + Hortelã + Erva-doce',why:'Apoio à sua digestão pós-refeição',color:'#5a3a1a'});
+  if(obj.includes('Emagrecer')) recs.push({name:'Blend Metabólico',herbs:'Chá Verde + Carqueja + Hibisco',why:'Termogênico e sacietogênico natural',color:'#2d5a2d'});
+  if(obj.includes('Imunidade')) recs.push({name:'Blend Imunidade',herbs:'Equinácea + Cúrcuma + Gengibre',why:'Para fortalecer suas defesas',color:'#2d4a3a'});
+  if(saude.includes('Hipertensão')) recs.push({name:'Hipotensor Suave',herbs:'Hibisco + Melissa + Capim-Limão',why:'Seguro para hipertensão, 3x ao dia',color:'#6b2d3a'});
+  if(saude.includes('Gastrite')) recs.push({name:'Protetor Gástrico',herbs:'Espinheira Santa + Camomila + Alcaçuz',why:'Antiácido e cicatrizante natural',color:'#5a3a1a'});
+  if(saude.includes('Grávida')) recs.push({name:'Blend Seguro Gestação',herbs:'Camomila + Erva Cidreira + Capim-Limão',why:'Ervas seguras e comprovadas na gestação',color:'#2d5a4a'});
+
+  const warnings=[];
+  if(saude.includes('Hipertensão')) warnings.push('Evite guaraná e estimulantes fortes.');
+  if(saude.includes('Grávida')) warnings.push('Evite arruda, alfazema em doses altas e valeriana.');
+  if(saude.includes('Diabetes')) warnings.push('Prefira ervas sem açúcar. Pata de vaca e canela são aliadas.');
+
+  const nome=perfilState.nome?`, ${perfilState.nome}`:'';
+  el.innerHTML=`
+    <div class="perfil-rec-title">Recomendações para você${nome}</div>
+    ${warnings.length?`<div class="warn-box" style="margin-bottom:1rem">⚠ ${warnings.join(' ')}</div>`:''}
+    ${recs.map(r=>`
+      <div class="perfil-rec-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.4rem">
+          <div style="width:8px;height:8px;border-radius:50%;background:${r.color}"></div>
+          <div style="font-size:.88rem;font-weight:400;color:var(--cream)">${r.name}</div>
+        </div>
+        <div style="font-size:.82rem;color:var(--gold2);margin-bottom:3px">☕ ${r.herbs}</div>
+        <div style="font-size:.75rem;color:var(--muted)">${r.why}</div>
+      </div>`).join('')}
+    ${momentos.length?`<div style="margin-top:.75rem;font-size:.75rem;color:var(--muted)">Momentos favoritos: ${momentos.join(', ')}</div>`:''}`;
+}
+
+// ════════════════════════════════════════
+// ── TIMER DE PREPARO ──
+// ════════════════════════════════════════
+let timerState={steps:[],current:0,remaining:0,total:0,running:false,interval:null,herbName:''};
+
+function openTimer(herbId){
+  const h=HERBS.find(x=>x.id===herbId);
+  if(!h)return;
+  const mins=parseInt(h.tempo)||8;
+  const steps=[
+    {title:'Aqueça a água',      desc:`Ferva e deixe esfriar até ${h.temp}. Água muito quente destrói compostos ativos.`,duration:0},
+    {title:'Meça as ervas',      desc:`Use ${h.dose}. Ervas frescas: prefira ao seco. Infusora limpa.`,duration:0},
+    {title:'Infusão',            desc:`Tampa bem a xícara para não perder os óleos essenciais. Aguarde exatamente ${h.tempo}.`,duration:mins*60},
+    {title:'Coe e finalize',     desc:`Retire as ervas. Adicione mel ou limão se quiser. Ideal: ${h.freq}.`,duration:0},
+  ];
+  document.getElementById('herbModal').classList.remove('on');
+  launchTimer(h.n, steps);
+}
+
+function launchTimer(name, steps){
+  timerState={steps,current:0,remaining:steps[0].duration,total:steps[0].duration,running:false,interval:null,herbName:name};
+  document.getElementById('timerModal').classList.add('on');
+  renderTimerStep();
+}
+
+function closeTimerModal(e){
+  if(!e||e.target===document.getElementById('timerModal')){
+    clearInterval(timerState.interval); timerState.running=false;
+    document.getElementById('timerModal').classList.remove('on');
+  }
+}
+
+function renderTimerStep(){
+  const {steps,current,herbName}=timerState;
+  const step=steps[current];
+  const hasTimer=step.duration>0;
+  const isLast=current===steps.length-1;
+  const dots=steps.map((_,i)=>`<div class="timer-step-dot ${i<current?'done':i===current?'active':''}"></div>`).join('');
+
+  document.getElementById('timerContent').innerHTML=`
+    <div class="modal-handle"></div>
+    <button class="modal-close" onclick="closeTimerModal()">✕</button>
+    <div class="timer-wrap">
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem;letter-spacing:.06em">${esc(herbName)}</div>
+      <div class="timer-step-indicator">${dots}</div>
+      <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem">Passo ${current+1} de ${steps.length}</div>
+      <div class="timer-step-title">${esc(step.title)}</div>
+      <div class="timer-step-desc">${esc(step.desc)}</div>
+      ${hasTimer?`
+        <div class="timer-ring-wrap">
+          <canvas id="timerRing" width="160" height="160"></canvas>
+          <div class="timer-ring-time" id="timerDisplay">${formatTime(step.duration)}</div>
+          <div class="timer-ring-label" id="timerLabel">aguardando</div>
+        </div>
+        <div class="timer-controls">
+          <button class="timer-btn primary" id="timerPlayBtn" onclick="toggleTimer()">▶ Iniciar</button>
+          <button class="timer-btn" onclick="resetTimer()">↺ Reset</button>
+        </div>`:''}
+      <button class="timer-next-btn" id="timerNextBtn" onclick="timerNext()" ${hasTimer&&timerState.remaining>0&&!timerState.running?'':''}>${isLast?'Concluído ✓':'Próximo →'}</button>
+    </div>`;
+  if(hasTimer) drawTimerRing(1);
+}
+
+function formatTime(s){ return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+
+function drawTimerRing(progress){
+  const cv=document.getElementById('timerRing'); if(!cv)return;
+  const ctx=cv.getContext('2d'),CX=80,CY=80,R=68,LW=6;
+  ctx.clearRect(0,0,160,160);
+  // bg ring
+  ctx.beginPath();ctx.arc(CX,CY,R,0,Math.PI*2);ctx.strokeStyle='rgba(200,168,75,.1)';ctx.lineWidth=LW;ctx.stroke();
+  // progress ring
+  const start=-Math.PI/2, end=start+(2*Math.PI*progress);
+  ctx.beginPath();ctx.arc(CX,CY,R,start,end);
+  ctx.strokeStyle=progress>0.2?'#c8a84b':'#e08060';ctx.lineWidth=LW;ctx.lineCap='round';ctx.stroke();
+}
+
+function toggleTimer(){
+  const step=timerState.steps[timerState.current];
+  if(!step.duration)return;
+  if(timerState.running){
+    clearInterval(timerState.interval); timerState.running=false;
+    document.getElementById('timerPlayBtn').textContent='▶ Continuar';
+    document.getElementById('timerLabel').textContent='pausado';
+  } else {
+    timerState.running=true;
+    document.getElementById('timerPlayBtn').textContent='⏸ Pausar';
+    document.getElementById('timerLabel').textContent='infusando...';
+    timerState.interval=setInterval(()=>{
+      timerState.remaining--;
+      const prog=timerState.remaining/timerState.total;
+      drawTimerRing(prog);
+      const disp=document.getElementById('timerDisplay'); if(disp)disp.textContent=formatTime(timerState.remaining);
+      if(timerState.remaining<=0){
+        clearInterval(timerState.interval); timerState.running=false;
+        const lbl=document.getElementById('timerLabel'); if(lbl)lbl.textContent='pronto!';
+        const btn=document.getElementById('timerPlayBtn'); if(btn)btn.textContent='✓ Concluído';
+        toast(`${timerState.herbName} — infusão concluída! ☕`);
+        drawTimerRing(0);
+      }
+    },1000);
+  }
+}
+
+function resetTimer(){
+  clearInterval(timerState.interval); timerState.running=false;
+  timerState.remaining=timerState.steps[timerState.current].duration;
+  timerState.total=timerState.remaining;
+  renderTimerStep();
+}
+
+function timerNext(){
+  clearInterval(timerState.interval); timerState.running=false;
+  const {steps,current}=timerState;
+  if(current>=steps.length-1){
+    // Complete
+    document.getElementById('timerContent').innerHTML=`
+      <div class="modal-handle"></div>
+      <button class="modal-close" onclick="closeTimerModal()">✕</button>
+      <div class="timer-complete">
+        <div class="timer-complete-icon">☕</div>
+        <div class="timer-complete-title">Chá pronto!</div>
+        <div class="timer-complete-sub">Seu ${esc(timerState.herbName)} está preparado.<br>Beba com calma e aproveite os benefícios.</div>
+        <button class="timer-next-btn" style="margin-top:1.5rem" onclick="closeTimerModal()">Fechar</button>
+      </div>`;
+    return;
+  }
+  timerState.current++;
+  timerState.remaining=steps[timerState.current].duration;
+  timerState.total=timerState.remaining;
+  renderTimerStep();
+}
+let toastTimer;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2500); }
+
+// ════════════════════════════════════════
+// ── CONSTRUTOR DE BLEND ──
+// ════════════════════════════════════════
+const HERB_META = {
+  1: {type:'flower',role:'heart',intensity:2,tempMin:80,tempMax:88,timeMin:5,timeMax:10,qty:'1 col. sopa',unit:'g',grams:2},
+  2: {type:'root',  role:'base', intensity:4,tempMin:82,tempMax:90,timeMin:8,timeMax:15,qty:'1 col. sopa',unit:'g',grams:3},
+  3: {type:'leaf',  role:'heart',intensity:2,tempMin:80,tempMax:88,timeMin:6,timeMax:10,qty:'1 col. sopa',unit:'g',grams:2},
+  4: {type:'leaf',  role:'heart',intensity:2,tempMin:80,tempMax:88,timeMin:5,timeMax:8, qty:'1 col. sopa',unit:'g',grams:2},
+  5: {type:'root',  role:'accent',intensity:4,tempMin:88,tempMax:98,timeMin:8,timeMax:15,qty:'3-4 fatias',unit:'fatias',grams:5},
+  6: {type:'leaf',  role:'base', intensity:3,tempMin:70,tempMax:80,timeMin:2,timeMax:4, qty:'1 col. sopa',unit:'g',grams:2},
+  7: {type:'flower',role:'heart',intensity:3,tempMin:85,tempMax:95,timeMin:6,timeMax:10,qty:'2 col. sopa',unit:'g',grams:3},
+  8: {type:'leaf',  role:'accent',intensity:3,tempMin:85,tempMax:95,timeMin:4,timeMax:7, qty:'1 col. sopa',unit:'g',grams:2},
+  9: {type:'leaf',  role:'heart',intensity:3,tempMin:80,tempMax:90,timeMin:4,timeMax:7, qty:'1 col. sopa',unit:'g',grams:2},
+  10:{type:'seed',  role:'accent',intensity:2,tempMin:85,tempMax:95,timeMin:6,timeMax:10,qty:'1 col. sopa',unit:'g',grams:2},
+  11:{type:'bark',  role:'accent',intensity:3,tempMin:90,tempMax:100,timeMin:8,timeMax:15,qty:'1 pau pequeno',unit:'pau',grams:3},
+  12:{type:'root',  role:'accent',intensity:3,tempMin:88,tempMax:98,timeMin:8,timeMax:12,qty:'1 col. chá',unit:'g',grams:2},
+  13:{type:'flower',role:'heart',intensity:2,tempMin:80,tempMax:88,timeMin:6,timeMax:10,qty:'1 col. sopa flores',unit:'g',grams:2},
+  14:{type:'leaf',  role:'base', intensity:3,tempMin:85,tempMax:95,timeMin:4,timeMax:8, qty:'1 col. sopa',unit:'g',grams:2},
+  15:{type:'leaf',  role:'base', intensity:3,tempMin:85,tempMax:95,timeMin:8,timeMax:12,qty:'1-2 col. sopa',unit:'g',grams:3},
+  16:{type:'leaf',  role:'base', intensity:3,tempMin:88,tempMax:98,timeMin:8,timeMax:12,qty:'2 col. sopa',unit:'g',grams:3},
+  17:{type:'leaf',  role:'heart',intensity:2,tempMin:85,tempMax:95,timeMin:6,timeMax:10,qty:'2 folhas frescas',unit:'folhas',grams:3},
+  18:{type:'leaf',  role:'base', intensity:2,tempMin:82,tempMax:90,timeMin:8,timeMax:12,qty:'1-2 col. sopa',unit:'g',grams:2},
+  19:{type:'leaf',  role:'heart',intensity:2,tempMin:82,tempMax:90,timeMin:5,timeMax:8, qty:'2 col. sopa',unit:'g',grams:3},
+  20:{type:'leaf',  role:'base', intensity:2,tempMin:85,tempMax:92,timeMin:8,timeMax:12,qty:'1 col. sopa',unit:'g',grams:2},
+  21:{type:'leaf',  role:'accent',intensity:4,tempMin:85,tempMax:95,timeMin:6,timeMax:10,qty:'1 col. sopa',unit:'g',grams:2},
+  22:{type:'leaf',  role:'base', intensity:2,tempMin:85,tempMax:95,timeMin:8,timeMax:12,qty:'1 col. sopa',unit:'g',grams:2},
+  23:{type:'flower',role:'accent',intensity:2,tempMin:85,tempMax:95,timeMin:4,timeMax:7, qty:'1-2 col. sopa',unit:'g',grams:2},
+  24:{type:'flower',role:'heart',intensity:2,tempMin:82,tempMax:90,timeMin:6,timeMax:10,qty:'1-2 col. sopa',unit:'g',grams:2},
+  25:{type:'leaf',  role:'base', intensity:2,tempMin:90,tempMax:100,timeMin:4,timeMax:7, qty:'1-2 col. sopa',unit:'g',grams:3},
+  26:{type:'root',  role:'base', intensity:3,tempMin:85,tempMax:95,timeMin:8,timeMax:12,qty:'1 col. chá pó',unit:'g',grams:2},
+  27:{type:'seed',  role:'accent',intensity:5,tempMin:78,tempMax:85,timeMin:4,timeMax:6, qty:'1/2 col. chá',unit:'g',grams:1},
+  28:{type:'leaf',  role:'heart',intensity:3,tempMin:85,tempMax:95,timeMin:6,timeMax:10,qty:'1 col. sopa',unit:'g',grams:2},
+};
+const SYNERGIES=[
+  {ids:[1,4],label:'Dupla calmante clássica',text:'Camomila + Melissa: apigenina e ácido rosmarínico atuam sinergicamente nos receptores GABA, amplificando o efeito sedativo suave.'},
+  {ids:[1,3],label:'Sono profundo',text:'Camomila + Maracujá: ação complementar — camomila relaxa o corpo, maracujá acalma a mente ansiosa.'},
+  {ids:[2,3],label:'Sedativo potente',text:'Valeriana + Maracujá: combinação estudada clinicamente. Potência próxima a benzodiazepínicos suaves sem risco de dependência.'},
+  {ids:[5,11],label:'Termogênico poderoso',text:'Gengibre + Canela: ambos ativam o metabolismo por vias diferentes, efeito cumulativo.'},
+  {ids:[6,8],label:'Foco máximo',text:'Chá Verde + Alecrim: L-teanina equilibra a estimulação do 1,8-cineol do alecrim. Foco sem ansiedade.'},
+  {ids:[12,5],label:'Anti-inflamatório duplo',text:'Cúrcuma + Gengibre: inibem COX-2 e LOX por caminhos distintos. Efeito 2-3x superior ao isolado.'},
+  {ids:[7,9],label:'Detox refrescante',text:'Hibisco + Hortelã: hibisco elimina toxinas, hortelã refresca. Ótimo gelado.'},
+  {ids:[14,15],label:'Detox hepático completo',text:'Boldo + Alcachofra: a dupla mais eficaz para fígado sobrecarregado.'},
+  {ids:[4,19],label:'Calmante cítrico',text:'Melissa + Erva Cidreira: ambas têm citral como composto-chave. Potência calmante dobrada.'},
+  {ids:[1,10],label:'Digestivo e calmante',text:'Camomila + Erva-doce: combinação tradicional para adultos e crianças. Anti-espasmódica e calmante.'},
+];
+const CONFLICTS=[
+  {ids:[6,2],text:'Chá Verde (cafeína) + Valeriana (sedativa): efeitos opostos que se anulam.'},
+  {ids:[27,2],text:'Guaraná (estimulante forte) + Valeriana: cafeína reduz o efeito sedativo.'},
+  {ids:[6,3],text:'Chá Verde + Maracujá: cafeína pode contrabalancear o ansiolítico. Use só de manhã.'},
+  {ids:[14,11],text:'Boldo + Canela em doses altas: ambos têm cumarina. Monitorar em uso prolongado.'},
+];
+
+let ctrBlend=[], ctrCatFilter='Todos';
+
+function renderCtrHerbs(){
+  const q=(document.getElementById('ctrSearch')?.value||'').toLowerCase();
+  const list=HERBS.filter(h=>{
+    if(q&&!(h.n+h.ef+h.tags.join(' ')).toLowerCase().includes(q))return false;
+    if(ctrCatFilter!=='Todos'&&h.cat!==ctrCatFilter)return false;
+    return true;
+  });
+  const el=document.getElementById('ctrHerbList'); if(!el)return;
+  el.innerHTML=list.map(h=>{
+    const inB=ctrBlend.some(b=>b.id===h.id);
+    return `<div class="ctr-herb-row ${inB?'in-blend':''}" onclick="toggleCtrHerb(${h.id})">
+      <div class="ctr-herb-row-icon">${h.icon}</div>
+      <div style="flex:1;min-width:0"><div class="ctr-herb-row-name">${esc(h.n)}</div><div class="ctr-herb-row-cat">${esc(h.cat)}</div></div>
+      <button class="ctr-herb-add">${inB?'✓':'+'}</button>
+    </div>`;
+  }).join('');
+}
+
+function buildCtrFilters(){
+  const el=document.getElementById('ctrFilters'); if(!el)return;
+  el.innerHTML='';
+  ['Todos','Calmante','Sono','Digestivo','Estimulante','Respiratório','Metabólico','Cognitivo','Hormonal','Pele'].forEach(c=>{
+    const b=document.createElement('button');
+    b.className='ctr-fchip'+(ctrCatFilter===c?' on':'');
+    b.textContent=c;
+    b.onclick=()=>{ctrCatFilter=c;buildCtrFilters();renderCtrHerbs();};
+    el.appendChild(b);
+  });
+}
+
+function toggleCtrHerb(id){
+  const idx=ctrBlend.findIndex(b=>b.id===id);
+  if(idx>=0)ctrBlend.splice(idx,1); else ctrBlend.push({id,qty:1});
+  renderCtrBlend(); renderCtrHerbs();
+}
+
+function changeCtrQty(id,delta){
+  const item=ctrBlend.find(b=>b.id===id); if(!item)return;
+  item.qty=Math.max(0.5,Math.min(4,item.qty+delta*0.5));
+  renderCtrBlend();
+}
+
+function removeCtrHerb(id){
+  ctrBlend=ctrBlend.filter(b=>b.id!==id);
+  renderCtrBlend(); renderCtrHerbs();
+}
+
+function getQtyLabel(qty,meta){
+  if(!meta||!meta.unit)return qty+' col.';
+  if(meta.unit==='fatias')return Math.round(qty*3)+' fatias';
+  if(meta.unit==='pau')return qty<1?'½ pau':'1 pau';
+  if(meta.unit==='folhas')return Math.round(qty*2)+' folhas';
+  if(qty===0.5)return '½ col.';
+  if(qty===1)return '1 col.';
+  return qty+' col.';
+}
+
+function renderCtrBlend(){
+  const empty=document.getElementById('ctrBlendEmpty');
+  const items=document.getElementById('ctrBlendItems');
+  const analysis=document.getElementById('ctrAnalysis');
+  if(!items)return;
+  if(!ctrBlend.length){
+    if(empty)empty.style.display='block';
+    items.innerHTML='';
+    if(analysis)analysis.style.display='none';
+    return;
+  }
+  if(empty)empty.style.display='none';
+  if(analysis)analysis.style.display='block';
+  items.innerHTML=ctrBlend.map(b=>{
+    const h=HERBS.find(x=>x.id===b.id);
+    const m=HERB_META[b.id]||{};
+    return `<div class="ctr-blend-item">
+      <span style="font-size:1.1rem">${h.icon}</span>
+      <div class="ctr-blend-item-info">
+        <div class="ctr-blend-item-name">${esc(h.n)}</div>
+        <div class="ctr-blend-item-ef">${esc(h.ef.split(',')[0])}</div>
+      </div>
+      <div class="ctr-blend-qty">
+        <button class="ctr-qty-btn" onclick="changeCtrQty(${b.id},-1)">−</button>
+        <span class="ctr-qty-val">${getQtyLabel(b.qty,m)}</span>
+        <button class="ctr-qty-btn" onclick="changeCtrQty(${b.id},1)">+</button>
+      </div>
+      <button class="ctr-blend-rm" onclick="removeCtrHerb(${b.id})">✕</button>
+    </div>`;
+  }).join('');
+  analyzeBlend();
+}
+
+function analyzeBlend(){
+  if(!ctrBlend.length)return;
+  const herbs=ctrBlend.map(b=>({...HERBS.find(x=>x.id===b.id),...HERB_META[b.id]||{},qty:b.qty}));
+
+  // Smart temperature: minimum (protect delicate)
+  const smartTemp=Math.min(...herbs.map(h=>h.tempMin||85));
+  const tempLabel=smartTemp<=75?'70-75°C':smartTemp<=82?'80-85°C':smartTemp<=88?'85-90°C':'90-95°C';
+
+  // Smart time: weighted average by herb type
+  const tw={root:1.3,bark:1.4,seed:1.1,leaf:1.0,flower:0.8,resin:1.2};
+  const smartTime=Math.round(herbs.map(h=>((h.timeMin+h.timeMax)/2)*(tw[h.type]||1)).reduce((a,b)=>a+b,0)/herbs.length);
+
+  // Dose
+  const totalG=herbs.reduce((s,h)=>s+(h.grams||2)*h.qty,0);
+
+  // Characteristics radar
+  const chars={Calmante:0,Estimulante:0,Digestivo:0,'Anti-inflam.':0,Detox:0,Amargo:0};
+  herbs.forEach(h=>{
+    const t=h.tags||[];
+    if(t.some(x=>['calmante','ansiedade','sono'].includes(x)))chars.Calmante+=h.qty*20;
+    if(t.some(x=>['energia','estimulante','termogênico','foco'].includes(x)))chars.Estimulante+=h.qty*20;
+    if(t.some(x=>['digestivo','gases','estômago','bile'].includes(x)))chars.Digestivo+=h.qty*20;
+    if(t.some(x=>['anti-inflamatório','articulações','inflamação'].includes(x)))chars['Anti-inflam.']+=h.qty*20;
+    if(t.some(x=>['fígado','detox','diurético'].includes(x)))chars.Detox+=h.qty*20;
+    if(['Boldo','Carqueja','Alcachofra','Losna'].includes(h.n))chars.Amargo+=h.qty*25;
+  });
+  const maxC=Math.max(...Object.values(chars),1);
+  const cCol={Calmante:'#1e3d5c',Estimulante:'#6b5a2d',Digestivo:'#5a3a1a','Anti-inflam.':'#3a2d6b',Detox:'#2d5a2d',Amargo:'#2d4a2d'};
+  document.getElementById('ctrCharBox').innerHTML=Object.entries(chars).map(([k,v])=>{
+    const p=Math.min(100,Math.round(v/maxC*100));
+    return `<div class="ctr-char-row"><span class="ctr-char-label">${k}</span><div class="ctr-char-bar-wrap"><div class="ctr-char-bar" style="width:${p}%;background:${cCol[k]}"></div></div><span class="ctr-char-val">${p}%</span></div>`;
+  }).join('');
+
+  // Effects
+  const allTags=[...new Set(herbs.flatMap(h=>h.tags||[]))];
+  const eCls={calmante:'positive',sono:'positive',digestivo:'positive','anti-inflamatório':'positive',ansiedade:'positive',energia:'neutral',foco:'neutral',estimulante:'neutral',termogênico:'caution',gripe:'positive',imunidade:'positive'};
+  document.getElementById('ctrEffects').innerHTML=allTags.slice(0,12).map(t=>`<span class="ctr-effect-tag ctr-effect-${eCls[t]||'neutral'}">${esc(t)}</span>`).join('');
+
+  // Warnings
+  const ids=ctrBlend.map(b=>b.id);
+  const conflicts=CONFLICTS.filter(c=>c.ids.every(id=>ids.includes(id)));
+  const avoids=herbs.filter(h=>h.avoid&&h.avoid.length).map(h=>`${h.n}: ${h.avoid.slice(0,2).join(', ')}`);
+  document.getElementById('ctrWarnings').innerHTML=(conflicts.length||avoids.length)?`<div class="warn-box" style="margin-bottom:1rem">${conflicts.map(c=>`⚠ <strong>Conflito:</strong> ${esc(c.text)}`).join('<br>')}${avoids.length?`<div style="margin-top:${conflicts.length?'.5rem':'0'}">ℹ Contraindicações: ${avoids.map(a=>esc(a)).join(' · ')}</div>`:''}</div>`:'';
+
+  // Synergies
+  document.getElementById('ctrSynergies').innerHTML=SYNERGIES.filter(s=>s.ids.every(id=>ids.includes(id))).map(s=>`<div class="ctr-synergy-box"><div class="ctr-synergy-title">✦ Sinergia: ${esc(s.label)}</div><div class="ctr-synergy-text">${esc(s.text)}</div></div>`).join('');
+
+  // Smart recipe — sort roots first, flowers last
+  const tOrd={root:1,bark:2,seed:3,resin:3,leaf:4,flower:5};
+  const sorted=[...herbs].sort((a,b)=>(tOrd[a.type]||4)-(tOrd[b.type]||4));
+  const tLbl={root:'raiz — infuse mais tempo',bark:'casca — resistente ao calor',seed:'semente',leaf:'folha — delicada',flower:'flor — adicionar por último'};
+  document.getElementById('ctrRecipeBox').innerHTML=`
+    <div class="ctr-recipe-total"><span>Total do blend</span><span>${Math.round(totalG)}g / 300ml · ${smartTime} min · ${tempLabel}</span></div>
+    ${sorted.map((h,i)=>`<div class="ctr-recipe-row">
+      <div class="ctr-recipe-order">${i+1}</div>
+      <div style="flex:1"><div class="ctr-recipe-herb">${esc(h.n)} ${h.icon}</div><span class="ctr-recipe-herb-type">${esc(tLbl[h.type]||h.type)}</span></div>
+      <div class="ctr-recipe-amount">${getQtyLabel(h.qty,h)}</div>
+    </div>`).join('')}`;
+
+  // Prep steps
+  const hasRoots=herbs.some(h=>['root','bark'].includes(h.type));
+  const hasFlowers=herbs.some(h=>h.type==='flower');
+  const freq=herbs.some(h=>['Calmante','Sono'].includes(h.cat))?'1-2x ao dia, preferencialmente à noite':herbs.some(h=>h.cat==='Estimulante')?'1x pela manhã':'2-3x ao dia';
+  const prepSteps=[
+    `Ferva a água e deixe esfriar até ${tempLabel}.`,
+    hasRoots?`Adicione primeiro as raízes/cascas: ${sorted.filter(h=>['root','bark'].includes(h.type)).map(h=>h.n).join(', ')}.`:'',
+    `Adicione ${hasRoots?'em seguida ':''}as folhas/sementes${sorted.filter(h=>['leaf','seed'].includes(h.type)).length?': '+sorted.filter(h=>['leaf','seed'].includes(h.type)).map(h=>h.n).join(', '):'.'}.`,
+    hasFlowers?`Adicione por último as flores: ${sorted.filter(h=>h.type==='flower').map(h=>h.n).join(', ')}.`:'',
+    `Tampe e infuse por ${smartTime} min.`,
+    `Coe e sirva morno. ${freq}.`,
+  ].filter(Boolean);
+  document.getElementById('ctrPrepBox').innerHTML=`
+    <div class="ctr-prep-grid">
+      <div class="ctr-prep-item"><div class="ctr-prep-val">${tempLabel}</div><div class="ctr-prep-key">Temperatura</div></div>
+      <div class="ctr-prep-item"><div class="ctr-prep-val">${smartTime} min</div><div class="ctr-prep-key">Infusão</div></div>
+      <div class="ctr-prep-item"><div class="ctr-prep-val">${Math.round(totalG)}g</div><div class="ctr-prep-key">Peso total</div></div>
+      <div class="ctr-prep-item"><div class="ctr-prep-val">${freq.split(',')[0]}</div><div class="ctr-prep-key">Frequência</div></div>
+    </div>
+    <div class="ctr-prep-steps">${prepSteps.map((s,i)=>`<div class="ctr-prep-step"><div class="ctr-prep-step-num">${i+1}</div><div>${s}</div></div>`).join('')}</div>`;
+
+  window._ctrComputed={smartTemp,smartTime,sorted,freq,herbs,totalG};
+}
+
+function startBlendTimer(){
+  if(!ctrBlend.length){toast('Adicione pelo menos uma erva');return;}
+  const c=window._ctrComputed; if(!c)return;
+  const name=document.getElementById('ctrBlendName')?.value||'Meu Blend';
+  const {smartTemp,smartTime,sorted,freq}=c;
+  const tempLabel=smartTemp<=75?'~70°C':smartTemp<=82?'~80°C':smartTemp<=88?'~85°C':'~90°C';
+  const tOrd={root:1,bark:2,seed:3,resin:3,leaf:4,flower:5};
+  const groups=[];
+  sorted.forEach(h=>{
+    const last=groups[groups.length-1];
+    if(last&&last.type===h.type)last.herbs.push(h);
+    else groups.push({type:h.type,herbs:[h]});
+  });
+  const steps=[{title:'Aqueça a água',desc:`Ferva e deixe esfriar até ${tempLabel}. Separe todas as ${sorted.length} ervas e a infusora.`,duration:0}];
+  const multiGroup=groups.length>1;
+  if(multiGroup){
+    const roots=groups.filter(g=>['root','bark'].includes(g.type));
+    const mids=groups.filter(g=>['seed','leaf','resin'].includes(g.type));
+    const flowers=groups.filter(g=>g.type==='flower');
+    if(roots.length){
+      const t=Math.round(smartTime*0.6);
+      steps.push({title:`Adicione raízes: ${roots.flatMap(g=>g.herbs).map(h=>h.n).join(' + ')}`,desc:roots.flatMap(g=>g.herbs).map(h=>`${h.icon} ${h.n}: ${getQtyLabel(h.qty,HERB_META[h.id]||{})}`).join('\n')+'.\nRaízes precisam de mais tempo para liberar os compostos.',duration:t*60});
+    }
+    if(mids.length){
+      const t=Math.round(smartTime*(roots.length?0.35:0.8));
+      steps.push({title:`Adicione: ${mids.flatMap(g=>g.herbs).map(h=>h.n).join(' + ')}`,desc:mids.flatMap(g=>g.herbs).map(h=>`${h.icon} ${h.n}: ${getQtyLabel(h.qty,HERB_META[h.id]||{})}`).join('\n'),duration:t*60});
+    }
+    if(flowers.length){
+      const t=Math.min(4,Math.round(smartTime*0.25));
+      steps.push({title:`Adicione flores: ${flowers.flatMap(g=>g.herbs).map(h=>h.n).join(' + ')}`,desc:flowers.flatMap(g=>g.herbs).map(h=>`${h.icon} ${h.n}: ${getQtyLabel(h.qty,HERB_META[h.id]||{})}`).join('\n')+'.\nFlores liberam rápido — apenas '+t+' min finais.',duration:t*60});
+    }
+  } else {
+    steps.push({title:`Adicione todas as ervas`,desc:sorted.map(h=>`${h.icon} ${h.n}: ${getQtyLabel(h.qty,HERB_META[h.id]||{})}`).join('\n'),duration:smartTime*60});
+  }
+  steps.push({title:'Coe e sirva',desc:`Retire as ervas e coe.\n${freq}.`,duration:0});
+  launchTimer(name,steps);
+}
+
+function saveBlendFromCtr(){
+  if(!ctrBlend.length){toast('Adicione pelo menos uma erva');return;}
+  const name=document.getElementById('ctrBlendName')?.value||'Blend sem nome';
+  const ings=ctrBlend.map(b=>{const h=HERBS.find(x=>x.id===b.id);const m=HERB_META[b.id]||{};return{id:b.id,n:h.n,amount:getQtyLabel(b.qty,m)};});
+  if(savedRecipes.find(r=>r.name===name)){toast('Já existe um blend com esse nome');return;}
+  savedRecipes.unshift({name,tagline:`${ctrBlend.length} ervas · blend personalizado`,ingredients:ings,fromCtr:true});
+  localStorage.setItem('erb_recipes',JSON.stringify(savedRecipes));
+  toast(`"${name}" salvo nos favoritos!`);
+}
+
+// ── override goPage to handle all pages ──
+function goPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='favs')renderFavs();
+  if(id==='suppliers')renderSuppliers();
+  if(id==='shop')renderShop();
+  if(id==='roda')window.initRoda();
+  if(id==='perfil')renderPerfil();
+  if(id==='construtor'){buildCtrFilters();renderCtrHerbs();renderCtrBlend();}
+  if(id==='chas')initChas();
+  if(id==='cerimonia')initCerimonia();
+  if(id==='marketplace')initMkt();
+  if(id==='mundo')initMundo();
+}
+
+// ════════════════════════════════════════
+// ── CHÁS TRADICIONAIS ──
+// ════════════════════════════════════════
+const CHAS_DATA = [
+  {
+    id:'branco', name:'Chá Branco', emoji:'🤍', oxidation:5,
+    color:'#e8dcc8', textColor:'#3a2a1a', bgColor:'rgba(232,220,200,.12)',
+    tagline:'O mais puro e delicado — colhido antes do despertar',
+    latin:'Camellia sinensis — brotos jovens, pré-floração',
+    sabores:['Mel suave','Floral','Melão','Fruta fresca','Levemente adocicado'],
+    temp:'65-75°C', tempo:'2-4 min', dose:'2-3 col. sopa / 200ml', cafeina:'Baixo (15-30mg)',
+    beneficios:['Rico em catequinas antioxidantes','Maior concentração de EGCG entre os chás','Anti-aging celular','Leve termogênico','Proteção cardiovascular'],
+    historia:[
+      {year:'618 d.C.', text:'Originário da Dinastia Tang, na China. Oferecido como tributo ao imperador, representava pureza e status imperial.'},
+      {year:'960 d.C.', text:'Na Dinastia Song tornou-se ápice da cultura do chá. A cerimônia Gongfu foi desenvolvida para honrar sua delicadeza.'},
+      {year:'Século XIX', text:'Chegou à Europa através da Rota da Seda. Considerado mais valioso que o ouro em alguns mercados.'},
+      {year:'Hoje', text:'Fujian (China) e Darjeeling (Índia) produzem os mais apreciados. Bai Hao Yinzhen ("Agulha de Prata") é o mais nobre.'},
+    ],
+    preparo:['Aqueça a água até 65-70°C. Nunca água fervendo — destrói os compostos delicados.','Use 2-3 colheres de sopa cheias para 200ml.','Infuse por 2-3 minutos. Pode reutilizar as folhas até 3 vezes.','Sirva sem leite ou açúcar — a sutileza é sua essência.','A segunda infusão é frequentemente a melhor.'],
+    curiosidades:'As folhas do chá branco são cobertas por finos pelos brancos (Bai Hao). Esses pelos são proteção natural contra insetos — e concentram polifenóis. É o único chá que pode ser infusionado com água fria (cold brew 8h).',
+    regioes:['Fujian, China (Bai Hao Yinzhen, Bai Mudan)','Darjeeling, Índia','Sri Lanka','Nepal'],
+  },
+  {
+    id:'verde', name:'Chá Verde', emoji:'🍃', oxidation:10,
+    color:'#4a7a3a', textColor:'#e8f5e0', bgColor:'rgba(74,122,58,.15)',
+    tagline:'O guardião da saúde — dois mil anos de sabedoria',
+    latin:'Camellia sinensis — folhas fixadas rapidamente ao calor',
+    sabores:['Gramíneo','Vegetal','Algas marinhas','Castanho suave','Erva fresca'],
+    temp:'70-80°C', tempo:'2-3 min', dose:'1-2 col. sopa / 200ml', cafeina:'Médio (25-50mg)',
+    beneficios:['EGCG: antioxidante mais estudado do mundo','L-teanina: foco calmo sem ansiedade','Termogênico — aumenta queima de gordura','Neuroprotetor a longo prazo','Reduz risco cardiovascular'],
+    historia:[
+      {year:'2737 a.C.', text:'Lenda: o imperador Shennong descobriu o chá quando folhas caíram em sua água quente. Reconheceu suas propriedades medicinais.'},
+      {year:'618 d.C.', text:'Lu Yu escreveu o Chajing (Clássico do Chá) — primeiro livro dedicado à arte do chá. Fundação da cultura do chá verde japonês.'},
+      {year:'1191 d.C.', text:'O monge Eisai levou o chá verde para o Japão. Origem do matcha e da cerimônia japonesa (Chanoyu).'},
+      {year:'Século XX', text:'Estudos científicos confirmam os benefícios do EGCG. Japão exporta Gyokuro, Sencha, Matcha para o mundo.'},
+    ],
+    preparo:['Água a 75-80°C. Para Gyokuro premium, use 60°C.','1 colher de sopa por 200ml. Para matcha: 1 col. chá em pó.','Infuse por 2-3 minutos. Evite mais — fica amargo.','Para matcha: bata em Z com o chasen até espumar.','Pode infusionar 2-3 vezes. A segunda é mais suave.'],
+    curiosidades:'O Japão produz mais de 80 estilos diferentes de chá verde. Matcha é pó de folhas inteiras — você ingere toda a folha. Gyokuro é cultivado à sombra nas últimas semanas, concentrando L-teanina e tornando o sabor mais doce.',
+    regioes:['Uji, Japão (Matcha, Gyokuro)','Shizuoka, Japão (Sencha)','Fujian, China (Dragonwell/Longjing)','Zhejiang, China','Darjeeling, Índia'],
+  },
+  {
+    id:'amarelo', name:'Chá Amarelo', emoji:'💛', oxidation:15,
+    color:'#a87a2a', textColor:'#fff8e0', bgColor:'rgba(168,122,42,.12)',
+    tagline:'O raro tesouro — o segredo mais guardado da China',
+    latin:'Camellia sinensis — smothering lento, oxidação controlada',
+    sabores:['Mel suave','Milho','Floral discreto','Amendoado','Mais suave que o verde'],
+    temp:'70-80°C', tempo:'2-3 min', dose:'2 col. sopa / 200ml', cafeina:'Médio (20-40mg)',
+    beneficios:['Mais fácil para estômagos sensíveis que o chá verde','Rico em antioxidantes','Processo único de "fechamento" reduz amargor','Melhora digestão','Propriedades anti-inflamatórias'],
+    historia:[
+      {year:'Dinastia Tang', text:'Reservado exclusivamente para o imperador e sua corte. Produção era segredo de Estado, punível com morte divulgar.'},
+      {year:'Século XVIII', text:'Algumas regiões abandonaram a produção. O conhecimento do processo quase se perdeu completamente.'},
+      {year:'Século XX', text:'Produção quase extinta. Apenas 3 estilos sobrevivem: Junshan Yinzhen, Meng Ding Huangya e Huo Shan Huangya.'},
+      {year:'Hoje', text:'Um dos chás mais raros e caros do mundo. Produção anual de alguns estilos não ultrapassa 500kg.'},
+    ],
+    preparo:['Água a 75°C — mais delicado que o verde.','2 colheres de sopa para 200ml.','Infuse por 2-3 minutos. As folhas podem ser reinfusionadas.','O processo de men huan (abafamento) lhe dá cor amarelada única.','Aprecie a diferença sutil em relação ao chá verde.'],
+    curiosidades:'O processo smothering (Men Huan) envolve embrulhar as folhas ainda quentes para iniciar leve oxidação controlada. Isso remove o sabor gramíneo e cria o perfil único. Junshan Yinzhen é cultivado apenas na Ilha Junshan, no Lago Dongting.',
+    regioes:['Ilha Junshan, Hunan (Junshan Yinzhen)','Sichuan (Meng Ding Huangya)','Anhui (Huo Shan Huangya)'],
+  },
+  {
+    id:'oolong', name:'Chá Oolong', emoji:'🔵', oxidation:50,
+    color:'#2d5a7a', textColor:'#e0f0ff', bgColor:'rgba(45,90,122,.15)',
+    tagline:'O chá azul — entre dois mundos, com a melhor de cada',
+    latin:'Camellia sinensis — oxidação parcial 15-85%',
+    sabores:['Floral intenso','Pêssego','Mel de flores','Frutado suave','Torrado suave (oxidado)'],
+    temp:'85-95°C', tempo:'3-5 min', dose:'1 col. sopa / 200ml', cafeina:'Médio-alto (30-50mg)',
+    beneficios:['Equilibra benefícios do verde e do preto','Controle glicêmico — estudado para diabetes','Termogênico eficaz','Saúde óssea','Reduz triglicerídeos'],
+    historia:[
+      {year:'Século XVII', text:'Originário de Fujian. O nome "oolong" (dragão negro) vem de uma lenda: um catador viu uma cobra e fugiu. Ao voltar, as folhas já tinham oxidado parcialmente — e o resultado era sublime.'},
+      {year:'Século XVIII', text:'Taiwan começa a cultivar oolong trazido de Fujian. A ilha torna-se célebre pelo High Mountain Oolong.'},
+      {year:'Século XIX', text:'Chás oolong de Formosa (Taiwan) tornaram-se os mais apreciados da Europa e América.'},
+      {year:'Hoje', text:'Taiwan produz os mais renomados: Ali Shan, Li Shan, Da Yu Ling. Fujian é famoso pelo Tie Guan Yin e Da Hong Pao.'},
+    ],
+    preparo:['Água a 90-95°C para oolongs oxidados; 85°C para os florais.','1 colher de sopa rasa por 200ml.','Primeira infusão: 3-4 min. Oolongs de qualidade suportam 5-7 infusões.','No estilo Gongfu: copos pequenos, infusões rápidas (30s-2min) revelam perfis diferentes.','Observe a evolução do sabor a cada infusão.'],
+    curiosidades:'Um oolong de alta qualidade (como Da Yu Ling, a 2600m de altitude) pode custar R$800-2000 por 100g. Cada infusão revela notas diferentes — a 3ª e 4ª são frequentemente as mais complexas. O grau de oxidação define tudo: 15% = quase verde; 85% = quase preto.',
+    regioes:['Alishan e Li Shan, Taiwan (High Mountain)','Wuyi, Fujian, China (Da Hong Pao, Shui Xian)','Anxi, Fujian (Tie Guan Yin)','Darjeeling, Índia'],
+  },
+  {
+    id:'preto', name:'Chá Preto', emoji:'🖤', oxidation:100,
+    color:'#3a1a0a', textColor:'#f5d8c0', bgColor:'rgba(58,26,10,.2)',
+    tagline:'O favorito do mundo — força, profundidade, história',
+    latin:'Camellia sinensis — oxidação total, sabor robusto',
+    sabores:['Malte','Caramelo','Terra','Chocolate amargo','Tanino marcante','Notas de frutas secas'],
+    temp:'90-100°C', tempo:'3-5 min', dose:'1-2 col. sopa / 250ml', cafeina:'Alto (40-70mg)',
+    beneficios:['Estimulante natural — mais cafeína que o verde','L-teanina presente (menor que verde)','Saúde intestinal — prebiótico','Reduz LDL colesterol','Antioxidantes theaflavinas'],
+    historia:[
+      {year:'Século XVII', text:'Criado como chá para exportação — resistia melhor às longas viagens marítimas. A oxidação total preservava o chá por meses.'},
+      {year:'1823', text:'Robert Bruce descobre o chá Assam na Índia — plantas nativas diferentes das chinesas. Início da produção colonial britânica.'},
+      {year:'1869', text:'Fungo destrói plantações de café no Sri Lanka. Os ingleses substituem por chá — criando o famoso Ceylon Tea.'},
+      {year:'Hoje', text:'O chá mais consumido no mundo. Assam, Darjeeling e Ceylon definem o mercado global. Base do Chai indiano e do English Breakfast.'},
+    ],
+    preparo:['Água a 95-100°C — o único chá que suporta água fervendo.','1-2 colheres de sopa por 250ml.','Infuse por 3-5 minutos. Além disso fica amargo.','Com leite: adicione o leite antes da água (tradição britânica).','Com especiarias (Masala Chai): gengibre, canela, cardamomo, cravo.'],
+    curiosidades:'Darjeeling First Flush (colheita de março-abril) é o "Champagne dos chás" — tem certificação geográfica. Assam é base do famoso English Breakfast. Pu-erh não é exatamente preto — tem sua própria categoria. O chá com leite foi introduzido para proteger porcelanas finas do choque térmico.',
+    regioes:['Assam, Índia (forte, maltado)','Darjeeling, Índia (floral, Champagne dos chás)','Sri Lanka / Ceylon','Keemun, China (fumado, notas de vinho)','Nilgiri, Índia'],
+  },
+  {
+    id:'puerh', name:'Chá Escuro (Pu-erh)', emoji:'🟤', oxidation:100,
+    color:'#2a1a0a', textColor:'#e8d0b0', bgColor:'rgba(42,26,10,.2)',
+    tagline:'O chá que envelhece como vinho — fermentado, profundo, raro',
+    latin:'Camellia sinensis — fermentação microbiana pós-colheita',
+    sabores:['Terra molhada','Cogumelo','Madeira','Couro envelhecido','Tabaco suave','Compostagem mineral'],
+    temp:'95-100°C', tempo:'3-5 min', dose:'5-8g / 150ml', cafeina:'Médio-alto (30-60mg)',
+    beneficios:['Único chá com probióticos vivos (fermentado)','Mais estudado para redução de colesterol','Digestivo poderoso — usado após refeições gordurosas','Saúde hepática','Emagrecimento — estudos em animais promissores'],
+    historia:[
+      {year:'618 d.C.', text:'Yunnan (China) — tributo ao imperador Tang. A longa viagem pela Rota do Chá-Cavalos transformava naturalmente as folhas por fermentação.'},
+      {year:'Século XVII', text:'Comerciantes tibetanos e mongóis trocavam cavalos por tijolos de Pu-erh. A rota Tea Horse Road estendia-se por 2700km.'},
+      {year:'1973', text:'Criação do Shu Pu-erh (fermentação acelerada) na fábrica Kunming. Permite produzir em meses o que levaria décadas naturalmente.'},
+      {year:'Anos 2000', text:'Pu-erh vintage torna-se investimento. Um bolo (357g) de 1950 pode valer mais de R$500.000. Mercado de especulação em Hong Kong.'},
+    ],
+    preparo:['Despeje água quente sobre as folhas e jogue fora (lavagem). Pu-erh precisa de rinse.','Água a 95-100°C. 5-8g por 150ml (mais denso que outros chás).','Primeira infusão: 30s. Infusões seguintes: aumente 10s cada vez.','Pode render 10-20 infusões de qualidade.','Armazenado corretamente, melhora por décadas.'],
+    curiosidades:'Pu-erh Sheng (cru) envelhece como vinho — ganha complexidade com o tempo. Pu-erh Shu (maduro) tem fermentação acelerada de 45-60 dias em pilhas úmidas. Os microrganismos responsáveis incluem Aspergillus niger. Um bolo vintage de boa procedência é investimento comparável a vinhos de Bordeaux.',
+    regioes:['Xishuangbanna, Yunnan (antigos bosques)','Menghai, Yunnan (fábricas tradicionais)','Yiwu, Yunnan (Pu-erh premium)','Jingmai, Yunnan (árvores centenárias)'],
+  },
+];
+
+let chaActiveId='verde';
+
+function initChas(){
+  const intro=document.getElementById('chaFamilyIntro');
+  intro.innerHTML=`<strong style="color:var(--gold2);font-family:'Cormorant Garamond',serif;font-size:1rem">Camellia sinensis</strong> — uma única planta, seis universos distintos. O que diferencia cada chá não é a espécie, mas o processo: quanto tempo as folhas oxidam após a colheita. Este processo transforma compostos, sabores, aromas e benefícios completamente. Cada família é um mundo a descobrir.`;
+  buildChaTabs();
+  renderChaDetail(chaActiveId);
+}
+
+function buildChaTabs(){
+  const el=document.getElementById('chaTabs'); if(!el)return;
+  el.innerHTML='';
+  CHAS_DATA.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='cha-tab'+(chaActiveId===c.id?' on':'');
+    b.style.color=chaActiveId===c.id?c.color:'';
+    b.style.borderColor=chaActiveId===c.id?c.color:'';
+    b.innerHTML=`${c.emoji} ${c.name}`;
+    b.onclick=()=>{chaActiveId=c.id;buildChaTabs();renderChaDetail(c.id);};
+    el.appendChild(b);
+  });
+}
+
+function renderChaDetail(id){
+  const c=CHAS_DATA.find(x=>x.id===id); if(!c)return;
+  const el=document.getElementById('chaDetail'); if(!el)return;
+  el.innerHTML=`
+    <div class="cha-header" style="background:${c.bgColor};border:0.5px solid ${c.color}44;color:${c.textColor}">
+      <div style="font-size:2.5rem;margin-bottom:.5rem">${c.emoji}</div>
+      <div class="cha-header-name" style="color:${c.color}">${c.name}</div>
+      <div class="cha-header-latin">${c.latin}</div>
+      <div class="cha-header-tagline">${c.tagline}</div>
+      <div class="cha-oxidation-bar">
+        <span class="cha-oxidation-label">Oxidação 0%</span>
+        <div class="cha-oxidation-track"><div class="cha-oxidation-fill" style="width:${c.oxidation}%;background:${c.color}"></div></div>
+        <span class="cha-oxidation-label">${c.oxidation}%</span>
+      </div>
+    </div>
+
+    <div class="cha-grid">
+      <div class="cha-card">
+        <div class="cha-card-label">Perfil de sabor</div>
+        <div class="cha-flavor-wheel">${c.sabores.map(s=>`<span class="cha-flavor-tag">${s}</span>`).join('')}</div>
+      </div>
+      <div class="cha-card">
+        <div class="cha-card-label">Preparo ideal</div>
+        <table class="cha-compare-table">
+          <tr><td style="color:var(--muted)">Temperatura</td><td><strong>${c.temp}</strong></td></tr>
+          <tr><td style="color:var(--muted)">Tempo</td><td><strong>${c.tempo}</strong></td></tr>
+          <tr><td style="color:var(--muted)">Dose</td><td><strong>${c.dose}</strong></td></tr>
+          <tr><td style="color:var(--muted)">Cafeína</td><td><strong>${c.cafeina}</strong></td></tr>
+        </table>
+      </div>
+      <div class="cha-card">
+        <div class="cha-card-label">Benefícios</div>
+        <div class="cha-card-content">${c.beneficios.map(b=>`<div style="display:flex;gap:6px;margin-bottom:.3rem"><span style="color:${c.color||'var(--gold)'};flex-shrink:0">✦</span><span>${b}</span></div>`).join('')}</div>
+      </div>
+      <div class="cha-card">
+        <div class="cha-card-label">Regiões produtoras</div>
+        <div class="cha-card-content">${c.regioes.map(r=>`<div style="padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,.04)">${r}</div>`).join('')}</div>
+      </div>
+    </div>
+
+    <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem">Como preparar</div>
+    <div class="cha-prep-steps" style="margin-bottom:1.5rem">
+      ${c.preparo.map((s,i)=>`<div class="cha-prep-step">
+        <div class="cha-prep-num" style="background:${c.color||'var(--gold)'}22;border:0.5px solid ${c.color||'var(--gold)'}44;color:${c.color||'var(--gold)'}">${i+1}</div>
+        <div class="cha-prep-text">${s}</div>
+      </div>`).join('')}
+    </div>
+
+    <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.75rem">História & Origem</div>
+    ${c.historia.map(h=>`<div class="cha-history-block" style="border-left-color:${c.color||'var(--gold)'}"><div class="cha-history-year">${h.year}</div>${h.text}</div>`).join('')}
+
+    <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:.75rem 0 .5rem">Curiosidades</div>
+    <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;font-size:.82rem;color:var(--cream2);line-height:1.7;font-style:italic">"${c.curiosidades}"</div>
+
+    <div style="display:flex;gap:8px;margin-top:1.25rem">
+      <button class="roda-start-btn" onclick="openTimerCha('${c.id}')">⏱ Preparar ${c.name} agora</button>
+    </div>`;
+}
+
+function openTimerCha(id){
+  const c=CHAS_DATA.find(x=>x.id===id); if(!c)return;
+  const steps=[
+    {title:'Aqueça a água',desc:`Para ${c.name}: ${c.temp}. Use termômetro para precisão — a temperatura é crucial.`,duration:0},
+    {title:'Prepare o recipiente',desc:`Aqueça a xícara ou bule com um pouco de água quente e descarte. Isso mantém a temperatura estável durante a infusão.`,duration:0},
+    {title:'Meça as folhas',desc:`Use ${c.dose}. Para ${c.name}, a proporção é fundamental para equilibrar sabor e suavidade.`,duration:0},
+    {title:'Infusão',desc:`Despeje a água sobre as folhas. ${c.name}: ${c.tempo} de infusão. Cubra para preservar aromas.`,duration:parseInt(c.tempo)*60},
+    {title:'Sirva e aproveite',desc:`Coe com cuidado. ${c.name} pode ser reinfusionado — segunda e terceira infusões revelam perfis diferentes.`,duration:0},
+  ];
+  launchTimer(c.name,steps);
+}
+
+// ════════════════════════════════════════
+// ── CERIMÔNIA DO CHÁ ──
+// ════════════════════════════════════════
+const CER_TABS_DATA = [
+  {id:'oque', label:'O que é'},
+  {id:'tipos', label:'Tipos de Cerimônia'},
+  {id:'utensílios', label:'Utensílios'},
+  {id:'como', label:'Como Fazer'},
+  {id:'onde', label:'Onde Participar'},
+];
+let cerActiveTab='oque';
+
+function initCerimonia(){
+  buildCerTabs();
+  renderCerContent(cerActiveTab);
+}
+
+function buildCerTabs(){
+  const el=document.getElementById('cerTabs'); if(!el)return;
+  el.innerHTML='';
+  CER_TABS_DATA.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='cer-tab'+(cerActiveTab===t.id?' on':'');
+    b.textContent=t.label;
+    b.onclick=()=>{cerActiveTab=t.id;buildCerTabs();renderCerContent(t.id);};
+    el.appendChild(b);
+  });
+}
+
+function renderCerContent(tab){
+  const el=document.getElementById('cerContent'); if(!el)return;
+  if(tab==='oque') el.innerHTML=`
+    <div class="cer-intro">"A cerimônia do chá não é sobre o chá. É sobre tudo o que acontece quando você para — o silêncio, a presença, a beleza do efêmero."</div>
+    <div class="cer-section">
+      <div class="cer-section-title">O que é a cerimônia do chá</div>
+      <div class="cer-item"><div class="cer-item-name">Chanoyu — Japão</div><div class="cer-item-desc">A "Via do Chá" japonesa. Baseada nos princípios do Zen budismo: Wa (harmonia), Kei (respeito), Sei (pureza) e Jaku (tranquilidade). Sen Rikyū codificou seus princípios no século XVI. Não é apenas preparar chá — é uma forma de meditação ativa.</div></div>
+      <div class="cer-item"><div class="cer-item-name">Gongfu Cha — China</div><div class="cer-item-desc">A "Arte de Fazer Chá com Habilidade". Múltiplas infusões rápidas em bule pequeno (Yixing). Cada infusão revela uma faceta diferente do chá. Popular em Fujian, Guangdong e Taiwan. Filosofia Taoísta de harmonizar com a natureza.</div></div>
+      <div class="cer-item"><div class="cer-item-name">Cha Dao — Filosofia do Chá</div><div class="cer-item-desc">Além de qualquer cerimônia específica — o "caminho do chá" como prática de vida. Cada xícara como oportunidade de presença plena. Cultivada por mestres como Lu Yu (China, século VIII) e Sen Rikyū (Japão, século XVI).</div></div>
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Os quatro princípios universais</div>
+      ${[{n:'Harmonia (Wa/He)',t:'Sintonia entre as pessoas, o ambiente e o chá. O espaço, os gestos e os objetos devem criar um todo coerente.'},{n:'Respeito (Kei/Jing)',t:'Consideração profunda por cada pessoa presente, pelos objetos usados e pelo próprio chá.'},{n:'Pureza (Sei/Jie)',t:'Do espaço, dos utensílios, da mente. A limpeza é ritual — e vai além do físico.'},{n:'Tranquilidade (Jaku/Jing)',t:'O estado de paz interior que emerge quando os outros três princípios estão presentes.'}].map(p=>`<div class="cer-item"><div class="cer-item-name">${p.n}</div><div class="cer-item-desc">${p.t}</div></div>`).join('')}
+    </div>`;
+
+  else if(tab==='tipos') el.innerHTML=`
+    <div class="cer-section">
+      <div class="cer-section-title">Cerimônias japonesas</div>
+      ${[{n:'Chaji — Cerimônia completa',d:'4-5 horas. Inclui refeição Kaiseki, matcha denso (koicha) e leve (usucha). Acontece no chashitsu (casa do chá). A forma mais formal e completa.',det:'Exige preparo intenso. Geralmente realizada para 4-5 convidados especiais.'},{n:'Chakai — Reunião casual',d:'1-2 horas. Mais simples, sem refeição completa. Wagashi (doces japoneses) antes do matcha. A forma mais acessível para iniciantes.',det:'Perfeita para primeiro contato com a cerimônia.'},{n:'Ro e Furo — sazonais',d:'Ro (braseiro interior, novembro-abril) e Furo (fogão portátil, maio-outubro). A cerimônia muda completamente com as estações — utensílios, gestos e estética.',det:'Cada estação tem seu próprio vocabulário estético.'}].map(c=>`<div class="cer-item"><div class="cer-item-name">${c.n}</div><div class="cer-item-desc">${c.d}</div><div class="cer-item-detail">${c.det}</div></div>`).join('')}
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Cerimônias chinesas</div>
+      ${[{n:'Gongfu Cha — Arte da habilidade',d:'Bule Yixing pequeno (100-150ml), múltiplas infusões curtas (20-40 segundos). Cada infusão é uma revelação diferente do mesmo chá. Ideal para oolongs, Pu-erh e chás premium.',det:'O bule Yixing absorve o sabor do chá ao longo dos anos — nunca lavar com detergente.'},{n:'Grandma Style — o cotidiano',d:'Folhas diretamente na xícara, adicionar água quente quando necessário. O jeito mais simples e praticado diariamente na China. Filosofia: o chá deve ser acessível a todos.',det:'Perfeito para chás verdes e oolongs leves do dia a dia.'},{n:'Cerimônia do Pu-erh',d:'Rinse inicial obrigatório. Bule ou gaiwan. Água fervendo (100°C). As primeiras infusões são rápidas (10-30s), depois aumentam gradualmente. Um bolo de Pu-erh vintage pode render 20+ infusões.',det:'Cada infusão revela um perfil diferente. A 7ª ou 8ª frequentemente é considerada a melhor.'}].map(c=>`<div class="cer-item"><div class="cer-item-name">${c.n}</div><div class="cer-item-desc">${c.d}</div><div class="cer-item-detail">${c.det}</div></div>`).join('')}
+    </div>`;
+
+  else if(tab==='utensílios') el.innerHTML=`
+    <div class="cer-section">
+      <div class="cer-section-title">Utensílios japoneses (Chanoyu)</div>
+      ${[{n:'Chawan — Tigela de matcha',d:'O coração da cerimônia. Feita à mão por ceramistas. Formato assimétrico intencional — a imperfeição é beleza (Wabi-sabi). Aquecida antes do uso.',det:'Preço: R$150 (artesanal) a R$50.000+ (obra assinada)'},{n:'Chasen — Batedor de bambu',d:'80-120 fios de bambu finamente cortados. Bate o matcha em Z até formar espuma. Cada um tem vida útil de 3-6 meses.',det:'Origem: Nara. Família Takayama produz há 500 anos ininterruptamente.'},{n:'Chashaku — Colher de bambu',d:'Medida tradicional: 2 medidas rasas por tigela. Feita de bambu ou marfim (antigas). Carregada por cada mestre como objeto pessoal.',det:'Um chashaku autografado por um mestre pode valer milhares.'},{n:'Chakin — Pano branco',d:'Dobrado precisamente, usado para secar a tigela. A dobra específica é ensinada como técnica separada.',det:'Linho ou algodão branco imaculado.'},{n:'Fukusa — Seda para purificação',d:'Seda colorida para ritual de limpeza dos utensílios. A dobra e o gesto de limpeza são gestos meditativos centrais da cerimônia.',det:'Cor da seda indica escola e gênero do praticante.'}].map(u=>`<div class="cer-item"><div class="cer-item-name">${u.n}</div><div class="cer-item-desc">${u.d}</div><div class="cer-item-detail">${u.det}</div></div>`).join('')}
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Utensílios chineses (Gongfu Cha)</div>
+      ${[{n:'Bule Yixing — Argila roxa',d:'Argila Zisha de Yixing. Porosa: absorve sabor do chá ao longo dos anos. Um bule bem curado é passado de geração em geração.',det:'Nunca usar com diferentes tipos de chá. Nunca lavar com sabão.'},{n:'Gaiwan — Tigela com tampa',d:'Porcelana com tigela, tampa e pires. Versátil — funciona como bule e xícara. Permite ver as folhas abrirem.',det:'A tampa serve de filtro e permite observar a infusão.'},{n:'Cha Hai — Jarro',d:'Recebe o chá do bule antes de servir. Uniformiza a concentração. Permite avaliar a cor e limpidez.',det:'Também chamado "pitcher" do chá.'},{n:'Xícaras de cheiro e sabor',d:'Par de xícaras: a alta, estreita (para cheirar) e a baixa, aberta (para beber). A transição do aroma para o sabor é uma experiência em si.',det:'Típica da cerimônia de oolong.'},{n:'Tabuleiro de chá',d:'Captura o excesso de água. Bambu, madeira ou pedra. O derramamento intencional é parte da cerimônia — o tabuleiro "bebe" junto com os convidados.',det:'Símbolo de generosidade e abundância.'}].map(u=>`<div class="cer-item"><div class="cer-item-name">${u.n}</div><div class="cer-item-desc">${u.d}</div><div class="cer-item-detail">${u.det}</div></div>`).join('')}
+    </div>`;
+
+  else if(tab==='como') el.innerHTML=`
+    <div class="cer-intro">"Cada gesto na cerimônia existe por uma razão. Aprenda os gestos e você aprenderá a razão deles."</div>
+    <div class="cer-section">
+      <div class="cer-section-title">Chanoyu simplificado — passo a passo</div>
+      ${[
+        {t:'Prepare o espaço',d:'Limpe com atenção. Um vaso com flor simples (chabana). Rolo caligrafia ou pintura (kakemono). Incenso suave aceso antes dos convidados chegarem. O espaço comunica antes do chá.'},
+        {t:'Purifique os utensílios',d:'Com o fukusa (seda), limpe o chashaku e a borda da caixinha de matcha. Gesto lento, intencional. "Purifica" o objeto e a mente simultaneamente. É meditação ativa.'},
+        {t:'Aqueça a tigela',d:'Despeje água quente no chawan. Aguarde 30 segundos. Descarte. Seque com o chakin dobrado com o padrão correto. A tigela aquecida mantém o matcha na temperatura ideal.'},
+        {t:'Prepare o matcha',d:'2 medidas de chashaku de matcha peneirado. 70-80ml de água a 75-80°C. Bata em Z (não em círculos) com o chasen até formar espuma homogênea. O matcha está pronto quando a espuma é cremosa.'},
+        {t:'Sirva com presença',d:'Coloque a tigela com a frente (parte mais bela) virada para o convidado. O convidado gira a tigela 90° antes de beber — para não deixar marcas no lado mais bonito. Aprecia a aparência antes de beber.'},
+        {t:'Limpe e encerre',d:'Limpe todos os utensílios com calma. O fechamento da cerimônia é tão importante quanto a abertura. Guardar com cuidado é parte do respeito pela próxima vez.'},
+      ].map((s,i)=>`<div class="cer-step"><div class="cer-step-num">${i+1}</div><div class="cer-step-content"><div class="cer-step-title">${s.t}</div><div class="cer-step-text">${s.d}</div></div></div>`).join('')}
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Gongfu Cha — guia prático</div>
+      ${[
+        {t:'Prepare o tabuleiro',d:'Coloque bule Yixing, Cha Hai, xícaras e tabuleiro. Ferva a água. O ritual começa com os objetos dispostos com intenção.'},
+        {t:'Desperte o bule',d:'Despeje água fervendo sobre o bule e xícaras por fora. Aquece e "desperta" o bule. Descarte a água no tabuleiro.'},
+        {t:'Lave o chá (rinse)',d:'Coloque o chá no bule. Despeje água quente rapidamente e descarte. Abre as folhas e remove poeiras. Especialmente importante para Pu-erh.'},
+        {t:'Primeiras infusões',d:'Oolongs: 30-45 segundos. Pu-erh Sheng: 15-20s. A cada infusão, aumente 10-15 segundos. Despeje no Cha Hai, distribua uniformemente nas xícaras.'},
+        {t:'Aprecie a evolução',d:'Cada infusão é diferente. Observe a cor, o aroma, a textura. Algumas das melhores notas surgem na 4ª ou 5ª infusão. O chá conta sua história ao longo do tempo.'},
+      ].map((s,i)=>`<div class="cer-step"><div class="cer-step-num">${i+1}</div><div class="cer-step-content"><div class="cer-step-title">${s.t}</div><div class="cer-step-text">${s.d}</div></div></div>`).join('')}
+    </div>`;
+
+  else if(tab==='onde') el.innerHTML=`
+    <div class="cer-section">
+      <div class="cer-section-title">Casas de chá e cerimônias no Brasil</div>
+      ${[
+        {icon:'🏮',n:'Museu do Imigrante — São Paulo',loc:'Mooca, São Paulo',d:'Cerimônias japonesas mensais organizadas pela comunidade nipo-brasileira. Inclui degustação e explicação histórica. Uma das mais autênticas fora do Japão.'},
+        {icon:'🍵',n:'Liberdade Tea Houses',loc:'Liberdade, São Paulo',d:'Bairro japonês de SP concentra diversas casas de chá autênticas. Algumas realizam cerimônias Gongfu Cha com mestres de Fujian e Taiwan.'},
+        {icon:'🌿',n:'Chá Verde Studio',loc:'Jardins, São Paulo',d:'Espaço dedicado à cultura do chá. Cursos de cerimônia japonesa e chinesa. Degustações mensais com chás de origem verificada.'},
+        {icon:'🏔',n:'Comunidade Japonesa de Registro',loc:'Vale do Ribeira, São Paulo',d:'Maior comunidade japonesa rural do Brasil. Realizações de Chaji completo em datas especiais. Contato direto com a tradição viva.'},
+        {icon:'🎋',n:'Instituto Brasil-Japão',loc:'Várias cidades',d:'Programação cultural regular inclui demonstrações de Chanoyu. Contato via site do Instituto.'},
+      ].map(p=>`<div class="cer-place-card"><div class="cer-place-icon">${p.icon}</div><div><div class="cer-place-name">${p.n}</div><div class="cer-place-loc">${p.loc}</div><div class="cer-place-desc">${p.d}</div></div></div>`).join('')}
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Experiências internacionais</div>
+      ${[
+        {icon:'🗾',n:'Urasenke — Kyoto, Japão',loc:'Kyoto, Japão',d:'Uma das três principais escolas de Chanoyu. Aceita visitantes para demonstrações. O lugar mais autêntico para vivenciar a cerimônia em seu contexto original.'},
+        {icon:'🏯',n:'Kenroku-en Garden — Kanazawa',loc:'Kanazawa, Japão',d:'Um dos três mais belos jardins japoneses. Casa de chá tradicional dentro do jardim. Demonstrações regulares em inglês e japonês.'},
+        {icon:'🐉',n:'Wuyishan Tea Villages — Fujian',loc:'Fujian, China',d:'Berço do oolong. Visitas às plantações e cerimônias Gongfu Cha com os próprios produtores. Experiência imersiva de 2-5 dias.'},
+        {icon:'☁️',n:'Ali Shan Tea Houses — Taiwan',loc:'Alishan, Taiwan',d:'A 2200m de altitude, casas de chá servem High Mountain Oolongs colhidos localmente. Uma das experiências de chá mais especiais do mundo.'},
+        {icon:'🏔',n:'Darjeeling Tea Estates — Índia',loc:'Darjeeling, Índia',d:'Fazendas históricas como Makaibari e Margaret Hope recebem visitantes. Tour completo da colheita ao processamento, com degustação.'},
+      ].map(p=>`<div class="cer-place-card"><div class="cer-place-icon">${p.icon}</div><div><div class="cer-place-name">${p.n}</div><div class="cer-place-loc">${p.loc}</div><div class="cer-place-desc">${p.d}</div></div></div>`).join('')}
+    </div>
+    <div class="cer-section">
+      <div class="cer-section-title">Como começar em casa</div>
+      <div class="cer-item"><div class="cer-item-name">Kit mínimo para iniciar</div><div class="cer-item-desc">Chawan (tigela) · Chasen (batedor) · Matcha de qualidade · Água filtrada · Intenção de estar presente. Isso é suficiente. A cerimônia não exige riqueza — exige atenção.</div></div>
+      <div class="cer-item"><div class="cer-item-name">Livros recomendados</div><div class="cer-item-desc">"O Livro do Chá" — Kakuzo Okakura (1906, clássico essencial) · "The Way of Tea" — Aaron Fisher · "Tea Horse Road" — Jeff Fuchs · "The Story of Tea" — Mary Lou Heiss</div></div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// ── MARKETPLACE ──
+// ════════════════════════════════════════
+const MKT_PRODUCTS = [
+  // Infusões premium
+  {id:101,cat:'Infusões',type:'Chá Tradicional',name:'Gyokuro Uji Premium',seller:'TeaImport',icon:'🍵',price:189.90,unit:'30g',desc:'Chá verde japonês cultivado à sombra. Sabor umami intenso, baixo amargor. Colheita First Flush 2024.',badge:'new',stock:'in'},
+  {id:102,cat:'Infusões',type:'Chá Tradicional',name:'Ali Shan Oolong High Mountain',seller:'TeaImport',icon:'☁️',price:245.00,unit:'50g',desc:'Cultivado a 2200m. Floral e cremoso. Um dos oolongs mais apreciados do mundo.',badge:'',stock:'in'},
+  {id:103,cat:'Infusões',type:'Chá Tradicional',name:'Bai Hao Yinzhen — Agulha de Prata',seller:'TeaImport',icon:'🤍',price:320.00,unit:'25g',desc:'Chá branco mais nobre. Brotos cobertos por pelos brancos. Fujian, China.',badge:'',stock:'in'},
+  {id:104,cat:'Infusões',type:'Pu-erh',name:'Menghai Pu-erh Sheng 2018',seller:'TeaImport',icon:'🟤',price:185.00,unit:'100g',desc:'Pu-erh cru com 6 anos de envelhecimento. Terroso, mineral, complexo. Melhor com o tempo.',badge:'',stock:'in'},
+  {id:105,cat:'Infusões',type:'Blend Artesanal',name:'Blend Noite Serena',seller:'Ervas & Raízes',icon:'🌙',price:45.90,unit:'60g',desc:'Camomila + Maracujá + Melissa + Alfazema. Blend para sono profundo e noites tranquilas.',badge:'eco',stock:'in'},
+  {id:106,cat:'Infusões',type:'Blend Artesanal',name:'Masala Chai Original',seller:'Verde Vivo',icon:'🌶',price:38.90,unit:'80g',desc:'Chá preto Assam + gengibre + cardamomo + canela + cravo + pimenta. Receita indiana tradicional.',badge:'',stock:'in'},
+  {id:107,cat:'Infusões',type:'Blend Artesanal',name:'Blend Imunidade Verde',seller:'Ervas & Raízes',icon:'🛡',price:52.00,unit:'70g',desc:'Equinácea + Cúrcuma + Gengibre + Tomilho. Fortalecedor de defesas para o inverno.',badge:'eco',stock:'in'},
+  {id:108,cat:'Infusões',type:'Herbal',name:'Rooibos Baunilha & Laranja',seller:'TeaImport',icon:'🍊',price:42.00,unit:'80g',desc:'Rooibos orgânico da África do Sul com baunilha natural e raspas de laranja. Sem cafeína.',badge:'',stock:'in'},
+
+  // Equipamentos
+  {id:201,cat:'Equipamentos',type:'Bule',name:'Bule Yixing Zisha Autêntico',seller:'TeaImport',icon:'🫖',price:485.00,unit:'150ml',desc:'Argila Zisha genuína de Yixing. Artesanal. Poroso: absorve o sabor e melhora com o uso. Ideal para oolongs.',badge:'',stock:'in'},
+  {id:202,cat:'Equipamentos',type:'Bule',name:'Tetsubin Japonês — Ferro Fundido',seller:'TeaImport',icon:'🔵',price:680.00,unit:'600ml',desc:'Bule de ferro fundido japonês. Mantém temperatura por horas. Não enferrujar em uso regular.',badge:'',stock:'in'},
+  {id:203,cat:'Equipamentos',type:'Matcha',name:'Kit Matcha Completo',seller:'TeaImport',icon:'🍵',price:220.00,unit:'kit',desc:'Chawan (tigela), Chasen (batedor 80 fios), Chashaku (colher) e suporte. Tudo para iniciar o ritual.',badge:'new',stock:'in'},
+  {id:204,cat:'Equipamentos',type:'Infusor',name:'Infusor Gooseneck Elétrico',seller:'PhytoFarm',icon:'⚡',price:340.00,unit:'1L',desc:'Controle de temperatura preciso (60-100°C). Pescoço de cisne para fluxo suave. Essencial para chás premium.',badge:'',stock:'in'},
+  {id:205,cat:'Equipamentos',type:'Acessório',name:'Tabuleiro de Bambu Gongfu',seller:'TeaImport',icon:'🎋',price:175.00,unit:'35x20cm',desc:'Tabuleiro de bambu com reservatório integrado. Inclui 4 xícaras de argilite. Cerimônia completa.',badge:'',stock:'in'},
+  {id:206,cat:'Equipamentos',type:'Armazenamento',name:'Lata Washi Paper — set 3',seller:'Ervas & Raízes',icon:'📦',price:95.00,unit:'set 3 latas',desc:'Latas vedadas com papel washi japonês. Protegem da luz e umidade. Capacidade 50-100g cada.',badge:'',stock:'in'},
+  {id:207,cat:'Equipamentos',type:'Termômetro',name:'Termômetro Digital para Chá',seller:'PhytoFarm',icon:'🌡',price:85.00,unit:'1 unid',desc:'Leitura instantânea. Essencial para chás brancos e verdes que exigem temperatura precisa.',badge:'',stock:'in'},
+  {id:208,cat:'Equipamentos',type:'Balança',name:'Balança de Precisão 0.1g',seller:'PhytoFarm',icon:'⚖️',price:120.00,unit:'1 unid',desc:'Precisão de 0.1g. Para dosagem exata — especialmente para Pu-erh e matcha.',badge:'',stock:'in'},
+
+  // Vivências
+  {id:301,cat:'Vivências',type:'Workshop',name:'Cerimônia Chanoyu — São Paulo',seller:'Instituto Brasil-Japão',icon:'🎋',price:180.00,unit:'por pessoa',desc:'Workshop de 3h com mestre certificado. Inclui degustação de matcha e wagashi. Turmas de 8 pessoas.',badge:'exp',stock:'in'},
+  {id:302,cat:'Vivências',type:'Curso',name:'Gongfu Cha — 4 aulas',seller:'Chá Verde Studio',icon:'🐉',price:420.00,unit:'4 sessões',desc:'Aprenda a cerimônia chinesa do zero. Inclui bule Gaiwan para praticar em casa. Certificado de conclusão.',badge:'exp',stock:'in'},
+  {id:303,cat:'Vivências',type:'Degustação',name:'Oolong Journey — Degustação',seller:'TeaImport',icon:'☁️',price:150.00,unit:'por pessoa',desc:'Degustação guiada de 6 oolongs de Taiwan e Fujian. Do mais leve ao mais torrado. 2 horas.',badge:'new',stock:'in'},
+  {id:304,cat:'Vivências',type:'Degustação',name:'Pu-erh Vertical Tasting',seller:'TeaImport',icon:'🟤',price:280.00,unit:'por pessoa',desc:'Degustação vertical de Pu-erh de 2015 a 2005. Aprenda a perceber o envelhecimento. Para entusiastas.',badge:'exp',stock:'in'},
+  {id:305,cat:'Vivências',type:'Retiro',name:'Retiro do Chá — Serra da Cantareira',seller:'Chá Verde Studio',icon:'🌿',price:890.00,unit:'fim de semana',desc:'Retiro de 2 dias em sítio. Cerimônia ao amanhecer, blending, meditação com chá. 12 participantes máx.',badge:'exp',stock:'in'},
+
+  // Viagens
+  {id:401,cat:'Viagens',type:'Tour Tea',name:'Japão — Rota do Chá Kyoto-Uji',seller:'Tea Travels',icon:'🗾',price:12500.00,unit:'7 dias/pessoa',desc:'Visita às plantações de Uji, cerimônia Urasenke, mercado Nishiki, chashitsu histórico. Guia especializado.',badge:'exp',stock:'in'},
+  {id:402,cat:'Viagens',type:'Tour Tea',name:'Taiwan — High Mountain Oolongs',seller:'Tea Travels',icon:'🏔',price:8900.00,unit:'5 dias/pessoa',desc:'Ali Shan, Li Shan, Pinglin. Visitas a produtores independentes. Degustação de altitude. 8 pessoas máx.',badge:'exp',stock:'in'},
+  {id:403,cat:'Viagens',type:'Tour Tea',name:'Darjeeling — Colheita First Flush',seller:'Tea Travels',icon:'🌱',price:9800.00,unit:'6 dias/pessoa',desc:'Participação na colheita em fazenda histórica. Processamento artesanal. Degustação de 15 lotes diferentes.',badge:'new',stock:'in'},
+  {id:404,cat:'Viagens',type:'Tour Tea',name:'Yunnan — Rota do Pu-erh',seller:'Tea Travels',icon:'🐉',price:11200.00,unit:'8 dias/pessoa',desc:'Xishuangbanna, árvores centenárias, produtores tradicionais, aldeias Dai. A rota mais completa para o Pu-erh.',badge:'exp',stock:'in'},
+  {id:405,cat:'Viagens',type:'Tour Tea',name:'Fujian — Oolongs e Wuyishan',seller:'Tea Travels',icon:'⛰',price:9200.00,unit:'6 dias/pessoa',desc:'Anxi (Tie Guan Yin), Wuyi (Da Hong Pao), Fujian coastline. Inclui visita a fábrica artesanal centenária.',badge:'',stock:'in'},
+];
+
+let mktCatActive='Todos', mktSearchVal='';
+const MKT_CATS=[{id:'Todos',icon:'✦'},{id:'Infusões',icon:'🍵'},{id:'Equipamentos',icon:'🫖'},{id:'Vivências',icon:'🎋'},{id:'Viagens',icon:'✈️'}];
+
+function initMkt(){
+  const catsEl=document.getElementById('mktCats'); if(!catsEl)return;
+  catsEl.innerHTML='';
+  MKT_CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='mkt-cat'+(mktCatActive===c.id?' on':'');
+    b.innerHTML=`${c.icon} ${c.id}`;
+    b.onclick=()=>{mktCatActive=c.id;initMkt();};
+    catsEl.appendChild(b);
+  });
+  renderMkt();
+  const mktC=document.getElementById('mktCartCount');
+  if(mktC){const total=cart.reduce((s,c)=>s+c.qty,0); mktC.textContent=total?`(${total})`:'';};
+}
+
+function renderMkt(){
+  const q=(document.getElementById('mktSearch')?.value||'').toLowerCase();
+  const grid=document.getElementById('mktGrid'); if(!grid)return;
+  let list=MKT_PRODUCTS.filter(p=>{
+    if(mktCatActive!=='Todos'&&p.cat!==mktCatActive)return false;
+    if(q&&!(p.name+p.desc+p.seller+p.type).toLowerCase().includes(q))return false;
+    return true;
+  });
+
+  // Group by type within category
+  if(mktCatActive==='Todos'){
+    const groups={};
+    list.forEach(p=>{if(!groups[p.cat])groups[p.cat]=[];groups[p.cat].push(p);});
+    grid.innerHTML=Object.entries(groups).map(([cat,items])=>`
+      <div class="mkt-section-title">${MKT_CATS.find(c=>c.id===cat)?.icon||'✦'} ${cat}</div>
+      <div class="mkt-grid">${items.slice(0,4).map(p=>mktCard(p)).join('')}</div>`).join('');
+  } else {
+    grid.innerHTML=`<div class="mkt-grid">${list.map(p=>mktCard(p)).join('')}</div>`;
+  }
+}
+
+function mktCard(p){
+  const inCart=cart.some(c=>c.id===p.id);
+  const typeColor=p.cat==='Infusões'?'#4a8a5a':p.cat==='Equipamentos'?'#4a6a9a':p.cat==='Vivências'?'#9a6a3a':'#6a4a9a';
+  const badgeHtml=p.badge==='new'?'<span class="mkt-badge mkt-badge-new">Novo</span>':p.badge==='exp'?'<span class="mkt-badge mkt-badge-exp">Experiência</span>':p.badge==='eco'?'<span class="mkt-badge mkt-badge-eco">Orgânico</span>':'';
+  return `<div class="mkt-card">
+    <div class="mkt-card-media" style="background:${typeColor}18">${p.icon}</div>
+    <div class="mkt-card-body">
+      <div class="mkt-card-type" style="color:${typeColor}">${p.type} ${badgeHtml}</div>
+      <div class="mkt-card-name">${p.name}</div>
+      <div class="mkt-card-seller">${p.seller}</div>
+      <div class="mkt-card-desc">${p.desc.substring(0,90)}${p.desc.length>90?'...':''}</div>
+      <div class="mkt-card-footer">
+        <div>
+          <div class="mkt-card-price">R$ ${p.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          <span class="mkt-card-price-sub">${p.unit}</span>
+        </div>
+        <button class="mkt-add-btn ${inCart?'added':''}" onclick="addMktCart(${p.id})">${inCart?'✓ Adicionado':'+ Carrinho'}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function addMktCart(id){
+  const p=MKT_PRODUCTS.find(x=>x.id===id); if(!p)return;
+  const ex=cart.find(c=>c.id===id);
+  if(ex)ex.qty++; else cart.push({...p,qty:1});
+  localStorage.setItem('erb_cart',JSON.stringify(cart));
+  updateCartCount(); renderMkt(); initMkt();
+  toast(`${p.name} adicionado ao carrinho`);
+}
+
+// ════════════════════════════════════════
+// ── CHÁS DO MUNDO ──
+// ════════════════════════════════════════
+// Coordinates calibrated to the real map image (1330x840)
+// cx/cy are fractions 0..1 of image width/height
+const MUNDO_REGIONS=[
+  {id:'china',   name:'China',        flag:'🇨🇳',cx:.755,cy:.315,color:'#c8382a',subtitle:'Berço do chá — 5000 anos de história',producao:'3.200.000 ton/ano',exportacao:'500.000 ton/ano',area:'3.200.000 ha',tipos:['Verde','Branco','Amarelo','Oolong','Preto','Pu-erh'],desc:'A China produz todos os seis tipos de chá verdadeiro. Única com essa distinção. Cada província tem identidade própria: Fujian para brancos e oolongs, Yunnan para Pu-erh, Zhejiang para Longjing.',chas:[{n:'Longjing (Dragon Well)',reg:'Zhejiang',tipo:'Verde',badge:'#4a7a3a',d:'O chá verde mais famoso. Folhas planas, sabor de castanha tostada.'},{n:'Tie Guan Yin',reg:'Anxi, Fujian',tipo:'Oolong',badge:'#2d5a7a',d:'Deusa da Misericórdia. Floral, cremoso. Ícone dos oolongs.'},{n:'Da Hong Pao',reg:'Wuyi, Fujian',tipo:'Oolong',badge:'#2d5a7a',d:'Manto Vermelho. Entre os mais caros do mundo.'},{n:'Keemun',reg:'Anhui',tipo:'Preto',badge:'#3a1a0a',d:'Notas de vinho e chocolate. Base do English Breakfast original.'},{n:'Pu-erh Sheng',reg:'Yunnan',tipo:'Escuro',badge:'#2a1a0a',d:'Envelhece como vinho. Mercado de investimento.'},{n:'Junshan Yinzhen',reg:'Hunan',tipo:'Amarelo',badge:'#a87a2a',d:'O chá amarelo mais raro. Produção < 500kg/ano.'}],culinaria:'Chá é parte da vida cotidiana. Dim Sum sempre acompanhado de chá. Gongfu Cha é arte e filosofia.',brasil:'Comunidade chinesa em SP traz chás premium. Liberdade concentra lojas especializadas.'},
+  {id:'japao',   name:'Japão',        flag:'🇯🇵',cx:.840,cy:.295,color:'#c8304a',subtitle:'A perfeição do chá verde — a Via do Chá',producao:'86.000 ton/ano',exportacao:'6.200 ton/ano',area:'44.000 ha',tipos:['Verde (80+ estilos)','Matcha'],desc:'O Japão transformou o chá verde em arte e filosofia. Mais de 80 estilos. Matcha virou fenômeno global. A cerimônia Chanoyu é patrimônio cultural imaterial.',chas:[{n:'Matcha',reg:'Uji, Kyoto',tipo:'Verde em pó',badge:'#2d5a2a',d:'Pó de tencha cultivada à sombra. 2.5mg de L-teanina por xícara.'},{n:'Gyokuro',reg:'Uji, Kyoto',tipo:'Verde premium',badge:'#2d5a2a',d:'Cultivado à sombra 20 dias. Sabor umami profundo.'},{n:'Sencha',reg:'Shizuoka',tipo:'Verde',badge:'#4a7a3a',d:'80% da produção japonesa. O chá cotidiano.'},{n:'Hojicha',reg:'Kyoto',tipo:'Verde torrado',badge:'#5a3a1a',d:'Sencha torrado. Baixa cafeína. Ideal à noite.'}],culinaria:'Matcha em sorvetes, confeitaria, cosméticos. Matcha latte virou fenômeno global.',brasil:'Maior comunidade japonesa fora do Japão em SP.'},
+  {id:'india',   name:'Índia',        flag:'🇮🇳',cx:.640,cy:.385,color:'#e07820',subtitle:'Do Assam ao Darjeeling — a outra grande potência',producao:'1.390.000 ton/ano',exportacao:'250.000 ton/ano',area:'637.000 ha',tipos:['Preto','Verde','Oolong','Branco'],desc:'Segunda maior produtora mundial. Assam e Darjeeling definem o chá preto global. Darjeeling tem GI protegida — o Champagne dos chás.',chas:[{n:'Darjeeling First Flush',reg:'Darjeeling',tipo:'Preto/Oolong',badge:'#3a1a0a',d:'Floral, muscatel, leve. O mais imitado do mundo.'},{n:'Assam CTC',reg:'Vale do Assam',tipo:'Preto CTC',badge:'#5a2a0a',d:'Base do chá de saquinho global. Forte, maltado.'},{n:'Masala Chai',reg:'Todo país',tipo:'Blend cultural',badge:'#6a3a1a',d:'Ritual de 1.4 bilhões de pessoas diariamente.'}],culinaria:'Chai é identidade nacional. Dhabas em cada esquina.',brasil:'Assam e Darjeeling chegam via importadoras. Masala Chai muito popular.'},
+  {id:'srilanka',name:'Sri Lanka',    flag:'🇱🇰',cx:.660,cy:.430,color:'#c8a030',subtitle:'Ceylon Tea — o mais puro do mundo',producao:'300.000 ton/ano',exportacao:'290.000 ton/ano',area:'222.000 ha',tipos:['Preto','Verde','Branco'],desc:'Exporta 97% do que produz. Ceylon é sinônimo de qualidade global.',chas:[{n:'Ceylon UVA',reg:'Uva Province',tipo:'Preto',badge:'#3a1a0a',d:'Aromático, mentolado, adstringente.'},{n:'Nuwara Eliya',reg:'1800m',tipo:'Preto delicado',badge:'#4a1a1a',d:'Floral, quase cor-de-rosa. Champagne of Ceylon.'}],culinaria:'Chá gelado consumo nacional. Exporta para 80+ países.',brasil:'Base histórica do saquinho brasileiro.'},
+  {id:'taiwan',  name:'Taiwan',       flag:'🇹🇼',cx:.800,cy:.360,color:'#3a8a5a',subtitle:'A ilha dos High Mountain Oolongs',producao:'14.000 ton/ano',exportacao:'3.000 ton/ano',area:'13.000 ha',tipos:['Oolong','Verde','Preto'],desc:'Taiwan redefiniu o oolong. Ali Shan e Da Yu Ling a mais de 2000m produzem oolongs cremosos inimitáveis.',chas:[{n:'Ali Shan Oolong',reg:'Alishan (1400-1800m)',tipo:'Oolong High Mountain',badge:'#2d5a7a',d:'Floral, leite, creme.'},{n:'Oriental Beauty',reg:'Hsinchu',tipo:'Oolong especial',badge:'#7a5a2a',d:'Picadas de inseto criam terpenos únicos. Mel, pêssego, moscatel.'}],culinaria:'Bubble Tea inventado em Taiwan em 1986.',brasil:'Bubble tea proliferou nas cidades brasileiras.'},
+  {id:'kenya',   name:'Quênia',       flag:'🇰🇪',cx:.565,cy:.495,color:'#2a7a2a',subtitle:'Terceiro maior exportador — CTC africano',producao:'570.000 ton/ano',exportacao:'525.000 ton/ano',area:'230.000 ha',tipos:['Preto CTC','Verde','Branco'],desc:'O Quênia tornou-se em 60 anos o terceiro maior produtor. Solo vulcânico, altitude 1500-2700m.',chas:[{n:'Kenya CTC',reg:'Highlands centrais',tipo:'Preto CTC',badge:'#3a1a0a',d:'Forte, cor vinho intenso. Base do English Breakfast moderno.'}],culinaria:'Chai com leite fervido é bebida nacional.',brasil:'Presente nos blends de saquinhos importados.'},
+  {id:'turquia', name:'Turquia',      flag:'🇹🇷',cx:.570,cy:.275,color:'#c83030',subtitle:'Çay — maior consumidor per capita do mundo',producao:'280.000 ton/ano',exportacao:'5.000 ton/ano',area:'76.000 ha',tipos:['Preto'],desc:'Turcos consomem 3.5 kg/pessoa/ano. O Çay é servido em copo de tulipa de vidro.',chas:[{n:'Rize Çay',reg:'Rize, Mar Negro',tipo:'Preto',badge:'#3a1a0a',d:'Forte e vermelho-escuro. Chaleira dupla çaydanlık.'}],culinaria:'Oferecido em toda reunião. Recusar é descortesia.',brasil:'Influência crescente com restaurantes turcos.'},
+  {id:'marrocos',name:'Marrocos',     flag:'🇲🇦',cx:.490,cy:.305,color:'#c87820',subtitle:'Atay — o ritual berber de hospitalidade',producao:'0 (não produz)',exportacao:'—',area:'—',tipos:['Verde (importado) + Hortelã'],desc:'Não produz mas transformou o ritual em arte. Gunpowder com hortelã e açúcar, derramado de altura.',chas:[{n:'Atay',reg:'Todo Marrocos',tipo:'Verde + hortelã',badge:'#4a7a3a',d:'Três copos: o 1° amargo como vida, o 2° doce como amor, o 3° suave como morte.'}],culinaria:'Ritual de hospitalidade. Recusar 3 copos é insulto.',brasil:'Tendência em restaurantes árabes.'},
+  {id:'uk',      name:'Reino Unido',  flag:'🇬🇧',cx:.483,cy:.195,color:'#3a3a8a',subtitle:'A nação do chá — blends e o Afternoon Tea',producao:'0 (não produz)',exportacao:'—',area:'—',tipos:['Blends de importação'],desc:'100 milhões de xícaras por dia. Criou os grandes blends globais.',chas:[{n:'English Breakfast',reg:'Blend britânico',tipo:'Blend preto',badge:'#3a1a0a',d:'Assam + Ceylon + Kenya. O mais consumido do mundo.'},{n:'Earl Grey',reg:'Blend c/ bergamota',tipo:'Aromatizado',badge:'#3a3a7a',d:'Chá preto com óleo de bergamota. Criado em 1830.'}],culinaria:'Afternoon Tea com scones. Leite primeiro ou depois — debate nacional sério.',brasil:'Marcas inglesas em supermercados. Afternoon Tea em hotéis.'},
+  {id:'russia',  name:'Rússia',       flag:'🇷🇺',cx:.660,cy:.185,color:'#8a2a2a',subtitle:'Samovar — a alma do inverno russo',producao:'700 ton/ano',exportacao:'—',area:'1.500 ha',tipos:['Preto (importado)','Krasnodar'],desc:'Popularizou o chá na Europa via Rota do Chá. O samovar é ícone cultural.',chas:[{n:'Russian Caravan',reg:'Blend histórico',tipo:'Blend defumado',badge:'#4a2a1a',d:'Levemente defumado — recria sabor das fogueiras das caravanas.'}],culinaria:'Chá com geleia (varenje). Samovar com concentrado diluído a gosto.',brasil:'Russian Caravan em lojas especializadas.'},
+  {id:'brasil',  name:'Brasil',       flag:'🇧🇷',cx:.300,cy:.555,color:'#2a8a2a',subtitle:'Produtor emergente — do mate ao Camellia',producao:'4.200 ton/ano',exportacao:'200 ton/ano',area:'3.500 ha',tipos:['Preto','Verde','Erva-mate'],desc:'Produção iniciada por imigrantes japoneses em 1935. Maior polo em Registro (SP).',chas:[{n:'Chá Preto de Registro',reg:'Vale do Ribeira, SP',tipo:'Preto',badge:'#3a1a0a',d:'Desde 1935. Solo ácido, clima subtropical.'},{n:'Erva-Mate',reg:'Sul do Brasil',tipo:'Mate',badge:'#2d5a2a',d:'O chá mais consumido no Brasil. Chimarrão, tereré e mate gelado.'}],culinaria:'Chimarrão ritual gaúcho. Tereré cultura mato-grossense.',brasil:'O Brasil é produtor, consumidor e importador simultaneamente.'},
+  {id:'georgia', name:'Geórgia',      flag:'🇬🇪',cx:.605,cy:.260,color:'#c84040',subtitle:'O chá esquecido do Cáucaso',producao:'3.000 ton/ano',exportacao:'800 ton/ano',area:'11.000 ha',tipos:['Preto','Verde'],desc:'Principal produtora soviética. Com a dissolução da URSS a produção colapsou. Hoje em revival artesanal.',chas:[{n:'Guria Black',reg:'Guria',tipo:'Preto',badge:'#3a1a0a',d:'Floral, levemente amadeirado. Produção artesanal em revival.'}],culinaria:'Chá forte com açúcar. Hospitalidade caucasiana.',brasil:'Praticamente desconhecido no Brasil.'},
+];
+
+let mundoView='mapa', mundoRegionActive=null, mundoListFilter='Todos';
+
+function initMundo(){
+  setMundoView('mapa', document.getElementById('btnMapa'));
+}
+
+function setMundoView(v,btn){
+  mundoView=v;
+  document.querySelectorAll('.mundo-view-btn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.getElementById('mundoMapView').style.display=v==='mapa'?'block':'none';
+  document.getElementById('mundoListView').style.display=v==='lista'?'block':'none';
+  document.getElementById('mundoBrasilView').style.display=v==='brasil'?'block':'none';
+  if(v==='mapa') drawMundoMap();
+  if(v==='lista'){buildMundoListFilter();renderMundoList();}
+  if(v==='brasil') renderBrasilContent();
+}
+
+function drawMundoMap(){
+  const svg=document.getElementById('mundoDotsLayer'); if(!svg)return;
+  const NS='http://www.w3.org/2000/svg';
+  // Clear previous dots
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+
+  function mk(tag,attrs){
+    const el=document.createElementNS(NS,tag);
+    Object.entries(attrs).forEach(([k,v])=>el.setAttribute(k,String(v)));
+    return el;
+  }
+
+  // viewBox is 1330x840 matching the real map image dimensions
+  const VW=1330, VH=840;
+
+  MUNDO_REGIONS.forEach(r=>{
+    const px=r.cx*VW, py=r.cy*VH;
+    const isSel=mundoRegionActive===r.id;
+    const dr=isSel?18:13;
+
+    const g=document.createElementNS(NS,'g');
+    g.style.cursor='pointer';
+
+    // Pulse ring for selected
+    if(isSel){
+      g.appendChild(mk('circle',{cx:px,cy:py,r:dr+10,fill:r.color,opacity:'0.2'}));
+      g.appendChild(mk('circle',{cx:px,cy:py,r:dr+5,fill:r.color,opacity:'0.15'}));
+    }
+    // Drop shadow
+    g.appendChild(mk('circle',{cx:px,cy:py+2,r:dr+2,fill:'rgba(0,0,0,0.35)'}));
+    // Main dot
+    g.appendChild(mk('circle',{cx:px,cy:py,r:dr,fill:isSel?lightenW(r.color,.38):r.color}));
+    // White highlight
+    g.appendChild(mk('circle',{cx:px-dr*.3,cy:py-dr*.3,r:dr*.38,fill:'rgba(255,255,255,0.3)'}));
+    // Flag emoji
+    const ft=document.createElementNS(NS,'text');
+    ft.setAttribute('x',px); ft.setAttribute('y',py+1);
+    ft.setAttribute('text-anchor','middle');
+    ft.setAttribute('dominant-baseline','middle');
+    ft.setAttribute('font-size',isSel?16:12);
+    ft.setAttribute('style','pointer-events:none;user-select:none');
+    ft.textContent=r.flag;
+    g.appendChild(ft);
+
+    // Name label when selected
+    if(isSel){
+      const lw=r.name.length*7+16;
+      g.appendChild(mk('rect',{x:px-lw/2,y:py+dr+4,width:lw,height:18,rx:4,fill:'rgba(0,0,0,0.85)'}));
+      const lt=document.createElementNS(NS,'text');
+      lt.setAttribute('x',px); lt.setAttribute('y',py+dr+13);
+      lt.setAttribute('text-anchor','middle');
+      lt.setAttribute('dominant-baseline','middle');
+      lt.setAttribute('font-size',10);
+      lt.setAttribute('font-family','Jost,sans-serif');
+      lt.setAttribute('fill','#e6c96e');
+      lt.setAttribute('font-weight','500');
+      lt.setAttribute('style','pointer-events:none;user-select:none');
+      lt.textContent=r.name;
+      g.appendChild(lt);
+    }
+
+    // Events
+    g.addEventListener('click',()=>selectMapRegion(r.id));
+    g.addEventListener('mouseenter',e=>mapDotHover(r.id,e));
+    g.addEventListener('mouseleave',mapDotLeave);
+    g.addEventListener('touchstart',e=>{e.preventDefault();selectMapRegion(r.id);},{passive:false});
+
+    svg.appendChild(g);
+  });
+
+  // Legend
+  const leg=document.getElementById('mapLegend'); if(!leg)return;
+  leg.innerHTML='<div style="font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.5rem;width:100%">Clique em um ponto do mapa ou na legenda</div>'+
+    MUNDO_REGIONS.map(r=>`
+      <div class="mundo-legend-item" style="cursor:pointer;padding:3px 8px;border-radius:5px;${mundoRegionActive===r.id?'background:rgba(200,168,75,.1)':''}"
+           onclick="selectMapRegion('${r.id}')">
+        <div class="mundo-legend-dot" style="background:${r.color};${mundoRegionActive===r.id?'box-shadow:0 0 0 2px '+r.color+'66':''}"></div>
+        <span style="color:${mundoRegionActive===r.id?'var(--gold2)':'inherit'}">${r.flag} ${r.name}</span>
+      </div>`).join('');
+}
+
+function mapDotHover(id,e){
+  const reg=MUNDO_REGIONS.find(r=>r.id===id); if(!reg)return;
+  const tt=document.getElementById('mapTooltip'); if(!tt)return;
+  const wrap=document.getElementById('mundoSvgWrap'); if(!wrap)return;
+  const rect=wrap.getBoundingClientRect();
+  const clientX=e?e.clientX:0, clientY=e?e.clientY:0;
+  tt.style.display='block';
+  tt.style.left=Math.min(clientX-rect.left+14, rect.width-230)+'px';
+  tt.style.top=Math.max(clientY-rect.top-40, 4)+'px';
+  tt.innerHTML='<strong>'+esc(reg.flag)+' '+esc(reg.name)+'</strong><br><span style="color:var(--muted);font-size:.7rem">'+esc(reg.subtitle)+'</span>';
+}
+
+function mapDotLeave(){
+  const tt=document.getElementById('mapTooltip'); if(tt) tt.style.display='none';
+}
+
+function selectMapRegion(id){
+  mundoRegionActive=mundoRegionActive===id?null:id;
+  drawMundoMap();
+  const reg=mundoRegionActive?MUNDO_REGIONS.find(r=>r.id===mundoRegionActive):null;
+  const el=document.getElementById('regionDetail'); if(!el)return;
+  if(!reg){el.style.display='none';return;}
+  el.style.display='block';
+  el.innerHTML=`
+    <div class="mrd-header">
+      <div class="mrd-flag">${reg.flag}</div>
+      <div><div class="mrd-title">${esc(reg.name)}</div><div class="mrd-subtitle">${esc(reg.subtitle)}</div></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:1rem">${esc(reg.desc)}</p>
+    <div class="mrd-grid">
+      <div class="mrd-card"><div class="mrd-card-label">Produção anual</div><div class="mrd-card-val">${esc(reg.producao)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Exportação</div><div class="mrd-card-val">${esc(reg.exportacao)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Área cultivada</div><div class="mrd-card-val">${esc(reg.area)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Tipos produzidos</div><div class="mrd-card-val">${reg.tipos.map(t=>esc(t)).join(' · ')}</div></div>
+    </div>
+    <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Chás principais</div>
+    <div style="background:var(--bg2);border:0.5px solid var(--faint);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1rem">
+      ${reg.chas.map(c=>`<div class="mrd-cha-row" style="padding:.65rem 1rem">
+        <div style="flex:1">
+          <div class="mrd-cha-name">${esc(c.n)} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${esc(c.tipo)}</span></div>
+          <div class="mrd-cha-desc">${esc(c.d)}</div>
+          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${esc(c.reg)}</div>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="mrd-grid">
+      <div class="mrd-card"><div class="mrd-card-label">Cultura & culinária</div><div class="mrd-card-val">${esc(reg.culinaria)}</div></div>
+      <div class="mrd-card" style="border-left:2px solid #2a8a2a"><div class="mrd-card-label" style="color:#4a8a4a">🇧🇷 Conexão com o Brasil</div><div class="mrd-card-val">${esc(reg.brasil)}</div></div>
+    </div>`;
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function buildMundoListFilter(){
+  const el=document.getElementById('listFilter'); if(!el)return;
+  el.innerHTML='';
+  const regionMap={china:'Ásia',japao:'Ásia',india:'Ásia',srilanka:'Ásia',taiwan:'Ásia',georgia:'Ásia',kenya:'África',turquia:'Ásia',marrocos:'África',russia:'Europa',uk:'Europa',brasil:'Américas'};
+  ['Todos','Ásia','Europa','África','Américas'].forEach(r=>{
+    const b=document.createElement('button');
+    b.className='mfl-btn'+(mundoListFilter===r?' on':'');
+    b.textContent=r;
+    b.onclick=()=>{mundoListFilter=r;buildMundoListFilter();renderMundoList();};
+    el.appendChild(b);
+  });
+}
+
+function renderMundoList(){
+  const regionMap={china:'Ásia',japao:'Ásia',india:'Ásia',srilanka:'Ásia',taiwan:'Ásia',georgia:'Ásia',kenya:'África',turquia:'Ásia',marrocos:'África',russia:'Europa',uk:'Europa',brasil:'Américas'};
+  const list=MUNDO_REGIONS.filter(r=>mundoListFilter==='Todos'||regionMap[r.id]===mundoListFilter);
+  const el=document.getElementById('mundoListContent'); if(!el)return;
+  el.innerHTML=list.map(r=>`
+    <div class="mundo-country-block">
+      <div class="mcb-header" id="mch_${r.id}" onclick="toggleCountry('${r.id}')">
+        <div class="mcb-flag">${r.flag}</div>
+        <div style="flex:1"><div class="mcb-name">${esc(r.name)}</div><div class="mcb-prod">${esc(r.producao)} · ${r.tipos.slice(0,3).map(t=>esc(t)).join(', ')}</div></div>
+        <div class="mcb-arrow" id="mca_${r.id}">▾</div>
+      </div>
+      <div class="mcb-body" id="mcb_${r.id}">
+        <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:.75rem">${esc(r.desc)}</p>
+        ${r.chas.map(c=>`<div class="mrd-cha-row"><div style="flex:1">
+          <div class="mrd-cha-name">${esc(c.n)} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${esc(c.tipo)}</span></div>
+          <div class="mrd-cha-desc">${esc(c.d)}</div>
+          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${esc(c.reg)}</div>`:''}
+        </div></div>`).join('')}
+        <div style="margin-top:.75rem;padding:.75rem;background:rgba(42,138,42,.06);border:0.5px solid rgba(42,138,42,.2);border-radius:var(--r-md);font-size:.75rem;color:var(--cream2)">
+          <span style="color:#4a8a4a;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase">🇧🇷 Conexão com o Brasil</span><br>${esc(r.brasil)}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleCountry(id){
+  const body=document.getElementById('mcb_'+id),hdr=document.getElementById('mch_'+id),arrow=document.getElementById('mca_'+id);
+  if(!body)return;
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open); hdr.classList.toggle('open',!open); if(arrow)arrow.classList.toggle('open',!open);
+}
+
+function renderBrasilContent(){
+  const el=document.getElementById('brasilContent'); if(!el)return;
+  el.innerHTML=`
+    <div class="brasil-hero">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-weight:300;margin-bottom:.5rem">🇧🇷 O Brasil e o chá verdadeiro</div>
+      <div style="font-size:.82rem;color:var(--cream2);line-height:1.7">O Brasil tem uma relação paradoxal com o chá: é um dos maiores consumidores de "chás" (na maior parte tisanas de ervas), mas quase desconhece sua própria produção de Camellia sinensis. A história começa com imigrantes japoneses em 1935 no Vale do Ribeira e continua crescendo silenciosamente.</div>
+      <div class="brasil-stat-grid">
+        <div class="brasil-stat"><div class="brasil-stat-val">1935</div><div class="brasil-stat-key">Início produção Camellia</div></div>
+        <div class="brasil-stat"><div class="brasil-stat-val">4.200 t</div><div class="brasil-stat-key">Produção anual estimada</div></div>
+        <div class="brasil-stat"><div class="brasil-stat-val">3.500 ha</div><div class="brasil-stat-key">Área cultivada</div></div>
+        <div class="brasil-stat"><div class="brasil-stat-val">6°</div><div class="brasil-stat-key">Maior consumidor mundial</div></div>
+      </div>
+    </div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold2);margin-bottom:.75rem;font-weight:300">Polos produtores</div>
+    ${[{name:'Vale do Ribeira — Registro, SP',icon:'🌱',loc:'Registro e região',desc:'O maior e mais antigo polo. Fundado por imigrantes japoneses em 1935. Solo ácido e clima subtropical. Produz principalmente chá preto e verde. Cooperativa Chá de Registro.',tipos:'Preto, Verde'},{name:'Serra Gaúcha — RS',icon:'🍇',loc:'Bento Gonçalves, Gramado',desc:'Experimentos com Camellia sinensis em altitude (800-900m). Pequenas propriedades artesanais incipientes.',tipos:'Verde, Preto (experimental)'},{name:'Região Serrana — RJ',icon:'⛰',loc:'Petrópolis, Nova Friburgo',desc:'Projetos piloto em altitude (800-1200m). Clima favorável com névoa frequente — similar a regiões asiáticas.',tipos:'Verde (experimental)'},{name:'Minas Gerais — UFV',icon:'🎓',loc:'Viçosa, MG',desc:'Pesquisas da UFV com variedades adaptadas. Zona da Mata tem potencial para chás de qualidade.',tipos:'Pesquisa acadêmica'}].map(r=>`<div class="brasil-region"><div class="brasil-region-name">${r.icon} ${r.name}</div><div class="brasil-region-loc">📍 ${r.loc}</div><div class="brasil-region-desc">${r.desc}</div><div style="margin-top:.3rem;font-size:.7rem;color:var(--gold)">Tipos: ${r.tipos}</div></div>`).join('')}
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold2);margin:.5rem 0 .75rem;font-weight:300">Comparativo: Brasil vs. Grandes Produtores</div>
+    <div class="compare-table-wrap"><table class="cha-compare-table" style="min-width:480px">
+      <tr><th>Aspecto</th><th>🇧🇷 Registro, SP</th><th>🇮🇳 Darjeeling</th><th>🇯🇵 Uji</th></tr>
+      <tr><td>Altitude</td><td>30-100m</td><td>800-2200m</td><td>200-600m</td></tr>
+      <tr><td>Perfil</td><td>Encorpado, terroso</td><td>Floral, muscatel</td><td>Umami, gramíneo</td></tr>
+      <tr><td>Preço (100g)</td><td>R$ 30-80</td><td>R$ 80-400</td><td>R$ 80-600</td></tr>
+      <tr><td>Disponibilidade</td><td>Local/regional</td><td>Importação</td><td>Importação</td></tr>
+      <tr><td>Identidade</td><td>Em construção</td><td>Consolidada (DOP)</td><td>Consolidada</td></tr>
+    </table></div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--gold2);margin:1rem 0 .75rem;font-weight:300">A Erva-Mate — o chá brasileiro por excelência</div>
+    <div class="brasil-hero" style="background:rgba(45,90,42,.1);border-color:rgba(45,90,42,.25)">
+      <div style="font-size:.82rem;color:var(--cream2);line-height:1.7">Ilex paraguariensis — não é Camellia sinensis, mas é o "chá" mais consumido no Brasil. Tem mais cafeína que muitos chás verdes. O chimarrão, o tereré e o mate gelado são expressões de uma cultura única.</div>
+      <div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:8px">
+        ${[{n:'Chimarrão',r:'Rio Grande do Sul',c:'Quente, cuia e bomba'},{n:'Tereré',r:'MS, MT, Paraguai',c:'Gelado com ervas'},{n:'Mate Gelado',r:'São Paulo',c:'Industrializado'},{n:'Mate Torrado',r:'Todo Brasil',c:'Defumado, em saquinho'}].map(m=>`<div style="background:rgba(45,90,42,.1);border:0.5px solid rgba(45,90,42,.2);border-radius:var(--r-md);padding:.5rem .75rem"><div style="font-size:.8rem;font-weight:400;color:var(--cream)">${m.n}</div><div style="font-size:.68rem;color:#4a8a4a">${m.r}</div><div style="font-size:.68rem;color:var(--muted)">${m.c}</div></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── INIT ──
+buildFilters();
+renderHerbs();
+drawWheel();
+buildWizard();
+renderTray();
+updateCartCount();
+renderPerfil();

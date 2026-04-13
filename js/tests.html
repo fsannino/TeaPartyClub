@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ervatório — Testes Unitários</title>
+<style>
+  body { font-family: monospace; background: #1a1814; color: #f0e8d5; padding: 2rem; }
+  .pass { color: #80c890; }
+  .fail { color: #e08080; font-weight: bold; }
+  h2 { color: #c8a84b; border-bottom: 1px solid #3a3830; padding-bottom: .5rem; }
+  .summary { margin-top: 2rem; padding: 1rem; border: 1px solid #3a3830; border-radius: 8px; }
+</style>
+</head>
+<body>
+<h1>Ervatório — Testes</h1>
+<div id="results"></div>
+<div class="summary" id="summary"></div>
+
+<script>
+// ── Test Framework ──
+let _passed = 0, _failed = 0, _results = [];
+function assert(condition, name) {
+  if (condition) { _passed++; _results.push(`<div class="pass">✓ ${name}</div>`); }
+  else { _failed++; _results.push(`<div class="fail">✗ ${name}</div>`); }
+}
+function assertEqual(actual, expected, name) {
+  const pass = JSON.stringify(actual) === JSON.stringify(expected);
+  if (pass) { _passed++; _results.push(`<div class="pass">✓ ${name}</div>`); }
+  else { _failed++; _results.push(`<div class="fail">✗ ${name} — esperado: ${JSON.stringify(expected)}, obtido: ${JSON.stringify(actual)}</div>`); }
+}
+function showResults() {
+  document.getElementById('results').innerHTML = _results.join('');
+  document.getElementById('summary').innerHTML = `<strong>${_passed + _failed} testes</strong> — <span class="pass">${_passed} passaram</span>, <span class="${_failed ? 'fail' : 'pass'}">${_failed} falharam</span>`;
+}
+
+// ── Load pure functions from app.js ──
+</script>
+
+<!-- Load app dependencies (mock DOM elements first) -->
+<div style="display:none">
+  <canvas id="filterWheel" width="320" height="320"></canvas>
+  <div id="wheelCenter"><div id="wcCat"></div><div id="wcSafe"></div></div>
+  <div id="herbGrid"></div>
+  <input id="searchInput" value="">
+  <div id="filterContext"></div>
+  <div id="wheelLegend"></div>
+</div>
+<script src="/js/app.js"></script>
+
+<script>
+// ══════════════════════════════════════════════
+// TEST SUITE: esc() — HTML Sanitization
+// ══════════════════════════════════════════════
+_results.push('<h2>esc() — Sanitização HTML</h2>');
+
+assert(esc('<script>alert(1)</script>') === '&lt;script&gt;alert(1)&lt;/script&gt;', 'Escapa tags script');
+assert(esc('"quoted"') === '&quot;quoted&quot;', 'Escapa aspas duplas');
+assert(esc("it's") === "it&#39;s", 'Escapa aspas simples');
+assert(esc('a & b') === 'a &amp; b', 'Escapa ampersand');
+assert(esc(null) === '', 'Null retorna string vazia');
+assert(esc(undefined) === '', 'Undefined retorna string vazia');
+assert(esc(123) === '123', 'Números são convertidos para string');
+assert(esc('texto normal') === 'texto normal', 'Texto sem caracteres especiais permanece igual');
+
+// ══════════════════════════════════════════════
+// TEST SUITE: safeLoad() — localStorage safety
+// ══════════════════════════════════════════════
+_results.push('<h2>safeLoad() — Segurança do localStorage</h2>');
+
+// Test with corrupted data
+localStorage.setItem('_test_corrupt', '{invalid json');
+assertEqual(safeLoad('_test_corrupt', []), [], 'JSON corrompido retorna fallback array');
+assertEqual(safeLoad('_test_corrupt', {a:1}), {a:1}, 'JSON corrompido retorna fallback objeto');
+
+// Test with valid data
+localStorage.setItem('_test_valid', '[1,2,3]');
+assertEqual(safeLoad('_test_valid', []), [1,2,3], 'JSON válido de array é carregado');
+
+localStorage.setItem('_test_obj', '{"nome":"teste"}');
+assertEqual(safeLoad('_test_obj', {}), {nome:"teste"}, 'JSON válido de objeto é carregado');
+
+// Test type mismatch (stored string when expecting array)
+localStorage.setItem('_test_wrong', '"just a string"');
+assertEqual(safeLoad('_test_wrong', []), [], 'String no localStorage quando esperado array retorna fallback');
+
+// Test non-existent key
+assertEqual(safeLoad('_test_nope', [5]), [5], 'Chave inexistente retorna fallback');
+
+// Cleanup
+['_test_corrupt','_test_valid','_test_obj','_test_wrong'].forEach(k => localStorage.removeItem(k));
+
+// ══════════════════════════════════════════════
+// TEST SUITE: filterHerbs() — Herb filtering logic
+// ══════════════════════════════════════════════
+_results.push('<h2>filterHerbs() — Filtragem de ervas</h2>');
+
+const defaultFilters = {search:'',cat:'Todos',safe:'',avoid:'',momento:''};
+
+// All herbs when no filter
+assertEqual(filterHerbs(HERBS, '', defaultFilters).length, HERBS.length, 'Sem filtro retorna todas as ervas');
+
+// Search by name
+assertEqual(filterHerbs(HERBS, 'camomila', defaultFilters).length, 1, 'Busca "camomila" retorna 1 resultado');
+assertEqual(filterHerbs(HERBS, 'camomila', defaultFilters)[0].n, 'Camomila', 'Busca "camomila" retorna Camomila');
+
+// Search by effect
+assert(filterHerbs(HERBS, 'digestiv', defaultFilters).length > 1, 'Busca "digestiv" retorna múltiplos resultados');
+
+// Filter by category
+const catFilter = {...defaultFilters, cat:'Calmante'};
+const calmantes = filterHerbs(HERBS, '', catFilter);
+assert(calmantes.length > 0, 'Filtro categoria Calmante retorna resultados');
+assert(calmantes.every(h => h.cat === 'Calmante'), 'Todos os resultados são da categoria Calmante');
+
+// Filter by safe for gestantes
+const gestFilter = {...defaultFilters, safe:'gestantes'};
+const gestSafe = filterHerbs(HERBS, '', gestFilter);
+assert(gestSafe.length > 0, 'Filtro gestantes retorna resultados');
+assert(gestSafe.every(h => h.safe.includes('gestantes')), 'Todos os resultados são seguros para gestantes');
+
+// Filter by momento
+const manhaFilter = {...defaultFilters, momento:'manha'};
+const manhaHerbs = filterHerbs(HERBS, '', manhaFilter);
+assert(manhaHerbs.length > 0, 'Filtro manhã retorna resultados');
+assert(manhaHerbs.every(h => (h.momento||[]).includes('manha')), 'Todos os resultados têm momento manhã');
+
+// Filter evitar-gestantes
+const evitarGest = {...defaultFilters, safe:'evitar-gestantes'};
+const evitarResults = filterHerbs(HERBS, '', evitarGest);
+assert(evitarResults.length > 0, 'Filtro evitar-gestantes retorna resultados');
+assert(evitarResults.every(h => h.avoid.some(a=>a.includes('gestantes'))), 'Todos os resultados têm contraindicação para gestantes');
+
+// Combined filters
+const combined = {search:'',cat:'Calmante',safe:'gestantes',avoid:'',momento:''};
+const combinedResults = filterHerbs(HERBS, '', combined);
+assert(combinedResults.every(h => h.cat === 'Calmante' && h.safe.includes('gestantes')), 'Filtros combinados (Calmante + gestantes) funciona');
+
+// No results
+assertEqual(filterHerbs(HERBS, 'xyznotfound', defaultFilters).length, 0, 'Busca inexistente retorna 0 resultados');
+
+// Filter sem-cafeina excludes caffeinated
+const semCafFilter = {...defaultFilters, safe:'sem-cafeina'};
+const semCaf = filterHerbs(HERBS, '', semCafFilter);
+assert(semCaf.every(h => !h.avoid.some(a=>a.includes('cafeína'))), 'Filtro sem-cafeína exclui ervas com cafeína');
+
+// ══════════════════════════════════════════════
+// DONE
+// ══════════════════════════════════════════════
+showResults();
+</script>
+</body>
+</html>
