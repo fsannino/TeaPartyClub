@@ -149,6 +149,7 @@ const ervaria = {
   onLogout() {
     this.updateAuthUI(false);
     localStorage.removeItem('erb_entered');
+    localStorage.removeItem('erb_auth');
     backToLanding();
     toast('Até logo!');
   },
@@ -479,6 +480,7 @@ function enterAppAfterAuth(){
   document.getElementById('landingPage').style.display = 'none';
   document.getElementById('appContainer').style.display = 'block';
   localStorage.setItem('erb_entered', '1');
+  localStorage.setItem('erb_auth', '1');
 }
 function backToLanding(){
   document.getElementById('appContainer').style.display = 'none';
