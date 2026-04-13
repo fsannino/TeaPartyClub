@@ -1,11 +1,17 @@
-const CACHE_NAME = 'ervatorio-v2';
+const CACHE_NAME = 'ervatorio-v3';
 const OFFLINE_URL = '/';
 
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon-maskable-512.png'
 ];
+
+// Google Fonts to cache with stale-while-revalidate
+const FONT_ORIGINS = ['https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 // Install: precache essential assets
 self.addEventListener('install', event => {
@@ -25,15 +31,33 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: network-first with cache fallback
+// Fetch handler
 self.addEventListener('fetch', event => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip external requests (Supabase API, Google auth, CDN)
   const url = new URL(event.request.url);
+
+  // Google Fonts: stale-while-revalidate (cache first, update in background)
+  if (FONT_ORIGINS.some(origin => url.href.startsWith(origin))) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache =>
+        cache.match(event.request).then(cached => {
+          const fetchPromise = fetch(event.request).then(response => {
+            if (response.ok) cache.put(event.request, response.clone());
+            return response;
+          }).catch(() => cached);
+          return cached || fetchPromise;
+        })
+      )
+    );
+    return;
+  }
+
+  // Skip other external requests (Supabase API, Google auth)
   if (url.origin !== self.location.origin) return;
 
+  // Same-origin: network-first with cache fallback
   event.respondWith(
     fetch(event.request)
       .then(response => {

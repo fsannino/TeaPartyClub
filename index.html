@@ -10,6 +10,19 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Ervatório">
 <meta name="description" content="Catálogo inteligente de chás, infusões e ervas medicinais. Roda dos Chás, blends com IA e marketplace.">
+<!-- OpenGraph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ervatório — App de Chás">
+<meta property="og:description" content="Catálogo inteligente de chás, infusões e ervas medicinais brasileiras. Roda dos Chás, blends personalizados e marketplace.">
+<meta property="og:image" content="/icon-512.png">
+<meta property="og:locale" content="pt_BR">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ervatório — App de Chás">
+<meta name="twitter:description" content="Catálogo inteligente de chás, infusões e ervas medicinais brasileiras.">
+<meta name="twitter:image" content="/icon-512.png">
+<!-- Apple Touch Icon -->
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍵</text></svg>">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
@@ -788,10 +801,10 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 <!-- APP (hidden until user clicks "Entrar") -->
 <div id="appContainer" style="display:none">
 
-<nav>
-  <div class="logo" onclick="backToLanding()" style="cursor:pointer" title="Voltar à página inicial">Ervatório</div>
+<nav aria-label="Navegação principal">
+  <a class="logo" href="#" onclick="backToLanding();return false" style="cursor:pointer;text-decoration:none" title="Voltar à página inicial">Ervatório</a>
   <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro">☀</button>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">☀</button>
     <button id="ervaria-auth-btn" class="auth-btn" onclick="ervaria.showAuthModal()">⚷ Entrar</button>
   </div>
   <div class="nav-tabs">
@@ -1137,21 +1150,21 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 </div>
 
 <!-- TIMER MODAL -->
-<div class="modal-overlay" id="timerModal" onclick="closeTimerModal(event)">
+<div class="modal-overlay" id="timerModal" role="dialog" aria-modal="true" aria-label="Timer de preparo" onclick="closeTimerModal(event)">
   <div class="modal" id="timerContent" style="max-height:92vh">
     <div class="modal-handle"></div>
   </div>
 </div>
-<div class="modal-overlay" id="herbModal" onclick="closeModal(event)">
+<div class="modal-overlay" id="herbModal" role="dialog" aria-modal="true" aria-label="Detalhes da erva" onclick="closeModal(event)">
   <div class="modal" id="modalContent">
     <div class="modal-handle"></div>
   </div>
 </div>
 
 <!-- CART OVERLAY -->
-<div class="cart-overlay" id="cartOverlay" onclick="closeCartOverlay(event)">
+<div class="cart-overlay" id="cartOverlay" role="dialog" aria-modal="true" aria-label="Carrinho de compras" onclick="closeCartOverlay(event)">
   <div class="cart-panel" id="cartPanel">
-    <button class="cart-close" onclick="openCart()">✕</button>
+    <button class="cart-close" aria-label="Fechar carrinho" onclick="openCart()">✕</button>
     <div class="cart-title">Carrinho</div>
     <div id="cartItems"></div>
     <div id="cartFooter"></div>
@@ -1161,37 +1174,45 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 <div class="toast" id="toast"></div>
 
 <script>
+// ── UTILS ─────────────────────────────────────────────────────────────────
+
+/** Escapa HTML para prevenir XSS ao interpolar dados em innerHTML */
+function esc(s){
+  if(s==null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ── DATA ──────────────────────────────────────────────────────────────────
 
 const HERBS = [
-  {id:1,n:"Camomila",lat:"Matricaria chamomilla",icon:"🌼",cat:"Calmante",ef:"Calmante suave, anti-inflamatória, digestiva",detail:"Apigenina se liga aos receptores GABA, promovendo relaxamento. Ideal para insônia leve, cólicas e digestão irritada. Segura para crianças, idosos e gestantes.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2-3x ao dia",tags:["calmante","digestiva","anti-inflamatória","sono"]},
-  {id:2,n:"Valeriana",lat:"Valeriana officinalis",icon:"🌸",cat:"Sono",ef:"Sedativa potente, insônia, ansiedade grave",detail:"Actua diretamente no GABA. Reduz tempo para adormecer em 30-60 min. Não associar com álcool ou benzodiazepínicos. Evitar em depressão.",safe:["hipertensos"],avoid:["gestantes","antes de dirigir"],temp:"85°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"1x à noite",tags:["sono","ansiedade","sedativa","calmante"]},
-  {id:3,n:"Maracujá",lat:"Passiflora edulis",icon:"🍃",cat:"Calmante",ef:"Ansiolítico natural, relaxante, sono",detail:"Comparado a benzodiazepínicos suaves em estudos clínicos. Ideal para ansiedade com componente físico (taquicardia, tensão muscular). Seguro para uso diário.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia + noite",tags:["ansiedade","sono","calmante","taquicardia"]},
-  {id:4,n:"Melissa",lat:"Melissa officinalis",icon:"🍃",cat:"Calmante",ef:"Calmante, antidepressiva suave, digestiva",detail:"Inibe MAO-B, elevando serotonina e dopamina naturalmente. Excelente para quem 'não consegue parar de pensar'. Sabor agradável de limão. Sem risco de dependência.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["ansiedade","digestiva","calmante","antidepressiva"]},
-  {id:5,n:"Gengibre",lat:"Zingiber officinale",icon:"🫚",cat:"Digestivo",ef:"Anti-náusea, digestivo, termogênico, antigripal",detail:"Procinético: acelera esvaziamento gástrico. Anti-inflamatório que inibe COX-2 e LOX. Eficaz quanto ibuprofeno para dor menstrual em estudos. Usar fresco para máximo efeito.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"3-4 fatias frescas / 300ml",freq:"conforme necessidade",tags:["digestivo","náusea","inflamação","termogênico","gripe"]},
-  {id:6,n:"Chá Verde",lat:"Camellia sinensis",icon:"🍵",cat:"Estimulante",ef:"Foco, antioxidante, termogênico, metabolismo",detail:"L-teanina + cafeína: estado único de foco calmo. EGCG: antioxidante mais estudado do mundo. Tomar 30min antes de exercício potencializa queima de gordura.",safe:[],avoid:["gestantes","insônia","hipertensos sensíveis","após 16h"],temp:"75°C",tempo:"3-4 min",dose:"1 col. sopa / 200ml",freq:"1-2x manhã",tags:["foco","energia","metabolismo","antioxidante"]},
-  {id:7,n:"Hibisco",lat:"Hibiscus sabdariffa",icon:"🌺",cat:"Cardiovascular",ef:"Hipotensor, antioxidante, emagrecimento, vitamina C",detail:"Estudo JAMA: 3 xícaras/dia reduziram PA sistólica em média 7mmHg. Rico em antocianinas. Inibe amilase, reduzindo absorção de carboidratos. Vermelho intenso, sabor ácido.",safe:[],avoid:["gestantes","pressão baixa","uso com diuréticos"],temp:"90°C",tempo:"8 min",dose:"2 col. sopa / 300ml",freq:"2-3x ao dia",tags:["pressão","antioxidante","emagrecimento","vitamina C"]},
-  {id:8,n:"Alecrim",lat:"Rosmarinus officinalis",icon:"🌿",cat:"Estimulante",ef:"Foco, memória, circulação, estimulante",detail:"1,8-cineol no aroma já melhora desempenho cognitivo. Estimula circulação cerebral e periférica. Excelente para manhãs lentas e concentração. Sem cafeína.",safe:["hipertensos"],avoid:["gestantes (doses altas)","epilepsia"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 200ml",freq:"1-2x ao dia",tags:["foco","memória","energia","circulação"]},
-  {id:9,n:"Hortelã",lat:"Mentha piperita",icon:"🌿",cat:"Digestivo",ef:"Digestiva, carminativa, descongestionante, fresca",detail:"Mentol relaxa musculatura lisa intestinal. Alivia IBS em estudos clínicos. Descongestionante das vias aéreas. Frio potencializa o efeito mentolado.",safe:["hipertensos","crianças (sem óleo essencial)"],avoid:["gestantes (doses altas)","bebês (óleo)","refluxo grave"],temp:"85°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["digestivo","gases","congestão","frescor"]},
-  {id:10,n:"Erva-doce",lat:"Pimpinella anisum",icon:"🌾",cat:"Digestivo",ef:"Carminativa, antigases, cólicas, expectorante",detail:"Carminativo clássico: relaxa musculatura intestinal e libera gases. Seguro até para bebês (muito diluído). Combina muito bem com camomila e hortelã.",safe:["hipertensos","crianças","gestantes (uso moderado)"],avoid:[],temp:"90°C",tempo:"7 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["gases","cólicas","digestivo","expectorante"]},
-  {id:11,n:"Canela",lat:"Cinnamomum zeylanicum",icon:"🌿",cat:"Metabólico",ef:"Termogênica, regula glicemia, anti-inflamatória",detail:"Regula insulina, evita pico glicêmico. Termogênica e adocicada: reduz desejo por doces. Cassia tem cumarina (limitar). Prefira canela-do-ceilão.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"95°C",tempo:"10 min",dose:"1 pau ou 1 col. / 300ml",freq:"2x ao dia",tags:["metabolismo","glicemia","termogênico","digestivo"]},
-  {id:12,n:"Cúrcuma",lat:"Curcuma longa",icon:"🫚",cat:"Anti-inflamatório",ef:"Anti-inflamatório potente, hepático, antioxidante",detail:"Curcumina: inibe COX-2. Eficaz quanto ibuprofeno em artrite em estudos. Adicionar pimenta-do-reino aumenta absorção em 2000%. Leite dourado com leite vegetal.",safe:["hipertensos"],avoid:["gestantes (doses altas)","pedras na vesícula","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá + pitada pimenta / 250ml",freq:"2x ao dia",tags:["anti-inflamatório","fígado","articulações","antioxidante"]},
-  {id:13,n:"Alfazema",lat:"Lavandula angustifolia",icon:"💜",cat:"Calmante",ef:"Ansiolítica, sedativa suave, dor de cabeça",detail:"Estudo Lasea: eficaz quanto lorazepam para ansiedade leve. Reduz ondas beta cerebrais. Aroma + infusão combinados têm efeito sinérgico.",safe:["hipertensos"],avoid:["gestantes"],temp:"85°C",tempo:"8 min",dose:"1 col. sopa flores / 250ml",freq:"2x ao dia",tags:["ansiedade","sono","dor de cabeça","calmante"]},
-  {id:14,n:"Boldo",lat:"Peumus boldus",icon:"🍃",cat:"Digestivo",ef:"Hepático, digestivo, alivia peso pós-refeição",detail:"Colagogo clássico: estimula produção e fluxo de bile. Alivia sensação de peso em 20-30 min. Não usar por mais de 6 semanas seguidas.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","uso prolongado"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeição gordurosa",tags:["fígado","digestivo","bile","ressaca"]},
-  {id:15,n:"Alcachofra",lat:"Cynara scolymus",icon:"🌱",cat:"Digestivo",ef:"Detox fígado, reduz colesterol, diurética",detail:"Cinarina: aumenta produção de bile. Colerético + detox suave e progressivo. Combina com boldo para digestão pesada.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","alergia a asteráceas"],temp:"90°C",tempo:"10 min",dose:"1-2 col. sopa / 300ml",freq:"2x ao dia",tags:["fígado","colesterol","digestivo","detox"]},
-  {id:16,n:"Guaco",lat:"Mikania glomerata",icon:"🍃",cat:"Respiratório",ef:"Broncodilatador, expectorante, tosse, gripe",detail:"Regulamentado pela ANVISA como fitoterápico. Broncodilatador natural mais eficaz. Pode ser usado como xarope ou chá. 3-4x ao dia em crises.",safe:["hipertensos"],avoid:["gestantes","uso prolongado sem supervisão"],temp:"90°C",tempo:"10 min",dose:"2 col. sopa / 300ml",freq:"3-4x ao dia (gripe)",tags:["tosse","bronquite","gripe","expectorante"]},
-  {id:17,n:"Capim-Limão",lat:"Cymbopogon citratus",icon:"🌾",cat:"Calmante",ef:"Calmante, digestivo, antigripal, febre",detail:"Sabor cítrico agradável. Calmante sem sonolência intensa. Antipirétic e antigripal suave. Muito consumido no Brasil.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"90°C",tempo:"8 min",dose:"2-3 folhas frescas / 300ml",freq:"3x ao dia",tags:["calmante","febre","digestivo","cítrico"]},
-  {id:18,n:"Folha de Amora",lat:"Morus nigra",icon:"🍃",cat:"Hormonal",ef:"Menopausa, suores noturnos, fitoestrogênios",detail:"Fitoestrogênios reduzem sintomas da menopausa. Estudo: reduz calores em 50% em 8 semanas. Hipoglicemiante suave.",safe:["hipertensos"],avoid:["gestantes","câncer hormônio-dependente"],temp:"88°C",tempo:"10 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia",tags:["menopausa","hormônios","fitoestrogênio","hipoglicemiante"]},
-  {id:19,n:"Erva Cidreira",lat:"Lippia alba",icon:"🍃",cat:"Calmante",ef:"Calmante suave, digestiva, ansiedade",detail:"Calmante brasileiro clássico. Suave e seguro para toda a família. Ideal para estresse diário leve sem causar sedação.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["calmante","ansiedade","digestivo","família"]},
-  {id:20,n:"Espinheira Santa",lat:"Maytenus ilicifolia",icon:"🌿",cat:"Digestivo",ef:"Gastrite, úlcera, acidez, antiácido natural",detail:"Antiácido e cicatrizante natural da mucosa gástrica. Regulado pela ANVISA. Tomar em jejum e antes das refeições.",safe:["hipertensos"],avoid:["gestantes","amamentação"],temp:"88°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia em jejum",tags:["gastrite","úlcera","acidez","estômago"]},
-  {id:21,n:"Carqueja",lat:"Baccharis trimera",icon:"🌿",cat:"Metabólico",ef:"Termogênica, digestiva, saciedade, diabetes",detail:"Termogênica e reduz absorção de gordura. Auxiliar no emagrecimento. Amargo: combinar com canela para suavizar.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"antes das refeições",tags:["emagrecimento","termogênico","diabetes","fígado"]},
-  {id:22,n:"Ginkgo Biloba",lat:"Ginkgo biloba",icon:"🍃",cat:"Cognitivo",ef:"Memória, circulação cerebral, concentração",detail:"Aumenta fluxo sanguíneo cerebral. Resultados em 4-6 semanas de uso contínuo. Evitar com anticoagulantes.",safe:["hipertensos"],avoid:["gestantes","anticoagulantes","antes de cirurgia"],temp:"90°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"2x ao dia",tags:["memória","foco","circulação","cognitivo"]},
-  {id:23,n:"Hibisco Azul",lat:"Clitoria ternatea",icon:"💙",cat:"Cognitivo",ef:"Antioxidante, memória, ansiedade, muda de cor",detail:"Muda de roxo para rosa/vermelho com limão (antocianinas sensíveis ao pH). Antioxidante cerebral. Estudos mostram melhora em testes cognitivos.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"5 min",dose:"1-2 col. sopa / 250ml",freq:"1-2x ao dia",tags:["cognitivo","antioxidante","memória","beleza"]},
-  {id:24,n:"Calêndula",lat:"Calendula officinalis",icon:"🌸",cat:"Pele",ef:"Cicatrizante, anti-inflamatória, antifúngica",detail:"Cicatrizante interno e externo. Anti-inflamatória da mucosa e pele. Usar também como compressa.",safe:["hipertensos"],avoid:["gestantes","alergia a asteráceas"],temp:"88°C",tempo:"8 min",dose:"1-2 col. sopa flores / 250ml",freq:"2-3x ao dia",tags:["pele","cicatrizante","anti-inflamatório","gastrite"]},
-  {id:25,n:"Rooibos",lat:"Aspalathus linearis",icon:"🍃",cat:"Antioxidante",ef:"Antioxidante potente, sem cafeína, anti-aging",detail:"Antioxidante 50x mais potente que chá verde segundo alguns estudos. Sem cafeína: ideal à tarde e noite. Rico em minerais.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"95°C",tempo:"5-7 min",dose:"1-2 col. sopa / 300ml",freq:"a qualquer hora",tags:["antioxidante","sem cafeína","anti-aging","pele"]},
-  {id:26,n:"Ashwagandha",lat:"Withania somnifera",icon:"🌿",cat:"Adaptogênico",ef:"Reduz cortisol, estresse, energia, libido",detail:"Reduce cortisol em até 30% em estudos. Adaptogênico: acalma sob estresse, energiza sob fadiga. Resultados em 4-8 semanas.",safe:["hipertensos"],avoid:["gestantes","hipertireoidismo","doenças autoimunes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá pó / 250ml",freq:"2x ao dia",tags:["adaptogênico","estresse","cortisol","libido"]},
-  {id:27,n:"Guaraná",lat:"Paullinia cupana",icon:"🫐",cat:"Estimulante",ef:"Estimulante, foco, metabolismo, emagrecimento",detail:"Cafeína de liberação mais lenta que o café. Menos pico e queda. Rico em taninos e guaranina.",safe:[],avoid:["gestantes","hipertensos","insônia","crianças","após 15h"],temp:"85°C",tempo:"5 min",dose:"1/2 col. chá pó / 250ml",freq:"1x manhã",tags:["energia","foco","metabolismo","estimulante"]},
-  {id:28,n:"Tomilho",lat:"Thymus vulgaris",icon:"🌿",cat:"Respiratório",ef:"Expectorante, antisséptico, tosse, bronquite",detail:"Timol: antisséptico pulmonar potente. Usado como xarope na Europa há séculos. Dissolve muco e desinfeta vias aéreas.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia",tags:["tosse","expectorante","bronquite","antisséptico"]},
+  {id:1,n:"Camomila",lat:"Matricaria chamomilla",icon:"🌼",cat:"Calmante",ef:"Calmante suave, anti-inflamatória, digestiva",detail:"Apigenina se liga aos receptores GABA, promovendo relaxamento. Ideal para insônia leve, cólicas e digestão irritada. Segura para crianças, idosos e gestantes.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2-3x ao dia",tags:["calmante","digestiva","anti-inflamatória","sono"],momento:["tarde","qualquer"]},
+  {id:2,n:"Valeriana",lat:"Valeriana officinalis",icon:"🌸",cat:"Sono",ef:"Sedativa potente, insônia, ansiedade grave",detail:"Actua diretamente no GABA. Reduz tempo para adormecer em 30-60 min. Não associar com álcool ou benzodiazepínicos. Evitar em depressão.",safe:["hipertensos"],avoid:["gestantes","antes de dirigir"],temp:"85°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"1x à noite",tags:["sono","ansiedade","sedativa","calmante"],momento:["noite"]},
+  {id:3,n:"Maracujá",lat:"Passiflora edulis",icon:"🍃",cat:"Calmante",ef:"Ansiolítico natural, relaxante, sono",detail:"Comparado a benzodiazepínicos suaves em estudos clínicos. Ideal para ansiedade com componente físico (taquicardia, tensão muscular). Seguro para uso diário.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia + noite",tags:["ansiedade","sono","calmante","taquicardia"],momento:["noite","tarde"]},
+  {id:4,n:"Melissa",lat:"Melissa officinalis",icon:"🍃",cat:"Calmante",ef:"Calmante, antidepressiva suave, digestiva",detail:"Inibe MAO-B, elevando serotonina e dopamina naturalmente. Excelente para quem 'não consegue parar de pensar'. Sabor agradável de limão. Sem risco de dependência.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["ansiedade","digestiva","calmante","antidepressiva"],momento:["tarde","noite","qualquer"]},
+  {id:5,n:"Gengibre",lat:"Zingiber officinale",icon:"🫚",cat:"Digestivo",ef:"Anti-náusea, digestivo, termogênico, antigripal",detail:"Procinético: acelera esvaziamento gástrico. Anti-inflamatório que inibe COX-2 e LOX. Eficaz quanto ibuprofeno para dor menstrual em estudos. Usar fresco para máximo efeito.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"3-4 fatias frescas / 300ml",freq:"conforme necessidade",tags:["digestivo","náusea","inflamação","termogênico","gripe"],momento:["manha","qualquer"]},
+  {id:6,n:"Chá Verde",lat:"Camellia sinensis",icon:"🍵",cat:"Estimulante",ef:"Foco, antioxidante, termogênico, metabolismo",detail:"L-teanina + cafeína: estado único de foco calmo. EGCG: antioxidante mais estudado do mundo. Tomar 30min antes de exercício potencializa queima de gordura.",safe:[],avoid:["gestantes","insônia","hipertensos sensíveis","após 16h"],temp:"75°C",tempo:"3-4 min",dose:"1 col. sopa / 200ml",freq:"1-2x manhã",tags:["foco","energia","metabolismo","antioxidante"],momento:["manha","tarde"]},
+  {id:7,n:"Hibisco",lat:"Hibiscus sabdariffa",icon:"🌺",cat:"Cardiovascular",ef:"Hipotensor, antioxidante, emagrecimento, vitamina C",detail:"Estudo JAMA: 3 xícaras/dia reduziram PA sistólica em média 7mmHg. Rico em antocianinas. Inibe amilase, reduzindo absorção de carboidratos. Vermelho intenso, sabor ácido.",safe:[],avoid:["gestantes","pressão baixa","uso com diuréticos"],temp:"90°C",tempo:"8 min",dose:"2 col. sopa / 300ml",freq:"2-3x ao dia",tags:["pressão","antioxidante","emagrecimento","vitamina C"],momento:["qualquer"]},
+  {id:8,n:"Alecrim",lat:"Rosmarinus officinalis",icon:"🌿",cat:"Estimulante",ef:"Foco, memória, circulação, estimulante",detail:"1,8-cineol no aroma já melhora desempenho cognitivo. Estimula circulação cerebral e periférica. Excelente para manhãs lentas e concentração. Sem cafeína.",safe:["hipertensos"],avoid:["gestantes (doses altas)","epilepsia"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 200ml",freq:"1-2x ao dia",tags:["foco","memória","energia","circulação"],momento:["manha","tarde"]},
+  {id:9,n:"Hortelã",lat:"Mentha piperita",icon:"🌿",cat:"Digestivo",ef:"Digestiva, carminativa, descongestionante, fresca",detail:"Mentol relaxa musculatura lisa intestinal. Alivia IBS em estudos clínicos. Descongestionante das vias aéreas. Frio potencializa o efeito mentolado.",safe:["hipertensos","crianças (sem óleo essencial)"],avoid:["gestantes (doses altas)","bebês (óleo)","refluxo grave"],temp:"85°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["digestivo","gases","congestão","frescor"],momento:["qualquer"]},
+  {id:10,n:"Erva-doce",lat:"Pimpinella anisum",icon:"🌾",cat:"Digestivo",ef:"Carminativa, antigases, cólicas, expectorante",detail:"Carminativo clássico: relaxa musculatura intestinal e libera gases. Seguro até para bebês (muito diluído). Combina muito bem com camomila e hortelã.",safe:["hipertensos","crianças","gestantes (uso moderado)"],avoid:[],temp:"90°C",tempo:"7 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["gases","cólicas","digestivo","expectorante"],momento:["qualquer"]},
+  {id:11,n:"Canela",lat:"Cinnamomum zeylanicum",icon:"🌿",cat:"Metabólico",ef:"Termogênica, regula glicemia, anti-inflamatória",detail:"Regula insulina, evita pico glicêmico. Termogênica e adocicada: reduz desejo por doces. Cassia tem cumarina (limitar). Prefira canela-do-ceilão.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"95°C",tempo:"10 min",dose:"1 pau ou 1 col. / 300ml",freq:"2x ao dia",tags:["metabolismo","glicemia","termogênico","digestivo"],momento:["manha","tarde"]},
+  {id:12,n:"Cúrcuma",lat:"Curcuma longa",icon:"🫚",cat:"Anti-inflamatório",ef:"Anti-inflamatório potente, hepático, antioxidante",detail:"Curcumina: inibe COX-2. Eficaz quanto ibuprofeno em artrite em estudos. Adicionar pimenta-do-reino aumenta absorção em 2000%. Leite dourado com leite vegetal.",safe:["hipertensos"],avoid:["gestantes (doses altas)","pedras na vesícula","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá + pitada pimenta / 250ml",freq:"2x ao dia",tags:["anti-inflamatório","fígado","articulações","antioxidante"],momento:["qualquer"]},
+  {id:13,n:"Alfazema",lat:"Lavandula angustifolia",icon:"💜",cat:"Calmante",ef:"Ansiolítica, sedativa suave, dor de cabeça",detail:"Estudo Lasea: eficaz quanto lorazepam para ansiedade leve. Reduz ondas beta cerebrais. Aroma + infusão combinados têm efeito sinérgico.",safe:["hipertensos"],avoid:["gestantes"],temp:"85°C",tempo:"8 min",dose:"1 col. sopa flores / 250ml",freq:"2x ao dia",tags:["ansiedade","sono","dor de cabeça","calmante"],momento:["tarde","noite"]},
+  {id:14,n:"Boldo",lat:"Peumus boldus",icon:"🍃",cat:"Digestivo",ef:"Hepático, digestivo, alivia peso pós-refeição",detail:"Colagogo clássico: estimula produção e fluxo de bile. Alivia sensação de peso em 20-30 min. Não usar por mais de 6 semanas seguidas.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","uso prolongado"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeição gordurosa",tags:["fígado","digestivo","bile","ressaca"],momento:["qualquer"]},
+  {id:15,n:"Alcachofra",lat:"Cynara scolymus",icon:"🌱",cat:"Digestivo",ef:"Detox fígado, reduz colesterol, diurética",detail:"Cinarina: aumenta produção de bile. Colerético + detox suave e progressivo. Combina com boldo para digestão pesada.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","alergia a asteráceas"],temp:"90°C",tempo:"10 min",dose:"1-2 col. sopa / 300ml",freq:"2x ao dia",tags:["fígado","colesterol","digestivo","detox"],momento:["qualquer"]},
+  {id:16,n:"Guaco",lat:"Mikania glomerata",icon:"🍃",cat:"Respiratório",ef:"Broncodilatador, expectorante, tosse, gripe",detail:"Regulamentado pela ANVISA como fitoterápico. Broncodilatador natural mais eficaz. Pode ser usado como xarope ou chá. 3-4x ao dia em crises.",safe:["hipertensos"],avoid:["gestantes","uso prolongado sem supervisão"],temp:"90°C",tempo:"10 min",dose:"2 col. sopa / 300ml",freq:"3-4x ao dia (gripe)",tags:["tosse","bronquite","gripe","expectorante"],momento:["qualquer"]},
+  {id:17,n:"Capim-Limão",lat:"Cymbopogon citratus",icon:"🌾",cat:"Calmante",ef:"Calmante, digestivo, antigripal, febre",detail:"Sabor cítrico agradável. Calmante sem sonolência intensa. Antipirétic e antigripal suave. Muito consumido no Brasil.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"90°C",tempo:"8 min",dose:"2-3 folhas frescas / 300ml",freq:"3x ao dia",tags:["calmante","febre","digestivo","cítrico"],momento:["qualquer"]},
+  {id:18,n:"Folha de Amora",lat:"Morus nigra",icon:"🍃",cat:"Hormonal",ef:"Menopausa, suores noturnos, fitoestrogênios",detail:"Fitoestrogênios reduzem sintomas da menopausa. Estudo: reduz calores em 50% em 8 semanas. Hipoglicemiante suave.",safe:["hipertensos"],avoid:["gestantes","câncer hormônio-dependente"],temp:"88°C",tempo:"10 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia",tags:["menopausa","hormônios","fitoestrogênio","hipoglicemiante"],momento:["tarde","noite"]},
+  {id:19,n:"Erva Cidreira",lat:"Lippia alba",icon:"🍃",cat:"Calmante",ef:"Calmante suave, digestiva, ansiedade",detail:"Calmante brasileiro clássico. Suave e seguro para toda a família. Ideal para estresse diário leve sem causar sedação.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["calmante","ansiedade","digestivo","família"],momento:["tarde","noite","qualquer"]},
+  {id:20,n:"Espinheira Santa",lat:"Maytenus ilicifolia",icon:"🌿",cat:"Digestivo",ef:"Gastrite, úlcera, acidez, antiácido natural",detail:"Antiácido e cicatrizante natural da mucosa gástrica. Regulado pela ANVISA. Tomar em jejum e antes das refeições.",safe:["hipertensos"],avoid:["gestantes","amamentação"],temp:"88°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia em jejum",tags:["gastrite","úlcera","acidez","estômago"],momento:["qualquer"]},
+  {id:21,n:"Carqueja",lat:"Baccharis trimera",icon:"🌿",cat:"Metabólico",ef:"Termogênica, digestiva, saciedade, diabetes",detail:"Termogênica e reduz absorção de gordura. Auxiliar no emagrecimento. Amargo: combinar com canela para suavizar.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"antes das refeições",tags:["emagrecimento","termogênico","diabetes","fígado"],momento:["manha","tarde"]},
+  {id:22,n:"Ginkgo Biloba",lat:"Ginkgo biloba",icon:"🍃",cat:"Cognitivo",ef:"Memória, circulação cerebral, concentração",detail:"Aumenta fluxo sanguíneo cerebral. Resultados em 4-6 semanas de uso contínuo. Evitar com anticoagulantes.",safe:["hipertensos"],avoid:["gestantes","anticoagulantes","antes de cirurgia"],temp:"90°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"2x ao dia",tags:["memória","foco","circulação","cognitivo"],momento:["manha","tarde"]},
+  {id:23,n:"Hibisco Azul",lat:"Clitoria ternatea",icon:"💙",cat:"Cognitivo",ef:"Antioxidante, memória, ansiedade, muda de cor",detail:"Muda de roxo para rosa/vermelho com limão (antocianinas sensíveis ao pH). Antioxidante cerebral. Estudos mostram melhora em testes cognitivos.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"5 min",dose:"1-2 col. sopa / 250ml",freq:"1-2x ao dia",tags:["cognitivo","antioxidante","memória","beleza"],momento:["tarde","qualquer"]},
+  {id:24,n:"Calêndula",lat:"Calendula officinalis",icon:"🌸",cat:"Pele",ef:"Cicatrizante, anti-inflamatória, antifúngica",detail:"Cicatrizante interno e externo. Anti-inflamatória da mucosa e pele. Usar também como compressa.",safe:["hipertensos"],avoid:["gestantes","alergia a asteráceas"],temp:"88°C",tempo:"8 min",dose:"1-2 col. sopa flores / 250ml",freq:"2-3x ao dia",tags:["pele","cicatrizante","anti-inflamatório","gastrite"],momento:["qualquer"]},
+  {id:25,n:"Rooibos",lat:"Aspalathus linearis",icon:"🍃",cat:"Antioxidante",ef:"Antioxidante potente, sem cafeína, anti-aging",detail:"Antioxidante 50x mais potente que chá verde segundo alguns estudos. Sem cafeína: ideal à tarde e noite. Rico em minerais.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"95°C",tempo:"5-7 min",dose:"1-2 col. sopa / 300ml",freq:"a qualquer hora",tags:["antioxidante","sem cafeína","anti-aging","pele"],momento:["tarde","noite","qualquer"]},
+  {id:26,n:"Ashwagandha",lat:"Withania somnifera",icon:"🌿",cat:"Adaptogênico",ef:"Reduz cortisol, estresse, energia, libido",detail:"Reduce cortisol em até 30% em estudos. Adaptogênico: acalma sob estresse, energiza sob fadiga. Resultados em 4-8 semanas.",safe:["hipertensos"],avoid:["gestantes","hipertireoidismo","doenças autoimunes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá pó / 250ml",freq:"2x ao dia",tags:["adaptogênico","estresse","cortisol","libido"],momento:["tarde","noite"]},
+  {id:27,n:"Guaraná",lat:"Paullinia cupana",icon:"🫐",cat:"Estimulante",ef:"Estimulante, foco, metabolismo, emagrecimento",detail:"Cafeína de liberação mais lenta que o café. Menos pico e queda. Rico em taninos e guaranina.",safe:[],avoid:["gestantes","hipertensos","insônia","crianças","após 15h"],temp:"85°C",tempo:"5 min",dose:"1/2 col. chá pó / 250ml",freq:"1x manhã",tags:["energia","foco","metabolismo","estimulante"],momento:["manha"]},
+  {id:28,n:"Tomilho",lat:"Thymus vulgaris",icon:"🌿",cat:"Respiratório",ef:"Expectorante, antisséptico, tosse, bronquite",detail:"Timol: antisséptico pulmonar potente. Usado como xarope na Europa há séculos. Dissolve muco e desinfeta vias aéreas.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia",tags:["tosse","expectorante","bronquite","antisséptico"],momento:["qualquer"]},
 ];
 
 const SUPPLIERS = [
@@ -1222,11 +1243,15 @@ const PRODUCTS = [
   {id:16,name:"Infusor Aço Inox",sup:"Ervas & Raízes",icon:"🫖",cat:"Acessórios",price:24.90,unit:"1 unid",stock:"in",supId:1},
 ];
 
-// STATE
-let favorites = JSON.parse(localStorage.getItem('erb_favs')||'[]');
-let blendTray = JSON.parse(localStorage.getItem('erb_tray')||'[]');
-let savedRecipes = JSON.parse(localStorage.getItem('erb_recipes')||'[]');
-let cart = JSON.parse(localStorage.getItem('erb_cart')||'[]');
+// STATE — safe localStorage parser with fallback
+function safeLoad(key, fallback){
+  try { const v = JSON.parse(localStorage.getItem(key)); return Array.isArray(fallback) ? (Array.isArray(v) ? v : fallback) : (v && typeof v === 'object' ? v : fallback); }
+  catch(e){ return fallback; }
+}
+let favorites = safeLoad('erb_favs', []);
+let blendTray = safeLoad('erb_tray', []);
+let savedRecipes = safeLoad('erb_recipes', []);
+let cart = safeLoad('erb_cart', []);
 let activeFilters = {search:'',cat:'Todos',safe:'',avoid:'',momento:''};
 let wizState = {sintomas:[],hora:'',sabor:''};
 let activeSup = 'Todos';
@@ -1305,37 +1330,7 @@ const SAFE_CONTEXT = {
   'evitar-hipertensos':'Atenção: estas ervas podem elevar pressão ou interagir com anti-hipertensivos.',
 };
 
-// Map herbs to momento tags
-const HERB_MOMENTO = {
-  1:['tarde','qualquer'],  // camomila
-  2:['noite'],             // valeriana
-  3:['noite','tarde'],     // maracujá
-  4:['tarde','noite','qualquer'], // melissa
-  5:['manha','qualquer'],  // gengibre
-  6:['manha','tarde'],     // chá verde
-  7:['qualquer'],          // hibisco
-  8:['manha','tarde'],     // alecrim
-  9:['qualquer'],          // hortelã
-  10:['qualquer'],         // erva-doce
-  11:['manha','tarde'],    // canela
-  12:['qualquer'],         // cúrcuma
-  13:['tarde','noite'],    // alfazema
-  14:['qualquer'],         // boldo
-  15:['qualquer'],         // alcachofra
-  16:['qualquer'],         // guaco
-  17:['qualquer'],         // capim-limão
-  18:['tarde','noite'],    // folha de amora
-  19:['tarde','noite','qualquer'], // erva cidreira
-  20:['qualquer'],         // espinheira santa
-  21:['manha','tarde'],    // carqueja
-  22:['manha','tarde'],    // ginkgo
-  23:['tarde','qualquer'], // hibisco azul
-  24:['qualquer'],         // calêndula
-  25:['tarde','noite','qualquer'], // rooibos
-  26:['tarde','noite'],    // ashwagandha
-  27:['manha'],            // guaraná
-  28:['qualquer'],         // tomilho
-};
+// HERB_MOMENTO agora integrado em HERBS[].momento
 
 // ── WHEEL ENGINE ──
 let wheelHov1=-1, wheelHov2=-1, wheelHov3=-1;
@@ -1607,10 +1602,9 @@ function renderHerbs(){
     const txt = (h.n+h.lat+h.ef+h.tags.join(' ')).toLowerCase();
     if(q && !txt.includes(q)) return false;
     if(activeFilters.cat!=='Todos' && h.cat!==activeFilters.cat) return false;
-    // Momento filter via HERB_MOMENTO map
+    // Momento filter
     if(activeFilters.momento){
-      const momenots = HERB_MOMENTO[h.id]||[];
-      if(!momenots.includes(activeFilters.momento)) return false;
+      if(!(h.momento||[]).includes(activeFilters.momento)) return false;
     }
     // Safe filter
     if(activeFilters.safe==='gestantes' && !h.safe.includes('gestantes')) return false;
@@ -1634,16 +1628,16 @@ function renderHerbs(){
     <div class="herb-card" onclick="openHerbModal(${h.id})">
       <div class="hc-top">
         <span style="font-size:1.3rem">${h.icon}</span>
-        <button class="hc-fav ${favorites.includes(h.id)?'on':''}" onclick="toggleFav(event,${h.id})" title="Favoritar">♥</button>
+        <button class="hc-fav ${favorites.includes(h.id)?'on':''}" onclick="toggleFav(event,${h.id})" title="Favoritar" aria-label="Favoritar ${esc(h.n)}">♥</button>
       </div>
-      <div class="hc-name">${h.n}</div>
-      <div class="hc-latin">${h.lat}</div>
-      <div class="hc-effect">${h.ef}</div>
+      <div class="hc-name">${esc(h.n)}</div>
+      <div class="hc-latin">${esc(h.lat)}</div>
+      <div class="hc-effect">${esc(h.ef)}</div>
       <div class="hc-tags">
-        <span class="htag htag-cat">${h.cat}</span>
-        ${(HERB_MOMENTO[h.id]||[]).map(m=>{const mo=RING3.find(r=>r.id===m); return mo?`<span class="htag" style="background:${mo.color}22;border:0.5px solid ${mo.color}44;color:${mo.color}">${mo.label}</span>`:''}).join('')}
-        ${h.safe.slice(0,1).map(s=>`<span class="htag htag-safe">✓ ${s}</span>`).join('')}
-        ${h.avoid.length?`<span class="htag htag-warn">⚠ ${h.avoid[0]}</span>`:''}
+        <span class="htag htag-cat">${esc(h.cat)}</span>
+        ${(h.momento||[]).map(m=>{const mo=RING3.find(r=>r.id===m); return mo?`<span class="htag" style="background:${mo.color}22;border:0.5px solid ${mo.color}44;color:${mo.color}">${esc(mo.label)}</span>`:''}).join('')}
+        ${h.safe.slice(0,1).map(s=>`<span class="htag htag-safe">✓ ${esc(s)}</span>`).join('')}
+        ${h.avoid.length?`<span class="htag htag-warn">⚠ ${esc(h.avoid[0])}</span>`:''}
       </div>
     </div>
   `).join('');
@@ -1658,23 +1652,23 @@ function openHerbModal(id){
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div style="font-size:2rem;margin-bottom:.5rem">${h.icon}</div>
-    <div class="modal-herb-name">${h.n}</div>
-    <div class="modal-latin">${h.lat}</div>
+    <div class="modal-herb-name">${esc(h.n)}</div>
+    <div class="modal-latin">${esc(h.lat)}</div>
     <div class="modal-section">
       <div class="modal-label">Sobre</div>
-      <div class="modal-text">${h.detail}</div>
+      <div class="modal-text">${esc(h.detail)}</div>
     </div>
     <div class="modal-section">
       <div class="modal-label">Como preparar</div>
       <div class="prep-grid">
-        <div class="prep-item"><div class="prep-val">${h.temp}</div><div class="prep-key">Temperatura</div></div>
-        <div class="prep-item"><div class="prep-val">${h.tempo}</div><div class="prep-key">Infusão</div></div>
-        <div class="prep-item"><div class="prep-val">${h.dose}</div><div class="prep-key">Dose</div></div>
-        <div class="prep-item"><div class="prep-val">${h.freq}</div><div class="prep-key">Frequência</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.temp)}</div><div class="prep-key">Temperatura</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.tempo)}</div><div class="prep-key">Infusão</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.dose)}</div><div class="prep-key">Dose</div></div>
+        <div class="prep-item"><div class="prep-val">${esc(h.freq)}</div><div class="prep-key">Frequência</div></div>
       </div>
     </div>
-    ${h.avoid.length?`<div class="warn-box">⚠ Contraindicações: ${h.avoid.join(', ')}</div>`:''}
-    ${h.safe.length?`<div class="safe-box">✓ Seguro para: ${h.safe.join(', ')}</div>`:''}
+    ${h.avoid.length?`<div class="warn-box">⚠ Contraindicações: ${h.avoid.map(a=>esc(a)).join(', ')}</div>`:''}
+    ${h.safe.length?`<div class="safe-box">✓ Seguro para: ${h.safe.map(s=>esc(s)).join(', ')}</div>`:''}
     <div style="display:flex;gap:8px;margin-top:1rem">
       <button class="add-blend-btn" style="flex:1" onclick="addToTray(${h.id})">${inTray?'✓ No Blend':'+ Adicionar ao Blend'}</button>
       <button class="add-blend-btn" style="flex:1;background:rgba(200,168,75,.15)" onclick="openTimer(${h.id})">⏱ Preparar agora</button>
@@ -1705,7 +1699,7 @@ function renderFavs(){
   else { grid.innerHTML=favHerbs.map(h=>`
     <div class="fav-card" onclick="openHerbModal(${h.id})">
       <div class="fav-icon">${h.icon}</div>
-      <div><div class="fav-name">${h.n}</div><div class="fav-lat">${h.lat}</div><div class="fav-ef">${h.ef.substring(0,50)}...</div></div>
+      <div><div class="fav-name">${esc(h.n)}</div><div class="fav-lat">${esc(h.lat)}</div><div class="fav-ef">${esc(h.ef.substring(0,50))}...</div></div>
     </div>`).join(''); }
   const sr=document.getElementById('savedRecipes');
   if(savedRecipes.length){
@@ -1713,11 +1707,11 @@ function renderFavs(){
     savedRecipes.map((r,i)=>`
       <div class="recipe-card">
         <div class="recipe-header">
-          <div class="recipe-name">${r.name}</div>
-          <div class="recipe-tagline">${r.tagline}</div>
+          <div class="recipe-name">${esc(r.name)}</div>
+          <div class="recipe-tagline">${esc(r.tagline)}</div>
         </div>
         <div class="recipe-body">
-          ${r.ingredients.map(ing=>`<div class="ing-row"><div><div class="ing-name">${ing.n}</div></div><div class="ing-amount">${ing.amount}</div></div>`).join('')}
+          ${r.ingredients.map(ing=>`<div class="ing-row"><div><div class="ing-name">${esc(ing.n)}</div></div><div class="ing-amount">${esc(ing.amount)}</div></div>`).join('')}
           <button onclick="deleteSavedRecipe(${i})" style="margin-top:.75rem;background:none;border:none;color:var(--muted);font-size:.72rem;cursor:pointer">🗑 Remover</button>
         </div>
       </div>`).join('');
@@ -1741,7 +1735,7 @@ function renderTray(){
   if(!blendTray.length){ items.innerHTML='<span class="tray-empty">Adicione ervas da busca ao blend</span>'; return; }
   const herbs=HERBS.filter(h=>blendTray.includes(h.id));
   items.innerHTML=herbs.map(h=>`
-    <span class="tray-item">${h.icon} ${h.n}
+    <span class="tray-item">${h.icon} ${esc(h.n)}
       <button class="tray-remove" onclick="removeTray(${h.id})">✕</button>
     </span>`).join('');
 }
@@ -1888,33 +1882,33 @@ function generateBlend(){
     ${alertBox}
     <div class="recipe-card">
       <div class="recipe-header">
-        <div class="recipe-name">${rec.name}</div>
-        <div class="recipe-tagline">${rec.tagline}</div>
+        <div class="recipe-name">${esc(rec.name)}</div>
+        <div class="recipe-tagline">${esc(rec.tagline)}</div>
       </div>
       <div class="recipe-body">
         <div class="recipe-ing-title">Ingredientes e Quantidades</div>
         ${rec.ings.map(ing=>`
           <div class="ing-row">
             <div>
-              <div class="ing-name">${ing.n}</div>
-              <div class="ing-latin" style="font-size:.7rem;color:var(--muted);font-style:italic">${HERBS.find(h=>h.id===ing.id)?.lat||''}</div>
+              <div class="ing-name">${esc(ing.n)}</div>
+              <div class="ing-latin" style="font-size:.7rem;color:var(--muted);font-style:italic">${esc(HERBS.find(h=>h.id===ing.id)?.lat||'')}</div>
             </div>
-            <div class="ing-amount">${ing.amount}</div>
+            <div class="ing-amount">${esc(ing.amount)}</div>
           </div>`).join('')}
         <div style="padding:8px 0;border-bottom:0.5px solid rgba(255,255,255,.04);color:var(--cream2);font-size:.82rem">
           <span style="color:var(--muted)">Água:</span> 250-300ml &nbsp;|&nbsp; <span style="color:var(--muted)">Temp:</span> 85-90°C &nbsp;|&nbsp; <span style="color:var(--muted)">Infusão:</span> 8-10 min
         </div>
         <div class="steps-section">
           <div class="recipe-ing-title">Modo de Preparo</div>
-          ${rec.steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></div>`).join('')}
-          ${saborTip?`<div class="step"><div class="step-num">✦</div><div class="step-text"><strong style="color:var(--gold2)">Sabor ${wizState.sabor}:</strong> ${saborTip}</div></div>`:''}
-          ${horaTip?`<div class="step"><div class="step-num">⏰</div><div class="step-text"><strong style="color:var(--gold2)">${wizState.hora||'Uso geral'}:</strong> ${horaTip}</div></div>`:''}
+          ${rec.steps.map((s,i)=>`<div class="step"><div class="step-num">${i+1}</div><div class="step-text">${esc(s)}</div></div>`).join('')}
+          ${saborTip?`<div class="step"><div class="step-num">✦</div><div class="step-text"><strong style="color:var(--gold2)">Sabor ${esc(wizState.sabor)}:</strong> ${esc(saborTip)}</div></div>`:''}
+          ${horaTip?`<div class="step"><div class="step-num">⏰</div><div class="step-text"><strong style="color:var(--gold2)">${esc(wizState.hora)||'Uso geral'}:</strong> ${esc(horaTip)}</div></div>`:''}
         </div>
         <div class="effect-badges">
-          ${rec.effects.map(e=>`<span class="eff-badge">${e}</span>`).join('')}
+          ${rec.effects.map(e=>`<span class="eff-badge">${esc(e)}</span>`).join('')}
         </div>
-        ${rec.obs?`<div style="margin-top:.75rem;font-size:.78rem;color:var(--muted);font-style:italic;line-height:1.5">💡 ${rec.obs}</div>`:''}
-        <button class="save-recipe-btn" onclick="saveRecipe('${rec.name}')">♥ Salvar este blend</button>
+        ${rec.obs?`<div style="margin-top:.75rem;font-size:.78rem;color:var(--muted);font-style:italic;line-height:1.5">💡 ${esc(rec.obs)}</div>`:''}
+        <button class="save-recipe-btn" onclick="saveRecipe('${esc(rec.name)}')">♥ Salvar este blend</button>
       </div>
     </div>`;
 }
@@ -1947,18 +1941,18 @@ function renderSuppliers(){
     <div class="sup-card">
       <div class="sup-header">
         <div>
-          <div class="sup-name">${s.name}</div>
-          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${s.city}</div>
+          <div class="sup-name">${esc(s.name)}</div>
+          <div style="font-size:.7rem;color:var(--muted);margin-top:2px">${esc(s.city)}</div>
         </div>
-        <span class="sup-type" style="background:${s.color}22;border-color:${s.color}55;color:${s.color}">${s.type.split(' ')[0]}</span>
+        <span class="sup-type" style="background:${s.color}22;border-color:${s.color}55;color:${s.color}">${esc(s.type.split(' ')[0])}</span>
       </div>
       <div class="sup-body">
-        <div class="sup-row"><span>Desde</span>${s.since}</div>
-        <div class="sup-row"><span>Certificação</span>${s.cert}</div>
-        <div class="sup-row"><span>Envio</span>${s.ship}</div>
-        <div class="sup-row"><span>Pedido mínimo</span>${s.minOrder}</div>
+        <div class="sup-row"><span>Desde</span>${esc(s.since)}</div>
+        <div class="sup-row"><span>Certificação</span>${esc(s.cert)}</div>
+        <div class="sup-row"><span>Envio</span>${esc(s.ship)}</div>
+        <div class="sup-row"><span>Pedido mínimo</span>${esc(s.minOrder)}</div>
         <div class="sup-herbs">
-          ${s.herbs.map(h=>`<span class="sup-herb-tag">${h}</span>`).join('')}
+          ${s.herbs.map(h=>`<span class="sup-herb-tag">${esc(h)}</span>`).join('')}
         </div>
         <button class="shop-btn" onclick="filterShopBySup(${s.id})">Ver produtos na loja →</button>
       </div>
@@ -1996,9 +1990,9 @@ function renderProds(){
     return `<div class="prod-card">
       <div class="prod-img">${p.icon}</div>
       <div class="prod-body">
-        <div class="prod-name">${p.name}</div>
-        <div class="prod-supplier">${p.sup}</div>
-        <div class="prod-price">R$ ${p.price.toFixed(2)} <span class="prod-unit">${p.unit}</span></div>
+        <div class="prod-name">${esc(p.name)}</div>
+        <div class="prod-supplier">${esc(p.sup)}</div>
+        <div class="prod-price">R$ ${p.price.toFixed(2)} <span class="prod-unit">${esc(p.unit)}</span></div>
         <div class="prod-footer">
           <span class="stock-badge ${p.stock==='in'?'in-stock':'low-stock'}">${p.stock==='in'?'Em estoque':'Últimas unidades'}</span>
           <button class="add-cart ${inCart?'added':''}" onclick="addCart(${p.id})">${inCart?'✓ No carrinho':'+ Carrinho'}</button>
@@ -2039,8 +2033,8 @@ function renderCart(){
     <div class="cart-item">
       <div class="cart-item-icon">${c.icon}</div>
       <div class="cart-item-info">
-        <div class="cart-item-name">${c.name}</div>
-        <div class="cart-item-sup">${c.sup} · ${c.unit}</div>
+        <div class="cart-item-name">${esc(c.name)}</div>
+        <div class="cart-item-sup">${esc(c.sup)} · ${esc(c.unit)}</div>
         <div class="cart-qty">
           <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
           <span class="qty-val">${c.qty}</span>
@@ -2263,7 +2257,7 @@ const PERFIL_OBJ_OPTS=['Melhorar sono','Reduzir ansiedade','Mais energia','Focar
 const PERFIL_SABOR_OPTS=['Doce','Suave','Cítrico','Amargo','Picante','Floral','Mentolado'];
 const PERFIL_MOMENTO_OPTS=['Ao acordar','Manhã','Tarde','Noite','Antes de dormir','Pós-refeição'];
 
-let perfilState = JSON.parse(localStorage.getItem('erb_perfil')||'{"nome":"","saude":[],"objetivos":[],"sabores":[],"momentos":[],"restricoes":""}');
+let perfilState = safeLoad('erb_perfil', {nome:"",saude:[],objetivos:[],sabores:[],momentos:[],restricoes:""});
 
 function renderPerfil(){
   document.getElementById('perfilNome').value=perfilState.nome||'';
@@ -2384,11 +2378,11 @@ function renderTimerStep(){
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="closeTimerModal()">✕</button>
     <div class="timer-wrap">
-      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem;letter-spacing:.06em">${herbName}</div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:.75rem;letter-spacing:.06em">${esc(herbName)}</div>
       <div class="timer-step-indicator">${dots}</div>
       <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.3rem">Passo ${current+1} de ${steps.length}</div>
-      <div class="timer-step-title">${step.title}</div>
-      <div class="timer-step-desc">${step.desc}</div>
+      <div class="timer-step-title">${esc(step.title)}</div>
+      <div class="timer-step-desc">${esc(step.desc)}</div>
       ${hasTimer?`
         <div class="timer-ring-wrap">
           <canvas id="timerRing" width="160" height="160"></canvas>
@@ -2463,7 +2457,7 @@ function timerNext(){
       <div class="timer-complete">
         <div class="timer-complete-icon">☕</div>
         <div class="timer-complete-title">Chá pronto!</div>
-        <div class="timer-complete-sub">Seu ${timerState.herbName} está preparado.<br>Beba com calma e aproveite os benefícios.</div>
+        <div class="timer-complete-sub">Seu ${esc(timerState.herbName)} está preparado.<br>Beba com calma e aproveite os benefícios.</div>
         <button class="timer-next-btn" style="margin-top:1.5rem" onclick="closeTimerModal()">Fechar</button>
       </div>`;
     return;
@@ -2542,7 +2536,7 @@ function renderCtrHerbs(){
     const inB=ctrBlend.some(b=>b.id===h.id);
     return `<div class="ctr-herb-row ${inB?'in-blend':''}" onclick="toggleCtrHerb(${h.id})">
       <div class="ctr-herb-row-icon">${h.icon}</div>
-      <div style="flex:1;min-width:0"><div class="ctr-herb-row-name">${h.n}</div><div class="ctr-herb-row-cat">${h.cat}</div></div>
+      <div style="flex:1;min-width:0"><div class="ctr-herb-row-name">${esc(h.n)}</div><div class="ctr-herb-row-cat">${esc(h.cat)}</div></div>
       <button class="ctr-herb-add">${inB?'✓':'+'}</button>
     </div>`;
   }).join('');
@@ -2606,8 +2600,8 @@ function renderCtrBlend(){
     return `<div class="ctr-blend-item">
       <span style="font-size:1.1rem">${h.icon}</span>
       <div class="ctr-blend-item-info">
-        <div class="ctr-blend-item-name">${h.n}</div>
-        <div class="ctr-blend-item-ef">${h.ef.split(',')[0]}</div>
+        <div class="ctr-blend-item-name">${esc(h.n)}</div>
+        <div class="ctr-blend-item-ef">${esc(h.ef.split(',')[0])}</div>
       </div>
       <div class="ctr-blend-qty">
         <button class="ctr-qty-btn" onclick="changeCtrQty(${b.id},-1)">−</button>
@@ -2656,16 +2650,16 @@ function analyzeBlend(){
   // Effects
   const allTags=[...new Set(herbs.flatMap(h=>h.tags||[]))];
   const eCls={calmante:'positive',sono:'positive',digestivo:'positive','anti-inflamatório':'positive',ansiedade:'positive',energia:'neutral',foco:'neutral',estimulante:'neutral',termogênico:'caution',gripe:'positive',imunidade:'positive'};
-  document.getElementById('ctrEffects').innerHTML=allTags.slice(0,12).map(t=>`<span class="ctr-effect-tag ctr-effect-${eCls[t]||'neutral'}">${t}</span>`).join('');
+  document.getElementById('ctrEffects').innerHTML=allTags.slice(0,12).map(t=>`<span class="ctr-effect-tag ctr-effect-${eCls[t]||'neutral'}">${esc(t)}</span>`).join('');
 
   // Warnings
   const ids=ctrBlend.map(b=>b.id);
   const conflicts=CONFLICTS.filter(c=>c.ids.every(id=>ids.includes(id)));
   const avoids=herbs.filter(h=>h.avoid&&h.avoid.length).map(h=>`${h.n}: ${h.avoid.slice(0,2).join(', ')}`);
-  document.getElementById('ctrWarnings').innerHTML=(conflicts.length||avoids.length)?`<div class="warn-box" style="margin-bottom:1rem">${conflicts.map(c=>`⚠ <strong>Conflito:</strong> ${c.text}`).join('<br>')}${avoids.length?`<div style="margin-top:${conflicts.length?'.5rem':'0'}">ℹ Contraindicações: ${avoids.join(' · ')}</div>`:''}</div>`:'';
+  document.getElementById('ctrWarnings').innerHTML=(conflicts.length||avoids.length)?`<div class="warn-box" style="margin-bottom:1rem">${conflicts.map(c=>`⚠ <strong>Conflito:</strong> ${esc(c.text)}`).join('<br>')}${avoids.length?`<div style="margin-top:${conflicts.length?'.5rem':'0'}">ℹ Contraindicações: ${avoids.map(a=>esc(a)).join(' · ')}</div>`:''}</div>`:'';
 
   // Synergies
-  document.getElementById('ctrSynergies').innerHTML=SYNERGIES.filter(s=>s.ids.every(id=>ids.includes(id))).map(s=>`<div class="ctr-synergy-box"><div class="ctr-synergy-title">✦ Sinergia: ${s.label}</div><div class="ctr-synergy-text">${s.text}</div></div>`).join('');
+  document.getElementById('ctrSynergies').innerHTML=SYNERGIES.filter(s=>s.ids.every(id=>ids.includes(id))).map(s=>`<div class="ctr-synergy-box"><div class="ctr-synergy-title">✦ Sinergia: ${esc(s.label)}</div><div class="ctr-synergy-text">${esc(s.text)}</div></div>`).join('');
 
   // Smart recipe — sort roots first, flowers last
   const tOrd={root:1,bark:2,seed:3,resin:3,leaf:4,flower:5};
@@ -2675,7 +2669,7 @@ function analyzeBlend(){
     <div class="ctr-recipe-total"><span>Total do blend</span><span>${Math.round(totalG)}g / 300ml · ${smartTime} min · ${tempLabel}</span></div>
     ${sorted.map((h,i)=>`<div class="ctr-recipe-row">
       <div class="ctr-recipe-order">${i+1}</div>
-      <div style="flex:1"><div class="ctr-recipe-herb">${h.n} ${h.icon}</div><span class="ctr-recipe-herb-type">${tLbl[h.type]||h.type}</span></div>
+      <div style="flex:1"><div class="ctr-recipe-herb">${esc(h.n)} ${h.icon}</div><span class="ctr-recipe-herb-type">${esc(tLbl[h.type]||h.type)}</span></div>
       <div class="ctr-recipe-amount">${getQtyLabel(h.qty,h)}</div>
     </div>`).join('')}`;
 
@@ -3330,7 +3324,7 @@ function mapDotHover(id,e){
   tt.style.display='block';
   tt.style.left=Math.min(clientX-rect.left+14, rect.width-230)+'px';
   tt.style.top=Math.max(clientY-rect.top-40, 4)+'px';
-  tt.innerHTML='<strong>'+reg.flag+' '+reg.name+'</strong><br><span style="color:var(--muted);font-size:.7rem">'+reg.subtitle+'</span>';
+  tt.innerHTML='<strong>'+esc(reg.flag)+' '+esc(reg.name)+'</strong><br><span style="color:var(--muted);font-size:.7rem">'+esc(reg.subtitle)+'</span>';
 }
 
 function mapDotLeave(){
@@ -3347,28 +3341,28 @@ function selectMapRegion(id){
   el.innerHTML=`
     <div class="mrd-header">
       <div class="mrd-flag">${reg.flag}</div>
-      <div><div class="mrd-title">${reg.name}</div><div class="mrd-subtitle">${reg.subtitle}</div></div>
+      <div><div class="mrd-title">${esc(reg.name)}</div><div class="mrd-subtitle">${esc(reg.subtitle)}</div></div>
     </div>
-    <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:1rem">${reg.desc}</p>
+    <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:1rem">${esc(reg.desc)}</p>
     <div class="mrd-grid">
-      <div class="mrd-card"><div class="mrd-card-label">Produção anual</div><div class="mrd-card-val">${reg.producao}</div></div>
-      <div class="mrd-card"><div class="mrd-card-label">Exportação</div><div class="mrd-card-val">${reg.exportacao}</div></div>
-      <div class="mrd-card"><div class="mrd-card-label">Área cultivada</div><div class="mrd-card-val">${reg.area}</div></div>
-      <div class="mrd-card"><div class="mrd-card-label">Tipos produzidos</div><div class="mrd-card-val">${reg.tipos.join(' · ')}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Produção anual</div><div class="mrd-card-val">${esc(reg.producao)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Exportação</div><div class="mrd-card-val">${esc(reg.exportacao)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Área cultivada</div><div class="mrd-card-val">${esc(reg.area)}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Tipos produzidos</div><div class="mrd-card-val">${reg.tipos.map(t=>esc(t)).join(' · ')}</div></div>
     </div>
     <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem">Chás principais</div>
     <div style="background:var(--bg2);border:0.5px solid var(--faint);border-radius:var(--r-lg);overflow:hidden;margin-bottom:1rem">
       ${reg.chas.map(c=>`<div class="mrd-cha-row" style="padding:.65rem 1rem">
         <div style="flex:1">
-          <div class="mrd-cha-name">${c.n} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${c.tipo}</span></div>
-          <div class="mrd-cha-desc">${c.d}</div>
-          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${c.reg}</div>`:''}
+          <div class="mrd-cha-name">${esc(c.n)} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${esc(c.tipo)}</span></div>
+          <div class="mrd-cha-desc">${esc(c.d)}</div>
+          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${esc(c.reg)}</div>`:''}
         </div>
       </div>`).join('')}
     </div>
     <div class="mrd-grid">
-      <div class="mrd-card"><div class="mrd-card-label">Cultura & culinária</div><div class="mrd-card-val">${reg.culinaria}</div></div>
-      <div class="mrd-card" style="border-left:2px solid #2a8a2a"><div class="mrd-card-label" style="color:#4a8a4a">🇧🇷 Conexão com o Brasil</div><div class="mrd-card-val">${reg.brasil}</div></div>
+      <div class="mrd-card"><div class="mrd-card-label">Cultura & culinária</div><div class="mrd-card-val">${esc(reg.culinaria)}</div></div>
+      <div class="mrd-card" style="border-left:2px solid #2a8a2a"><div class="mrd-card-label" style="color:#4a8a4a">🇧🇷 Conexão com o Brasil</div><div class="mrd-card-val">${esc(reg.brasil)}</div></div>
     </div>`;
   el.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
@@ -3394,18 +3388,18 @@ function renderMundoList(){
     <div class="mundo-country-block">
       <div class="mcb-header" id="mch_${r.id}" onclick="toggleCountry('${r.id}')">
         <div class="mcb-flag">${r.flag}</div>
-        <div style="flex:1"><div class="mcb-name">${r.name}</div><div class="mcb-prod">${r.producao} · ${r.tipos.slice(0,3).join(', ')}</div></div>
+        <div style="flex:1"><div class="mcb-name">${esc(r.name)}</div><div class="mcb-prod">${esc(r.producao)} · ${r.tipos.slice(0,3).map(t=>esc(t)).join(', ')}</div></div>
         <div class="mcb-arrow" id="mca_${r.id}">▾</div>
       </div>
       <div class="mcb-body" id="mcb_${r.id}">
-        <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:.75rem">${r.desc}</p>
+        <p style="font-size:.82rem;color:var(--cream2);line-height:1.7;margin-bottom:.75rem">${esc(r.desc)}</p>
         ${r.chas.map(c=>`<div class="mrd-cha-row"><div style="flex:1">
-          <div class="mrd-cha-name">${c.n} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${c.tipo}</span></div>
-          <div class="mrd-cha-desc">${c.d}</div>
-          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${c.reg}</div>`:''}
+          <div class="mrd-cha-name">${esc(c.n)} <span class="mrd-cha-badge" style="background:${c.badge}22;border:0.5px solid ${c.badge}44;color:${c.badge}">${esc(c.tipo)}</span></div>
+          <div class="mrd-cha-desc">${esc(c.d)}</div>
+          ${c.reg?`<div style="font-size:.65rem;color:var(--muted);margin-top:2px">📍 ${esc(c.reg)}</div>`:''}
         </div></div>`).join('')}
         <div style="margin-top:.75rem;padding:.75rem;background:rgba(42,138,42,.06);border:0.5px solid rgba(42,138,42,.2);border-radius:var(--r-md);font-size:.75rem;color:var(--cream2)">
-          <span style="color:#4a8a4a;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase">🇧🇷 Conexão com o Brasil</span><br>${r.brasil}
+          <span style="color:#4a8a4a;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase">🇧🇷 Conexão com o Brasil</span><br>${esc(r.brasil)}
         </div>
       </div>
     </div>`).join('');
@@ -3465,9 +3459,9 @@ renderPerfil();
 </div>
 
 <!-- AUTH MODAL -->
-<div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)ervaria.hideAuthModal()">
+<div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true" aria-label="Autenticação" onclick="if(event.target===this)ervaria.hideAuthModal()">
   <div class="auth-card">
-    <button class="auth-close" onclick="ervaria.hideAuthModal()">&times;</button>
+    <button class="auth-close" aria-label="Fechar" onclick="ervaria.hideAuthModal()">&times;</button>
     <div class="auth-header">
       <h2>Ervatório</h2>
       <p>Entre para sincronizar seus chás em todos os dispositivos</p>
@@ -3768,8 +3762,8 @@ const ervaria = {
       const name = this.user?.user_metadata?.full_name || this.user?.email?.split('@')[0] || 'Você';
       const avatar = this.user?.user_metadata?.avatar_url;
       btn.innerHTML = avatar
-        ? `<img src="${avatar}" alt="${name}"> ${name}`
-        : `<span class="auth-avatar">${name[0].toUpperCase()}</span> ${name}`;
+        ? `<img src="${esc(avatar)}" alt="${esc(name)}"> ${esc(name)}`
+        : `<span class="auth-avatar">${esc(name[0].toUpperCase())}</span> ${esc(name)}`;
       btn.onclick = () => this.toggleProfileMenu();
     } else {
       btn.innerHTML = '⚷ Entrar';
@@ -3840,8 +3834,8 @@ const ervaria = {
     menu.className = 'profile-menu';
     menu.innerHTML = `
       <div class="profile-menu-header">
-        <div class="profile-menu-name">${name}</div>
-        <div class="profile-menu-email">${email}</div>
+        <div class="profile-menu-name">${esc(name)}</div>
+        <div class="profile-menu-email">${esc(email)}</div>
         <div class="profile-menu-sync">✓ Sincronizado</div>
       </div>
       <button onclick="ervaria.syncFromCloud();ervaria.removeProfileMenu()">↻ Sincronizar agora</button>
