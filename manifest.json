@@ -55,21 +55,21 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/landing.jpeg",
+      "src": "/screeshots/Landing.jpg",
       "sizes": "1290x2796",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Tela inicial do Ervatório"
     },
     {
-      "src": "/screenshots/roda.jpeg",
+      "src": "/screeshots/Roda.jpg",
       "sizes": "1290x2796",
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Roda dos Chás interativa com filtros"
     },
     {
-      "src": "/screenshots/construtor.jpeg",
+      "src": "/screeshots/construtor.jpg",
       "sizes": "1290x2796",
       "type": "image/jpeg",
       "form_factor": "narrow",
