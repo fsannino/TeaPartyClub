@@ -158,7 +158,8 @@ nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:b
 /* PROFILE COMPLETION MODAL */
 .profile-complete-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);align-items:flex-start;justify-content:center;padding:10px;overflow-y:auto}
 .profile-complete-overlay.on{display:flex}
-.profile-complete-card{background:var(--bg2);border:0.5px solid rgba(200,168,75,.2);border-radius:20px;padding:1.5rem;max-width:460px;width:100%;margin:auto;animation:slideUp .3s ease;display:flex;flex-direction:column}
+.profile-complete-card{background:var(--bg2);border:0.5px solid rgba(200,168,75,.2);border-radius:20px;padding:1.5rem;max-width:460px;width:100%;margin:auto;animation:slideUp .3s ease;display:flex;flex-direction:column;align-items:stretch}
+.profile-complete-card>*{width:100%;flex-shrink:0}
 @media(max-width:480px){.profile-complete-card{padding:1.25rem 1rem;max-width:100%}}
 .pc-header{text-align:center;margin-bottom:1.5rem}
 .pc-header h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-weight:300;font-style:italic}
@@ -168,8 +169,8 @@ nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:b
 .pc-input{width:100%;padding:11px 14px;background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-md);color:var(--cream);font-family:'Jost',sans-serif;font-size:.88rem;font-weight:300;transition:border-color .2s;box-sizing:border-box}
 .pc-input:focus{outline:none;border-color:rgba(200,168,75,.4)}
 .pc-input::placeholder{color:var(--muted)}
-.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:400px){.pc-row{grid-template-columns:1fr}}
+.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+@media(max-width:480px){.pc-row{grid-template-columns:1fr}}
 .pc-roles{display:flex;flex-direction:column;gap:6px;width:100%}
 .pc-role{padding:10px 15px;border-radius:var(--r-md);border:0.5px solid var(--faint);background:transparent;color:var(--muted);font-size:.78rem;font-family:'Jost',sans-serif;cursor:pointer;transition:all .2s;text-align:left;width:100%}
 .pc-role.on{background:rgba(200,168,75,.12);color:var(--gold2);border-color:rgba(200,168,75,.35)}
