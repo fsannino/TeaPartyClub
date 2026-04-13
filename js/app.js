@@ -1595,7 +1595,8 @@ const PUBLIC_PAGES = ['search'];
 
 function goPage(id,btn){
   // Gate: require login for non-public pages
-  if(!PUBLIC_PAGES.includes(id) && (!window.ervaria || !ervaria.user)){
+  const isLoggedIn = (window.ervaria && ervaria.user) || localStorage.getItem('erb_auth');
+  if(!PUBLIC_PAGES.includes(id) && !isLoggedIn){
     ervaria.showAuthModal();
     return;
   }
