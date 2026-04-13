@@ -93,10 +93,26 @@ const ervaria = {
       document.getElementById('pcName').value = meta.full_name || meta.name || profile?.display_name || '';
       document.getElementById('pcEmail').value = this.user.email || '';
       document.getElementById('pcPhone').value = profile?.phone || '';
-      document.getElementById('pcCity').value = profile?.city || '';
-      document.getElementById('pcState').value = profile?.state || '';
-      document.getElementById('pcCountry').value = profile?.country || 'Brasil';
       document.getElementById('pcExtraEmails').value = profile?.extra_emails || '';
+      // Populate geo selects
+      populateCountries();
+      const savedCountry = profile?.country || 'Brasil';
+      document.getElementById('pcCountry').value = savedCountry;
+      onCountryChange();
+      if (profile?.state) {
+        // Try to find UF by name for select
+        const states = GEO.states[savedCountry];
+        if (states) {
+          const st = states.find(s => s.name === profile.state || s.uf === profile.state);
+          if (st) { document.getElementById('pcState').value = st.uf; onStateChange(); }
+          else { document.getElementById('pcStateText').value = profile.state; }
+        } else { document.getElementById('pcStateText').value = profile.state; }
+      }
+      if (profile?.city) {
+        const cityVal = document.getElementById('pcCity').querySelector(`option[value="${profile.city}"]`);
+        if (cityVal) { document.getElementById('pcCity').value = profile.city; }
+        else { document.getElementById('pcCityText').value = profile.city; document.getElementById('pcCityText').style.display = ''; }
+      }
       if (profile?.newsletter_optin != null) document.getElementById('pcNewsletter').checked = profile.newsletter_optin;
       if (profile?.role) {
         selectedRole = profile.role;
@@ -358,9 +374,7 @@ async function submitProfile() {
   const email = document.getElementById('pcEmail').value.trim();
   const extraEmails = document.getElementById('pcExtraEmails').value.trim();
   const phone = document.getElementById('pcPhone').value.trim();
-  const city = document.getElementById('pcCity').value.trim();
-  const state = document.getElementById('pcState').value.trim();
-  const country = document.getElementById('pcCountry').value.trim();
+  const geo = getGeoValues();
   const otherRole = document.getElementById('pcOtherRole')?.value.trim();
   const newsletter = document.getElementById('pcNewsletter').checked;
   const lgpd = document.getElementById('pcLgpd').checked;
@@ -369,7 +383,9 @@ async function submitProfile() {
   if (!name) { msg.textContent = 'Preencha seu nome'; msg.style.color = '#e08080'; return; }
   if (!email) { msg.textContent = 'Preencha seu email'; msg.style.color = '#e08080'; return; }
   if (!selectedRole) { msg.textContent = 'Selecione seu perfil'; msg.style.color = '#e08080'; return; }
-  if (!city || !state) { msg.textContent = 'Preencha cidade e estado'; msg.style.color = '#e08080'; return; }
+  if (!geo.country) { msg.textContent = 'Selecione o país'; msg.style.color = '#e08080'; return; }
+  if (!geo.state) { msg.textContent = 'Preencha o estado'; msg.style.color = '#e08080'; return; }
+  if (!geo.city) { msg.textContent = 'Preencha a cidade'; msg.style.color = '#e08080'; return; }
   if (!lgpd) { msg.textContent = 'É necessário aceitar os termos da LGPD'; msg.style.color = '#e08080'; return; }
 
   msg.textContent = 'Salvando...'; msg.style.color = 'var(--gold)';
@@ -383,9 +399,9 @@ async function submitProfile() {
         email: email,
         extra_emails: extraEmails || null,
         phone: phone,
-        city: city,
-        state: state,
-        country: country,
+        city: geo.city,
+        state: geo.state,
+        country: geo.country,
         role: selectedRole,
         role_other: selectedRole === 'outro' ? otherRole : null,
         main_interest: selectedInterest || null,
