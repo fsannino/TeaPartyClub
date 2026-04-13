@@ -362,6 +362,26 @@ function selectReferral(btn) {
   btn.classList.add('on');
   selectedReferral = btn.dataset.ref;
 }
+function goStep2() {
+  const name = document.getElementById('pcName').value.trim();
+  const email = document.getElementById('pcEmail').value.trim();
+  const geo = getGeoValues();
+  const msg = document.getElementById('pcMsg1');
+  if (!name) { msg.textContent = 'Preencha seu nome'; msg.style.color = '#e08080'; return; }
+  if (!email) { msg.textContent = 'Preencha seu email'; msg.style.color = '#e08080'; return; }
+  if (!geo.country) { msg.textContent = 'Selecione o país'; msg.style.color = '#e08080'; return; }
+  if (!geo.state) { msg.textContent = 'Preencha o estado'; msg.style.color = '#e08080'; return; }
+  if (!geo.city) { msg.textContent = 'Preencha a cidade'; msg.style.color = '#e08080'; return; }
+  msg.textContent = '';
+  document.getElementById('pcStep1').style.display = 'none';
+  document.getElementById('pcStep2').style.display = 'block';
+  document.querySelector('.profile-complete-overlay').scrollTop = 0;
+}
+function goStep1() {
+  document.getElementById('pcStep2').style.display = 'none';
+  document.getElementById('pcStep1').style.display = 'block';
+  document.querySelector('.profile-complete-overlay').scrollTop = 0;
+}
 function skipProfile() {
   document.getElementById('profileCompleteOverlay').classList.remove('on');
   document.body.style.overflow = '';
