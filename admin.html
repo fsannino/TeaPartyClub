@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ervatório — Administração</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙</text></svg>">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="admLogin" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px">
+  <div style="background:var(--adm-bg2);border:1px solid var(--adm-faint);border-radius:12px;padding:2rem;max-width:380px;width:100%">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:1.3rem;color:var(--adm-gold2);font-weight:400">Ervatório Admin</div>
+      <div style="font-size:.75rem;color:var(--adm-muted);margin-top:4px">Painel de administração</div>
+    </div>
+    <input type="email" id="admEmail" class="adm-form-input" placeholder="Email do administrador" style="margin-bottom:8px">
+    <input type="password" id="admPass" class="adm-form-input" placeholder="Senha" style="margin-bottom:12px" onkeydown="if(event.key==='Enter')admLogin()">
+    <button class="adm-btn primary" style="width:100%;justify-content:center;padding:12px" onclick="admLogin()">Entrar</button>
+    <div id="loginMsg" style="text-align:center;font-size:.78rem;margin-top:10px;min-height:20px"></div>
+    <a href="/" style="display:block;text-align:center;font-size:.75rem;color:var(--adm-muted);margin-top:1rem;text-decoration:none">← Voltar ao Ervatório</a>
+  </div>
+</div>
+
+<!-- ADMIN SHELL -->
+<div class="adm-shell" id="admShell" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="adm-sidebar">
+    <div class="adm-logo">Ervatório <small>Administração</small></div>
+    <div class="adm-nav-item active" data-sec="dashboard" onclick="showSection('dashboard')"><span class="icon">📊</span> Dashboard</div>
+    <div class="adm-nav-item" data-sec="users" onclick="showSection('users')"><span class="icon">👥</span> Usuários</div>
+    <div class="adm-nav-item" data-sec="herbs" onclick="showSection('herbs')"><span class="icon">🍃</span> Chás e Infusões</div>
+    <div class="adm-nav-item" data-sec="products" onclick="showSection('products')"><span class="icon">📦</span> Produtos</div>
+    <div class="adm-nav-item" data-sec="news" onclick="showSection('news')"><span class="icon">📰</span> Notícias</div>
+    <div class="adm-nav-sep"></div>
+    <div class="adm-nav-item" onclick="window.location='/'"><span class="icon">🍵</span> Ir ao App</div>
+    <div class="adm-nav-item" onclick="admLogout()" style="color:var(--adm-red)"><span class="icon">⏻</span> Sair</div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="adm-main">
+
+    <!-- ════════ DASHBOARD ════════ -->
+    <div class="adm-section" id="sec-dashboard">
+      <div class="adm-header">
+        <div>
+          <div class="adm-title">Dashboard</div>
+          <div class="adm-subtitle">Visão geral do Ervatório — Olá, <span id="admUserName"></span></div>
+        </div>
+      </div>
+      <div class="adm-stats">
+        <div class="adm-stat"><div class="adm-stat-val" id="statUsers">—</div><div class="adm-stat-label">Usuários</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="statHerbs">—</div><div class="adm-stat-label">Chás cadastrados</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="statProducts">—</div><div class="adm-stat-label">Produtos</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="statNews">—</div><div class="adm-stat-label">Notícias</div></div>
+      </div>
+    </div>
+
+    <!-- ════════ USERS ════════ -->
+    <div class="adm-section" id="sec-users" style="display:none">
+      <div class="adm-header">
+        <div><div class="adm-title">Usuários</div><div class="adm-subtitle">Gerenciar contas cadastradas</div></div>
+        <input type="text" id="userSearch" class="adm-search" placeholder="Buscar por nome, email ou perfil..." oninput="filterUsers()">
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Usuário</th><th>Perfil</th><th>Localização</th><th>Status</th><th>Cadastro</th><th>Ações</th></tr></thead>
+          <tbody id="usersBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ HERBS ════════ -->
+    <div class="adm-section" id="sec-herbs" style="display:none">
+      <div class="adm-header">
+        <div><div class="adm-title">Chás e Infusões</div><div class="adm-subtitle">Catálogo gerenciável de ervas</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="herbSearch" class="adm-search" placeholder="Buscar chá..." oninput="filterHerbsAdmin()">
+          <button class="adm-btn primary" onclick="openHerbForm()">+ Novo chá</button>
+        </div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Chá</th><th>Categoria</th><th>Efeitos</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="herbsBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ PRODUCTS ════════ -->
+    <div class="adm-section" id="sec-products" style="display:none">
+      <div class="adm-header">
+        <div><div class="adm-title">Produtos</div><div class="adm-subtitle">Produtos à venda no marketplace</div></div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="text" id="prodSearch" class="adm-search" placeholder="Buscar produto..." oninput="filterProductsAdmin()">
+          <button class="adm-btn primary" onclick="openProductForm()">+ Novo produto</button>
+        </div>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="productsBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════ NEWS ════════ -->
+    <div class="adm-section" id="sec-news" style="display:none">
+      <div class="adm-header">
+        <div><div class="adm-title">Notícias e Conteúdo</div><div class="adm-subtitle">Artigos, dicas e novidades</div></div>
+        <button class="adm-btn primary" onclick="openNewsForm()">+ Nova notícia</button>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Título</th><th>Categoria</th><th>Status</th><th>Data</th><th>Ações</th></tr></thead>
+          <tbody id="newsBody"><tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--adm-muted)">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ════════ MODALS ════════ -->
+
+<!-- HERB FORM -->
+<div class="adm-modal-overlay" id="herbModal" onclick="if(event.target===this)closeHerbForm()">
+  <div class="adm-modal">
+    <div class="adm-modal-title" id="herbFormTitle">Novo Chá</div>
+    <input type="hidden" id="hfId">
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Nome *</label><input type="text" id="hfName" class="adm-form-input" placeholder="Ex: Camomila"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Nome latino</label><input type="text" id="hfLatin" class="adm-form-input" placeholder="Ex: Matricaria chamomilla"></div>
+    </div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Ícone (emoji)</label><input type="text" id="hfIcon" class="adm-form-input" value="🍃"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Categoria *</label>
+        <select id="hfCategory" class="adm-form-input">
+          <option>Calmante</option><option>Sono</option><option>Digestivo</option><option>Estimulante</option>
+          <option>Respiratório</option><option>Metabólico</option><option>Cognitivo</option><option>Hormonal</option>
+          <option>Cardiovascular</option><option>Anti-inflamatório</option><option>Antioxidante</option>
+          <option>Adaptogênico</option><option>Pele</option>
+        </select>
+      </div>
+    </div>
+    <div class="adm-form-group"><label class="adm-form-label">Efeitos</label><input type="text" id="hfEffects" class="adm-form-input" placeholder="Ex: Calmante suave, anti-inflamatória, digestiva"></div>
+    <div class="adm-form-group"><label class="adm-form-label">Descrição detalhada</label><textarea id="hfDetail" class="adm-form-input" placeholder="Informações sobre a erva..."></textarea></div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Temperatura</label><input type="text" id="hfTemp" class="adm-form-input" placeholder="85°C"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Tempo de infusão</label><input type="text" id="hfTime" class="adm-form-input" placeholder="8 min"></div>
+    </div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Dose</label><input type="text" id="hfDose" class="adm-form-input" placeholder="1-2 col. sopa / 250ml"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Frequência</label><input type="text" id="hfFreq" class="adm-form-input" placeholder="2-3x ao dia"></div>
+    </div>
+    <div class="adm-form-group"><label class="adm-form-label">Seguro para (separar por vírgula)</label><input type="text" id="hfSafe" class="adm-form-input" placeholder="gestantes, hipertensos, crianças"></div>
+    <div class="adm-form-group"><label class="adm-form-label">Evitar para (separar por vírgula)</label><input type="text" id="hfAvoid" class="adm-form-input" placeholder="gestantes, anticoagulantes"></div>
+    <div class="adm-form-group"><label class="adm-form-label">Tags (separar por vírgula)</label><input type="text" id="hfTags" class="adm-form-input" placeholder="calmante, digestiva, sono"></div>
+    <label class="adm-form-check"><input type="checkbox" id="hfActive" checked> Ativo (visível no catálogo)</label>
+    <div class="adm-form-actions">
+      <button class="adm-btn" onclick="closeHerbForm()">Cancelar</button>
+      <button class="adm-btn primary" onclick="saveHerb()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT FORM -->
+<div class="adm-modal-overlay" id="productModal" onclick="if(event.target===this)closeProductForm()">
+  <div class="adm-modal">
+    <div class="adm-modal-title" id="productFormTitle">Novo Produto</div>
+    <input type="hidden" id="pfId">
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Nome *</label><input type="text" id="pfName" class="adm-form-input" placeholder="Ex: Camomila Orgânica"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Ícone (emoji)</label><input type="text" id="pfIcon" class="adm-form-input" value="📦"></div>
+    </div>
+    <div class="adm-form-group"><label class="adm-form-label">Descrição</label><textarea id="pfDesc" class="adm-form-input" placeholder="Descrição do produto..."></textarea></div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Categoria</label>
+        <select id="pfCategory" class="adm-form-input">
+          <option>Folhas Secas</option><option>Blends</option><option>Chás Finos</option><option>Extratos</option>
+          <option>Pós</option><option>Especiarias</option><option>Flores</option><option>Kits</option><option>Acessórios</option>
+        </select>
+      </div>
+      <div class="adm-form-group"><label class="adm-form-label">Preço (R$) *</label><input type="number" id="pfPrice" class="adm-form-input" placeholder="29.90" step="0.01"></div>
+    </div>
+    <div class="adm-form-row">
+      <div class="adm-form-group"><label class="adm-form-label">Unidade</label><input type="text" id="pfUnit" class="adm-form-input" placeholder="50g" value="50g"></div>
+      <div class="adm-form-group"><label class="adm-form-label">Fornecedor</label><input type="text" id="pfSupplier" class="adm-form-input" placeholder="Nome do fornecedor"></div>
+    </div>
+    <div class="adm-form-group"><label class="adm-form-label">Estoque</label>
+      <select id="pfStock" class="adm-form-input">
+        <option value="in">Em estoque</option><option value="low">Últimas unidades</option><option value="out">Esgotado</option>
+      </select>
+    </div>
+    <label class="adm-form-check"><input type="checkbox" id="pfActive" checked> Ativo (visível no marketplace)</label>
+    <div class="adm-form-actions">
+      <button class="adm-btn" onclick="closeProductForm()">Cancelar</button>
+      <button class="adm-btn primary" onclick="saveProduct()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEWS FORM -->
+<div class="adm-modal-overlay" id="newsModal" onclick="if(event.target===this)closeNewsForm()">
+  <div class="adm-modal">
+    <div class="adm-modal-title" id="newsFormTitle">Nova Notícia</div>
+    <input type="hidden" id="nfId">
+    <div class="adm-form-group"><label class="adm-form-label">Título *</label><input type="text" id="nfTitle" class="adm-form-input" placeholder="Título da notícia"></div>
+    <div class="adm-form-group"><label class="adm-form-label">Conteúdo *</label><textarea id="nfContent" class="adm-form-input" style="min-height:200px" placeholder="Escreva o conteúdo aqui..."></textarea></div>
+    <div class="adm-form-group"><label class="adm-form-label">Categoria</label>
+      <select id="nfCategory" class="adm-form-input">
+        <option value="noticia">Notícia</option><option value="artigo">Artigo</option>
+        <option value="dica">Dica</option><option value="novidade">Novidade</option>
+      </select>
+    </div>
+    <label class="adm-form-check"><input type="checkbox" id="nfPublished"> Publicar agora</label>
+    <div class="adm-form-actions">
+      <button class="adm-btn" onclick="closeNewsForm()">Cancelar</button>
+      <button class="adm-btn primary" onclick="saveNews()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="adm-toast" id="admToast"></div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/admin.js"></script>
+</body>
+</html>
