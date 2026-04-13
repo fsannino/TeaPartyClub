@@ -5,6 +5,7 @@ const ervaria = {
   client: null,
   user: null,
   isOnline: false,
+  isAdmin: false,
 
   async init() {
     try {
@@ -83,9 +84,11 @@ const ervaria = {
     // Check if profile is completed
     const { data: profile } = await this.client
       .from('user_profiles')
-      .select('profile_completed, display_name, email, extra_emails, phone, city, state, country, role, main_interest, referral_source, newsletter_optin')
+      .select('profile_completed, display_name, email, extra_emails, phone, city, state, country, role, main_interest, referral_source, newsletter_optin, is_admin')
       .eq('id', this.user.id)
       .maybeSingle();
+
+    this.isAdmin = profile?.is_admin || false;
 
     if (!profile || !profile.profile_completed) {
       // Pre-fill from Google data
@@ -309,6 +312,7 @@ const ervaria = {
         <div class="profile-menu-sync">✓ Sincronizado</div>
       </div>
       <button onclick="ervaria.syncFromCloud();ervaria.removeProfileMenu()">↻ Sincronizar agora</button>
+      ${this.isAdmin?'<button onclick="window.location=\'/admin.html\'" style="color:var(--gold2)">⚙ Painel Admin</button>':''}
       <button onclick="ervaria.logout()" class="logout">Sair da conta</button>
     `;
     document.body.appendChild(menu);
