@@ -161,7 +161,7 @@ let wheelHov1=-1, wheelHov2=-1, wheelHov3=-1;
 const wheelCanvas = document.getElementById('filterWheel');
 const wheelCtx = wheelCanvas.getContext('2d');
 const WHEEL_SIZE = 320, WHEEL_CX = WHEEL_SIZE/2, WHEEL_CY = WHEEL_SIZE/2;
-const R_OUTERER = 152, R_MIDDLEDLE = 108, R_INNER = 70, R_CENTER = 36; // ring radii (px)
+const R_OUTER = 152, R_MIDDLE = 108, R_INNER = 70, R_CENTER = 36; // ring radii (px)
 
 function lightenW(hex,amt){
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
