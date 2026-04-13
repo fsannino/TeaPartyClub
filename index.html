@@ -546,42 +546,45 @@
 
 <!-- PROFILE MENU (injected dynamically) -->
 
-<!-- PROFILE COMPLETION MODAL -->
+<!-- PROFILE COMPLETION MODAL — 2 STEPS -->
 <div class="profile-complete-overlay" id="profileCompleteOverlay">
   <div class="profile-complete-card">
-    <div class="pc-header">
-      <h2>Complete seu perfil</h2>
-      <p>Conte-nos um pouco sobre você para personalizar sua experiência no Ervatório.</p>
-    </div>
 
-    <div class="pc-field">
-      <label class="pc-label">Nome completo *</label>
-      <input type="text" id="pcName" class="pc-input" placeholder="Seu nome">
-    </div>
+    <!-- ═══ STEP 1: Dados pessoais ═══ -->
+    <div id="pcStep1">
+      <div class="pc-header">
+        <div style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Passo 1 de 2</div>
+        <h2>Seus dados</h2>
+        <p>Informações básicas para criar sua conta no Ervatório.</p>
+      </div>
 
-    <div class="pc-field">
-      <label class="pc-label">Email *</label>
-      <input type="email" id="pcEmail" class="pc-input" placeholder="seu@email.com">
-    </div>
+      <div class="pc-field">
+        <label class="pc-label">Nome completo *</label>
+        <input type="text" id="pcName" class="pc-input" placeholder="Seu nome">
+      </div>
 
-    <div class="pc-field">
-      <label class="pc-label">Emails adicionais</label>
-      <input type="text" id="pcExtraEmails" class="pc-input" placeholder="outro@email.com (separados por vírgula)">
-    </div>
+      <div class="pc-field">
+        <label class="pc-label">Email *</label>
+        <input type="email" id="pcEmail" class="pc-input" placeholder="seu@email.com">
+      </div>
 
-    <div class="pc-field">
-      <label class="pc-label">WhatsApp / Telefone</label>
-      <input type="tel" id="pcPhone" class="pc-input" placeholder="+55 11 99999-9999">
-    </div>
+      <div class="pc-field">
+        <label class="pc-label">Emails adicionais</label>
+        <input type="text" id="pcExtraEmails" class="pc-input" placeholder="outro@email.com (separados por vírgula)">
+      </div>
 
-    <div class="pc-field">
-      <label class="pc-label">País *</label>
-      <select id="pcCountry" class="pc-input" onchange="onCountryChange()">
-        <option value="">Selecione o país</option>
-      </select>
-    </div>
+      <div class="pc-field">
+        <label class="pc-label">WhatsApp / Telefone</label>
+        <input type="tel" id="pcPhone" class="pc-input" placeholder="+55 11 99999-9999">
+      </div>
 
-    <div class="pc-row">
+      <div class="pc-field">
+        <label class="pc-label">País *</label>
+        <select id="pcCountry" class="pc-input" onchange="onCountryChange()">
+          <option value="">Selecione o país</option>
+        </select>
+      </div>
+
       <div class="pc-field">
         <label class="pc-label">Estado / Região *</label>
         <select id="pcState" class="pc-input" onchange="onStateChange()">
@@ -589,6 +592,7 @@
         </select>
         <input type="text" id="pcStateText" class="pc-input" placeholder="Estado / Região" style="display:none;margin-top:4px">
       </div>
+
       <div class="pc-field">
         <label class="pc-label">Cidade *</label>
         <select id="pcCity" class="pc-input" onchange="onCityChange()">
@@ -596,67 +600,81 @@
         </select>
         <input type="text" id="pcCityText" class="pc-input" placeholder="Nome da cidade" style="display:none;margin-top:4px">
       </div>
+
+      <button class="pc-submit" onclick="goStep2()">Próximo →</button>
+      <div class="pc-msg" id="pcMsg1"></div>
+      <button class="pc-skip" onclick="skipProfile()">Pular por agora (acesso limitado à Busca)</button>
     </div>
 
-    <div class="pc-field">
-      <label class="pc-label">Qual é o seu perfil? *</label>
-      <div class="pc-roles" id="pcRoles">
-        <button class="pc-role" data-role="iniciante" onclick="selectRole(this)">Iniciante</button>
-        <button class="pc-role" data-role="aficionado" onclick="selectRole(this)">Aficionado</button>
-        <button class="pc-role" data-role="tea_taster" onclick="selectRole(this)">Tea Taster</button>
-        <button class="pc-role" data-role="tea_master" onclick="selectRole(this)">Tea Master</button>
-        <button class="pc-role" data-role="tea_blender" onclick="selectRole(this)">Tea Blender</button>
-        <button class="pc-role" data-role="barista" onclick="selectRole(this)">Barista</button>
-        <button class="pc-role" data-role="dono_chazeria" onclick="selectRole(this)">Dono de chazeria</button>
-        <button class="pc-role" data-role="outro" onclick="selectRole(this)">Outro</button>
+    <!-- ═══ STEP 2: Perfil e preferências ═══ -->
+    <div id="pcStep2" style="display:none">
+      <div class="pc-header">
+        <div style="font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Passo 2 de 2</div>
+        <h2>Seu perfil</h2>
+        <p>Conte-nos sobre sua relação com o mundo dos chás.</p>
       </div>
-    </div>
 
-    <div class="pc-field" id="pcOtherField" style="display:none">
-      <label class="pc-label">Especifique</label>
-      <input type="text" id="pcOtherRole" class="pc-input" placeholder="Qual é sua relação com chá?">
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">Principal interesse no Ervatório</label>
-      <div class="pc-roles" id="pcInterests">
-        <button class="pc-role" data-interest="descobrir" onclick="selectInterest(this)">Descobrir chás</button>
-        <button class="pc-role" data-interest="saude" onclick="selectInterest(this)">Saúde e bem-estar</button>
-        <button class="pc-role" data-interest="blends" onclick="selectInterest(this)">Criar blends</button>
-        <button class="pc-role" data-interest="comprar" onclick="selectInterest(this)">Comprar chás</button>
-        <button class="pc-role" data-interest="profissional" onclick="selectInterest(this)">Uso profissional</button>
-        <button class="pc-role" data-interest="cultura" onclick="selectInterest(this)">Cultura do chá</button>
+      <div class="pc-field">
+        <label class="pc-label">Qual é o seu perfil? *</label>
+        <div class="pc-roles" id="pcRoles">
+          <button class="pc-role" data-role="iniciante" onclick="selectRole(this)">Iniciante</button>
+          <button class="pc-role" data-role="aficionado" onclick="selectRole(this)">Aficionado</button>
+          <button class="pc-role" data-role="tea_taster" onclick="selectRole(this)">Tea Taster</button>
+          <button class="pc-role" data-role="tea_master" onclick="selectRole(this)">Tea Master</button>
+          <button class="pc-role" data-role="tea_blender" onclick="selectRole(this)">Tea Blender</button>
+          <button class="pc-role" data-role="barista" onclick="selectRole(this)">Barista</button>
+          <button class="pc-role" data-role="dono_chazeria" onclick="selectRole(this)">Dono de chazeria</button>
+          <button class="pc-role" data-role="outro" onclick="selectRole(this)">Outro</button>
+        </div>
       </div>
-    </div>
 
-    <div class="pc-field">
-      <label class="pc-label">Como conheceu o Ervatório?</label>
-      <div class="pc-roles" id="pcReferral">
-        <button class="pc-role" data-ref="google" onclick="selectReferral(this)">Google</button>
-        <button class="pc-role" data-ref="instagram" onclick="selectReferral(this)">Instagram</button>
-        <button class="pc-role" data-ref="amigo" onclick="selectReferral(this)">Indicação</button>
-        <button class="pc-role" data-ref="evento" onclick="selectReferral(this)">Evento</button>
-        <button class="pc-role" data-ref="outro" onclick="selectReferral(this)">Outro</button>
+      <div class="pc-field" id="pcOtherField" style="display:none">
+        <label class="pc-label">Especifique</label>
+        <input type="text" id="pcOtherRole" class="pc-input" placeholder="Qual é sua relação com chá?">
       </div>
+
+      <div class="pc-field">
+        <label class="pc-label">Principal interesse no Ervatório</label>
+        <div class="pc-roles" id="pcInterests">
+          <button class="pc-role" data-interest="descobrir" onclick="selectInterest(this)">Descobrir chás</button>
+          <button class="pc-role" data-interest="saude" onclick="selectInterest(this)">Saúde e bem-estar</button>
+          <button class="pc-role" data-interest="blends" onclick="selectInterest(this)">Criar blends</button>
+          <button class="pc-role" data-interest="comprar" onclick="selectInterest(this)">Comprar chás</button>
+          <button class="pc-role" data-interest="profissional" onclick="selectInterest(this)">Uso profissional</button>
+          <button class="pc-role" data-interest="cultura" onclick="selectInterest(this)">Cultura do chá</button>
+        </div>
+      </div>
+
+      <div class="pc-field">
+        <label class="pc-label">Como conheceu o Ervatório?</label>
+        <div class="pc-roles" id="pcReferral">
+          <button class="pc-role" data-ref="google" onclick="selectReferral(this)">Google</button>
+          <button class="pc-role" data-ref="instagram" onclick="selectReferral(this)">Instagram</button>
+          <button class="pc-role" data-ref="amigo" onclick="selectReferral(this)">Indicação</button>
+          <button class="pc-role" data-ref="evento" onclick="selectReferral(this)">Evento</button>
+          <button class="pc-role" data-ref="outro" onclick="selectReferral(this)">Outro</button>
+        </div>
+      </div>
+
+      <div class="pc-field" style="margin-top:.75rem">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.78rem;color:var(--cream2);line-height:1.5">
+          <input type="checkbox" id="pcNewsletter" checked style="margin-top:3px;accent-color:var(--gold)">
+          Quero receber novidades, dicas de chás e ofertas por email
+        </label>
+      </div>
+
+      <div class="pc-field" style="margin-top:.5rem">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.78rem;color:var(--cream2);line-height:1.5">
+          <input type="checkbox" id="pcLgpd" style="margin-top:3px;accent-color:var(--gold)">
+          <span>Concordo com o tratamento dos meus dados pessoais conforme a <strong style="color:var(--gold2)">LGPD</strong> (Lei Geral de Proteção de Dados). Seus dados são usados exclusivamente para personalização do app e nunca compartilhados com terceiros. *</span>
+        </label>
+      </div>
+
+      <button class="pc-submit" id="pcSubmit" onclick="submitProfile()">Salvar e entrar</button>
+      <div class="pc-msg" id="pcMsg"></div>
+      <button class="pc-skip" onclick="goStep1()" style="color:var(--gold);margin-top:6px;background:none;border:none;font-size:.78rem;cursor:pointer;display:block;text-align:center;width:100%;font-family:'Jost',sans-serif">← Voltar ao passo 1</button>
     </div>
 
-    <div class="pc-field" style="margin-top:.75rem">
-      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.78rem;color:var(--cream2);line-height:1.5">
-        <input type="checkbox" id="pcNewsletter" checked style="margin-top:3px;accent-color:var(--gold)">
-        Quero receber novidades, dicas de chás e ofertas por email
-      </label>
-    </div>
-
-    <div class="pc-field" style="margin-top:.5rem">
-      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:.78rem;color:var(--cream2);line-height:1.5">
-        <input type="checkbox" id="pcLgpd" style="margin-top:3px;accent-color:var(--gold)">
-        <span>Concordo com o tratamento dos meus dados pessoais conforme a <strong style="color:var(--gold2)">LGPD</strong> (Lei Geral de Proteção de Dados). Seus dados são usados exclusivamente para personalização do app e nunca compartilhados com terceiros. *</span>
-      </label>
-    </div>
-
-    <button class="pc-submit" id="pcSubmit" onclick="submitProfile()">Salvar e entrar</button>
-    <div class="pc-msg" id="pcMsg"></div>
-    <button class="pc-skip" onclick="skipProfile()">Pular por agora (acesso limitado à Busca)</button>
   </div>
 </div>
 
