@@ -83,7 +83,7 @@ const ervaria = {
     // Check if profile is completed
     const { data: profile } = await this.client
       .from('user_profiles')
-      .select('profile_completed, display_name, email, phone, city, state, country, role')
+      .select('profile_completed, display_name, email, extra_emails, phone, city, state, country, role, main_interest, referral_source, newsletter_optin')
       .eq('id', this.user.id)
       .maybeSingle();
 
@@ -96,9 +96,25 @@ const ervaria = {
       document.getElementById('pcCity').value = profile?.city || '';
       document.getElementById('pcState').value = profile?.state || '';
       document.getElementById('pcCountry').value = profile?.country || 'Brasil';
+      document.getElementById('pcExtraEmails').value = profile?.extra_emails || '';
+      if (profile?.newsletter_optin != null) document.getElementById('pcNewsletter').checked = profile.newsletter_optin;
       if (profile?.role) {
-        document.querySelectorAll('.pc-role').forEach(b => {
+        selectedRole = profile.role;
+        document.querySelectorAll('#pcRoles .pc-role').forEach(b => {
           b.classList.toggle('on', b.dataset.role === profile.role);
+        });
+        document.getElementById('pcOtherField').style.display = profile.role === 'outro' ? 'block' : 'none';
+      }
+      if (profile?.main_interest) {
+        selectedInterest = profile.main_interest;
+        document.querySelectorAll('#pcInterests .pc-role').forEach(b => {
+          b.classList.toggle('on', b.dataset.interest === profile.main_interest);
+        });
+      }
+      if (profile?.referral_source) {
+        selectedReferral = profile.referral_source;
+        document.querySelectorAll('#pcReferral .pc-role').forEach(b => {
+          b.classList.toggle('on', b.dataset.ref === profile.referral_source);
         });
       }
       // Show profile completion
@@ -106,14 +122,15 @@ const ervaria = {
       document.body.style.overflow = 'hidden';
     } else {
       this.syncFromCloud();
-      // Enter app
-      document.getElementById('landingPage').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'block';
+      enterAppAfterAuth();
+      localStorage.setItem('erb_entered', '1');
       toast('Bem-vindo, ' + (profile.display_name || this.user.email.split('@')[0]) + '!');
     }
   },
   onLogout() {
     this.updateAuthUI(false);
+    localStorage.removeItem('erb_entered');
+    backToLanding();
     toast('Até logo!');
   },
 
@@ -310,27 +327,50 @@ savePerfil = function() {
 
 // ── PROFILE COMPLETION ──
 let selectedRole = '';
+let selectedInterest = '';
+let selectedReferral = '';
+
 function selectRole(btn) {
-  document.querySelectorAll('.pc-role').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('#pcRoles .pc-role').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   selectedRole = btn.dataset.role;
   document.getElementById('pcOtherField').style.display = selectedRole === 'outro' ? 'block' : 'none';
+}
+function selectInterest(btn) {
+  document.querySelectorAll('#pcInterests .pc-role').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  selectedInterest = btn.dataset.interest;
+}
+function selectReferral(btn) {
+  document.querySelectorAll('#pcReferral .pc-role').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  selectedReferral = btn.dataset.ref;
+}
+function skipProfile() {
+  document.getElementById('profileCompleteOverlay').classList.remove('on');
+  document.body.style.overflow = '';
+  enterAppAfterAuth();
+  toast('Você pode completar seu perfil depois. Acesso limitado à Busca.');
 }
 
 async function submitProfile() {
   const name = document.getElementById('pcName').value.trim();
   const email = document.getElementById('pcEmail').value.trim();
+  const extraEmails = document.getElementById('pcExtraEmails').value.trim();
   const phone = document.getElementById('pcPhone').value.trim();
   const city = document.getElementById('pcCity').value.trim();
   const state = document.getElementById('pcState').value.trim();
   const country = document.getElementById('pcCountry').value.trim();
   const otherRole = document.getElementById('pcOtherRole')?.value.trim();
+  const newsletter = document.getElementById('pcNewsletter').checked;
+  const lgpd = document.getElementById('pcLgpd').checked;
   const msg = document.getElementById('pcMsg');
 
   if (!name) { msg.textContent = 'Preencha seu nome'; msg.style.color = '#e08080'; return; }
   if (!email) { msg.textContent = 'Preencha seu email'; msg.style.color = '#e08080'; return; }
   if (!selectedRole) { msg.textContent = 'Selecione seu perfil'; msg.style.color = '#e08080'; return; }
   if (!city || !state) { msg.textContent = 'Preencha cidade e estado'; msg.style.color = '#e08080'; return; }
+  if (!lgpd) { msg.textContent = 'É necessário aceitar os termos da LGPD'; msg.style.color = '#e08080'; return; }
 
   msg.textContent = 'Salvando...'; msg.style.color = 'var(--gold)';
   document.getElementById('pcSubmit').disabled = true;
@@ -341,23 +381,27 @@ async function submitProfile() {
       .update({
         display_name: name,
         email: email,
+        extra_emails: extraEmails || null,
         phone: phone,
         city: city,
         state: state,
         country: country,
         role: selectedRole,
         role_other: selectedRole === 'outro' ? otherRole : null,
+        main_interest: selectedInterest || null,
+        referral_source: selectedReferral || null,
+        newsletter_optin: newsletter,
+        lgpd_accepted: true,
+        lgpd_accepted_at: new Date().toISOString(),
         profile_completed: true
       })
       .eq('id', ervaria.user.id);
 
     if (error) throw error;
 
-    // Close modal and enter app
     document.getElementById('profileCompleteOverlay').classList.remove('on');
     document.body.style.overflow = '';
-    document.getElementById('landingPage').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
+    enterAppAfterAuth();
     localStorage.setItem('erb_entered', '1');
     ervaria.syncFromCloud();
     ervaria.updateAuthUI(true);
@@ -388,6 +432,10 @@ function toggleTheme(){
 
 // ── LANDING PAGE ──
 function enterApp(){
+  // Always show auth modal first — user must login/register
+  ervaria.showAuthModal();
+}
+function enterAppAfterAuth(){
   document.getElementById('landingPage').style.display = 'none';
   document.getElementById('appContainer').style.display = 'block';
   localStorage.setItem('erb_entered', '1');
@@ -396,7 +444,7 @@ function backToLanding(){
   document.getElementById('appContainer').style.display = 'none';
   document.getElementById('landingPage').style.display = 'block';
 }
-// Skip landing if already entered before
+// Skip landing if already logged in
 (function(){
   if(localStorage.getItem('erb_entered')){
     document.getElementById('landingPage').style.display = 'none';

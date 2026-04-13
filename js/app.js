@@ -1590,7 +1590,15 @@ function saveBlendFromCtr(){
 }
 
 // ── override goPage to handle all pages ──
+// Pages accessible without login
+const PUBLIC_PAGES = ['search'];
+
 function goPage(id,btn){
+  // Gate: require login for non-public pages
+  if(!PUBLIC_PAGES.includes(id) && (!window.ervaria || !ervaria.user)){
+    ervaria.showAuthModal();
+    return;
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('on'));
   document.getElementById('page-'+id).classList.add('on');
