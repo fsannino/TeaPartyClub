@@ -4,13 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Ervatório — App de Chás</title>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#9a7a2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Ervatório">
-<meta name="description" content="Catálogo inteligente de chás, infusões e ervas medicinais. Roda dos Chás, blends com IA e marketplace.">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍵</text></svg>">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
 
@@ -22,111 +15,16 @@
   --blue:#2a3a5a; --blue2:#4a6a9a;
   --r-lg:16px; --r-md:10px; --r-sm:6px;
   --shadow:0 2px 24px rgba(0,0,0,.5);
-  --nav-bg:rgba(11,10,8,.92);
-  --nav-border:rgba(200,168,75,.12);
-  --chip-bg:rgba(200,168,75,.1);
-  --chip-border:rgba(200,168,75,.35);
-  --card-hover:rgba(200,168,75,.25);
-  --overlay:rgba(0,0,0,.7);
-  --safe-bg:rgba(60,140,80,.12);--safe-c:#80c890;--safe-b:rgba(60,140,80,.2);
-  --warn-bg:rgba(200,100,60,.12);--warn-c:#e09060;--warn-b:rgba(200,100,60,.2);
-  --avoid-bg:rgba(180,50,50,.15);--avoid-c:#e08080;--avoid-b:rgba(180,50,50,.25);
 }
-
-/* ── LIGHT MODE ── */
-body.light{
-  --bg:#f5f2ec; --bg2:#ffffff; --bg3:#ebe7df;
-  --gold:#9a7a2e; --gold2:#7a5e1a; --goldf:#a8872c;
-  --cream:#1a1612; --cream2:#3a352a; --muted:#8a8070; --faint:#ddd8ce;
-  --green:#1a4a2a; --green2:#2a7a42; --red:#7a2a2a; --red2:#a04040;
-  --blue:#1a2a4a; --blue2:#3a5a8a;
-  --shadow:0 2px 24px rgba(0,0,0,.06);
-  --nav-bg:rgba(245,242,236,.95);
-  --nav-border:rgba(154,122,46,.15);
-  --chip-bg:rgba(154,122,46,.08);
-  --chip-border:rgba(154,122,46,.25);
-  --card-hover:rgba(154,122,46,.18);
-  --overlay:rgba(255,255,255,.8);
-  --safe-bg:rgba(40,120,60,.08);--safe-c:#1a6a30;--safe-b:rgba(40,120,60,.2);
-  --warn-bg:rgba(180,90,40,.08);--warn-c:#9a5020;--warn-b:rgba(180,90,40,.2);
-  --avoid-bg:rgba(160,40,40,.08);--avoid-c:#9a2020;--avoid-b:rgba(160,40,40,.2);
-}
-body.light .nav-tab{color:var(--muted)}
-body.light .nav-tab.on{background:var(--chip-bg);color:var(--gold2);border-color:var(--chip-border)}
-body.light .herb-card,body.light .fav-card,body.light .sup-card,body.light .prod-card,body.light .blend-tray,body.light .blend-wizard,body.light .recipe-card{background:var(--bg2);border-color:var(--faint)}
-body.light .modal{background:var(--bg2);border-color:var(--faint)}
-body.light .search-box input,body.light .wizard-input,body.light .perfil-input{background:var(--bg3);border-color:var(--faint);color:var(--cream)}
-body.light .fchip{border-color:var(--faint);color:var(--muted)}
-body.light .fchip.on{background:var(--chip-bg);color:var(--gold2);border-color:var(--chip-border)}
-body.light .htag-cat{background:var(--chip-bg);color:var(--gold);border-color:var(--chip-border)}
-body.light .htag-safe{background:var(--safe-bg);color:var(--safe-c);border-color:var(--safe-b)}
-body.light .htag-warn{background:var(--warn-bg);color:var(--warn-c);border-color:var(--warn-b)}
-body.light .htag-avoid{background:var(--avoid-bg);color:var(--avoid-c);border-color:var(--avoid-b)}
-body.light .warn-box{background:var(--avoid-bg);border-color:var(--avoid-b);color:var(--avoid-c)}
-body.light .safe-box{background:var(--safe-bg);border-color:var(--safe-b);color:var(--safe-c)}
-body.light .modal-overlay{background:var(--overlay);backdrop-filter:blur(8px)}
-body.light .auth-overlay{background:rgba(0,0,0,.35)}
-body.light .auth-card{background:var(--bg2);border-color:var(--faint)}
-body.light .auth-tab.on{background:var(--chip-bg);color:var(--gold2)}
-body.light .auth-tab:not(.on){background:var(--bg3);color:var(--muted)}
-body.light .auth-input{background:var(--bg3);border-color:var(--faint);color:var(--cream)}
-body.light .auth-social{background:var(--bg3);border-color:var(--faint);color:var(--cream2)}
-body.light .profile-menu{background:var(--bg2);border-color:var(--faint)}
-body.light .profile-menu button{color:var(--cream2)}
-body.light .cart-overlay{background:rgba(0,0,0,.4)}
-body.light .cart-panel{background:var(--bg2);border-left-color:var(--faint)}
-body.light .prep-item{background:rgba(0,0,0,.02);border-color:var(--faint)}
-body.light .toast{background:var(--bg2);border-color:var(--faint);color:var(--cream2)}
-body.light .collapse-toggle{background:var(--bg3);border-color:var(--faint)}
-body.light .gen-btn,body.light .auth-submit{background:var(--chip-bg);border-color:var(--chip-border);color:var(--gold2)}
-body.light .add-blend-btn,body.light .shop-btn,body.light .add-cart,body.light .perfil-chip.on,body.light .wizard-chip.on,body.light .roda-layer-btn.on{background:var(--chip-bg);color:var(--gold2);border-color:var(--chip-border)}
-body.light .eff-badge{background:var(--safe-bg);border-color:var(--safe-b);color:var(--safe-c)}
-body.light .prod-img{background:rgba(0,0,0,.02);border-bottom-color:var(--faint)}
-body.light .perfil-chip{border-color:var(--faint);color:var(--muted)}
-
-/* THEME TOGGLE */
-.theme-toggle{background:none;border:0.5px solid rgba(200,168,75,.25);border-radius:50%;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .2s;flex-shrink:0;color:var(--gold2)}
-.theme-toggle:hover{background:rgba(200,168,75,.12);border-color:rgba(200,168,75,.4)}
-
-/* LANDING PAGE */
-.landing{display:block;min-height:100vh;padding:0}
-.landing.hidden{display:none}
-.landing-hero{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem;position:relative;overflow:hidden}
-.landing-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(200,168,75,.06) 0%,transparent 70%);pointer-events:none}
-.landing-brand{font-family:'Cormorant Garamond',serif;font-size:3.5rem;color:var(--gold2);font-weight:300;font-style:italic;letter-spacing:.1em;margin-bottom:.5rem}
-@media(max-width:600px){.landing-brand{font-size:2.4rem}}
-.landing-tagline{font-size:1.1rem;color:var(--cream2);font-weight:300;max-width:500px;line-height:1.7;margin-bottom:.75rem}
-.landing-sub{font-size:.82rem;color:var(--muted);max-width:420px;line-height:1.6;margin-bottom:2.5rem}
-.landing-cta{padding:14px 40px;background:rgba(200,168,75,.12);border:0.5px solid rgba(200,168,75,.45);border-radius:999px;color:var(--gold2);font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;cursor:pointer;transition:all .3s;letter-spacing:.06em}
-.landing-cta:hover{background:rgba(200,168,75,.22);transform:translateY(-1px)}
-.landing-sections{max-width:1000px;margin:0 auto;padding:0 1.5rem 4rem}
-.landing-section-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold2);font-weight:300;text-align:center;margin-bottom:1.5rem}
-.landing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:3rem}
-.landing-card{background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1.75rem;transition:all .3s;position:relative;overflow:hidden}
-.landing-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:0;transition:opacity .3s}
-.landing-card:hover{border-color:var(--card-hover);transform:translateY(-2px)}
-.landing-card:hover::before{opacity:1}
-.landing-card-icon{font-size:1.8rem;margin-bottom:.75rem}
-.landing-card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--gold2);font-weight:400;margin-bottom:.5rem}
-.landing-card-text{font-size:.82rem;color:var(--cream2);line-height:1.7}
-.landing-card-list{list-style:none;padding:0;margin-top:.75rem}
-.landing-card-list li{font-size:.78rem;color:var(--muted);padding:4px 0;padding-left:16px;position:relative}
-.landing-card-list li::before{content:'→';position:absolute;left:0;color:var(--gold)}
-.landing-footer{text-align:center;padding:2rem 1.5rem;border-top:0.5px solid var(--faint)}
-.landing-footer-text{font-size:.75rem;color:var(--muted)}
-.landing-features{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:3rem}
-.landing-feat{padding:8px 18px;border-radius:999px;border:0.5px solid var(--faint);font-size:.72rem;color:var(--cream2);background:var(--bg3)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--cream);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--nav-border);display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem;gap:8px}
+nav{position:sticky;top:0;z-index:100;background:rgba(11,10,8,.92);backdrop-filter:blur(12px);border-bottom:0.5px solid rgba(200,168,75,.12);display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem}
 .logo{font-family:'Cormorant Garamond',serif;font-size:1.35rem;color:var(--gold2);letter-spacing:.08em;font-style:italic}
-.nav-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;flex-wrap:wrap}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
 .nav-tabs::-webkit-scrollbar{display:none}
-@media(min-width:601px){.nav-tabs{flex-wrap:wrap;justify-content:flex-end;gap:3px}}
-@media(max-width:600px){.nav-tabs{flex-wrap:nowrap}}
 .nav-tab{padding:6px 13px;border-radius:999px;border:none;background:transparent;color:var(--muted);font-family:'Jost',sans-serif;font-size:.72rem;font-weight:400;cursor:pointer;white-space:nowrap;transition:all .2s;letter-spacing:.04em}
 .nav-tab.on{background:rgba(200,168,75,.12);color:var(--gold2);border:0.5px solid rgba(200,168,75,.3)}
 
@@ -164,33 +62,6 @@ nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:b
 
 /* PROFILE MENU */
 .profile-menu{position:fixed;top:54px;right:12px;background:var(--bg2);border:0.5px solid rgba(200,168,75,.2);border-radius:var(--r-lg);box-shadow:var(--shadow);z-index:501;min-width:210px;overflow:hidden;animation:fadeUp .2s ease}
-
-/* PROFILE COMPLETION MODAL */
-.profile-complete-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px}
-.profile-complete-overlay.on{display:flex}
-.profile-complete-card{background:var(--bg2);border:0.5px solid rgba(200,168,75,.2);border-radius:20px;padding:2rem;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
-.pc-header{text-align:center;margin-bottom:1.5rem}
-.pc-header h2{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-weight:300;font-style:italic}
-.pc-header p{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.5}
-.pc-field{margin-bottom:1rem}
-.pc-label{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block}
-.pc-input{width:100%;padding:11px 14px;background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-md);color:var(--cream);font-family:'Jost',sans-serif;font-size:.88rem;font-weight:300;transition:border-color .2s;box-sizing:border-box}
-.pc-input:focus{outline:none;border-color:rgba(200,168,75,.4)}
-.pc-input::placeholder{color:var(--muted)}
-.pc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:400px){.pc-row{grid-template-columns:1fr}}
-.pc-roles{display:flex;flex-wrap:wrap;gap:6px}
-.pc-role{padding:7px 15px;border-radius:999px;border:0.5px solid var(--faint);background:transparent;color:var(--muted);font-size:.75rem;font-family:'Jost',sans-serif;cursor:pointer;transition:all .2s}
-.pc-role.on{background:rgba(200,168,75,.12);color:var(--gold2);border-color:rgba(200,168,75,.35)}
-.pc-submit{width:100%;padding:13px;background:rgba(200,168,75,.15);border:0.5px solid rgba(200,168,75,.4);border-radius:var(--r-lg);color:var(--gold2);font-family:'Cormorant Garamond',serif;font-size:1rem;font-style:italic;cursor:pointer;margin-top:1rem;transition:all .2s;letter-spacing:.06em}
-.pc-submit:hover{background:rgba(200,168,75,.25)}
-.pc-submit:disabled{opacity:.4;cursor:not-allowed}
-.pc-msg{text-align:center;font-size:.75rem;min-height:18px;margin-top:8px}
-.pc-skip{background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;margin-top:8px;display:block;text-align:center;width:100%;font-family:'Jost',sans-serif}
-body.light .profile-complete-overlay{background:rgba(0,0,0,.35)}
-body.light .profile-complete-card{background:var(--bg2);border-color:var(--faint)}
-body.light .pc-input{background:var(--bg3);border-color:var(--faint);color:var(--cream)}
-body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color:var(--chip-border)}
 .profile-menu-header{padding:14px 16px;border-bottom:0.5px solid var(--faint)}
 .profile-menu-name{font-size:.88rem;font-weight:400;color:var(--cream)}
 .profile-menu-email{font-size:.7rem;color:var(--muted);margin-top:2px}
@@ -690,110 +561,9 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 </head>
 <body>
 
-<!-- LANDING PAGE -->
-<div class="landing" id="landingPage">
-  <div class="landing-hero">
-    <div class="landing-brand">Ervatório</div>
-    <div class="landing-tagline">A plataforma completa para quem vive o universo dos chás, infusões e ervas medicinais.</div>
-    <div class="landing-sub">Catálogo inteligente, Roda dos Chás, blends personalizados com IA, e-commerce e ferramentas profissionais — tudo em um só lugar.</div>
-    <button class="landing-cta" onclick="enterApp()">Explorar o Ervatório</button>
-  </div>
-
-  <div class="landing-features">
-    <span class="landing-feat">140+ ervas catalogadas</span>
-    <span class="landing-feat">Roda dos Chás interativa</span>
-    <span class="landing-feat">Blend IA personalizado</span>
-    <span class="landing-feat">Chás de 12 países</span>
-    <span class="landing-feat">Marketplace integrado</span>
-    <span class="landing-feat">Cerimônias do chá</span>
-    <span class="landing-feat">Perfil de saúde</span>
-    <span class="landing-feat">Sincronização na nuvem</span>
-  </div>
-
-  <div class="landing-sections">
-    <div class="landing-section-title">Para quem é o Ervatório?</div>
-    <div class="landing-cards">
-
-      <div class="landing-card">
-        <div class="landing-card-icon">🍵</div>
-        <div class="landing-card-title">Para você — amante de chá</div>
-        <div class="landing-card-text">Descubra chás por efeito, humor ou origem. A Roda dos Chás sugere a infusão perfeita para o seu momento. Salve favoritos, monte blends com IA e acompanhe seu diário de degustação.</div>
-        <ul class="landing-card-list">
-          <li>Filtros por efeito: calmante, digestivo, energizante</li>
-          <li>Contraindicações e segurança em cada ficha</li>
-          <li>Timer de preparo com temperatura ideal</li>
-          <li>Perfil de saúde personalizado</li>
-        </ul>
-      </div>
-
-      <div class="landing-card">
-        <div class="landing-card-icon">🏪</div>
-        <div class="landing-card-title">Para chazerias e casas de chá</div>
-        <div class="landing-card-text">Seu cardápio inteligente. Ofereça aos seus clientes uma experiência digital que complementa o atendimento presencial — com informações profissionais sobre cada erva e sugestões personalizadas.</div>
-        <ul class="landing-card-list">
-          <li>Catálogo branco pronto para incorporar no seu site</li>
-          <li>Marketplace para vender seus blends</li>
-          <li>Construtor de chás com perfil de sabor</li>
-          <li>Ficha técnica profissional de cada erva</li>
-        </ul>
-      </div>
-
-      <div class="landing-card">
-        <div class="landing-card-icon">🧪</div>
-        <div class="landing-card-title">Para tea tasters e sommeliers</div>
-        <div class="landing-card-text">Ferramentas profissionais para curadoria, blending e análise sensorial. Construa receitas com proporções exatas, consulte interações fitoquímicas e explore origens globais com dados técnicos.</div>
-        <ul class="landing-card-list">
-          <li>Construtor de blends com proporções e fitoterapia</li>
-          <li>Mapa mundial com perfil regional detalhado</li>
-          <li>Cerimônias tradicionais documentadas</li>
-          <li>IA generativa para criação de receitas</li>
-        </ul>
-      </div>
-
-    </div>
-
-    <div style="text-align:center;margin-bottom:3rem">
-      <button class="landing-cta" onclick="enterApp()">Entrar no Ervatório</button>
-    </div>
-
-    <div class="landing-section-title">Instale o Ervatório no seu celular</div>
-    <div style="text-align:center;max-width:500px;margin:0 auto 1.5rem">
-      <p style="font-size:.85rem;color:var(--cream2);line-height:1.7;margin-bottom:1.25rem">O Ervatório funciona como um app nativo — sem precisar baixar na loja. Instale direto do navegador e tenha acesso offline.</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:1.5rem">
-        <button class="landing-cta" id="installBtn" onclick="installPWA()" style="display:none;font-size:.9rem;padding:12px 28px">Instalar App</button>
-        <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:380px">
-          <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">🍎</span>
-            <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">iPhone / iPad</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Safari, toque em Compartilhar (⬆) → "Adicionar à Tela de Início"</div></div>
-          </div>
-          <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">🤖</span>
-            <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">Android</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Chrome, toque no menu (⋮) → "Instalar app" ou "Adicionar à tela inicial"</div></div>
-          </div>
-          <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">💻</span>
-            <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">Desktop</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Chrome, clique no ícone de instalação (⊕) na barra de endereço</div></div>
-          </div>
-        </div>
-      </div>
-      <a href="https://tea-party-club.vercel.app" style="font-size:.78rem;color:var(--gold);text-decoration:none;letter-spacing:.03em" target="_blank">tea-party-club.vercel.app</a>
-    </div>
-  </div>
-
-  <div class="landing-footer">
-    <div class="landing-footer-text">Ervatório — Tea Party Club &copy; 2026</div>
-  </div>
-</div>
-
-<!-- APP (hidden until user clicks "Entrar") -->
-<div id="appContainer" style="display:none">
-
 <nav>
-  <div class="logo" onclick="backToLanding()" style="cursor:pointer" title="Voltar à página inicial">Ervatório</div>
-  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro">☀</button>
-    <button id="ervaria-auth-btn" class="auth-btn" onclick="ervaria.showAuthModal()">⚷ Entrar</button>
-  </div>
+  <div class="logo">Ervatório</div>
+  <button id="ervaria-auth-btn" class="auth-btn" onclick="ervaria.showAuthModal()">⚷ Entrar</button>
   <div class="nav-tabs">
     <button class="nav-tab on" onclick="goPage('search',this)">Busca</button>
     <button class="nav-tab" onclick="goPage('roda',this)">Roda</button>
@@ -1020,10 +790,6 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 
 <!-- MARKETPLACE PAGE -->
 <div class="page" id="page-marketplace">
-  <div style="background:rgba(200,168,75,.08);border:0.5px solid rgba(200,168,75,.25);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px">
-    <span style="font-size:1.2rem">🚧</span>
-    <div><div style="font-size:.85rem;color:var(--gold2);font-weight:400">Seção em desenvolvimento</div><div style="font-size:.75rem;color:var(--muted);margin-top:2px">O Marketplace do Ervatório está sendo construído. Em breve você poderá comprar infusões, equipamentos e vivências diretamente de produtores e chazerias parceiras.</div></div>
-  </div>
   <div class="mkt-hero">
     <div class="mkt-hero-text">
       <div class="sec-title" style="margin-bottom:.2rem">Marketplace</div>
@@ -1050,10 +816,6 @@ body.light .pc-role.on{background:var(--chip-bg);color:var(--gold2);border-color
 
 <!-- SUPPLIERS PAGE -->
 <div class="page" id="page-suppliers">
-  <div style="background:rgba(200,168,75,.08);border:0.5px solid rgba(200,168,75,.25);border-radius:var(--r-lg);padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:10px">
-    <span style="font-size:1.2rem">🚧</span>
-    <div><div style="font-size:.85rem;color:var(--gold2);font-weight:400">Seção em desenvolvimento</div><div style="font-size:.75rem;color:var(--muted);margin-top:2px">Estamos preparando uma rede verificada de ervateiros, produtores e distribuidores. Em breve você poderá conectar-se diretamente com fornecedores de qualidade.</div></div>
-  </div>
   <div class="sec-title">Fornecedores</div>
   <div class="sec-sub">Ervateiros, produtores e distribuidores verificados</div>
   <div class="sup-filter" id="supFilter"></div>
@@ -3461,9 +3223,6 @@ updateCartCount();
 renderPerfil();
 </script>
 
-<!-- end appContainer -->
-</div>
-
 <!-- AUTH MODAL -->
 <div class="auth-overlay" id="authOverlay" onclick="if(event.target===this)ervaria.hideAuthModal()">
   <div class="auth-card">
@@ -3490,9 +3249,13 @@ renderPerfil();
     </div>
     <div class="auth-divider"><span>ou continue com</span></div>
     <div style="display:flex;gap:8px">
-      <button class="auth-social" style="flex:1" onclick="ervaria.loginGoogle()">
+      <button class="auth-social" onclick="ervaria.loginGoogle()">
         <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-        Entrar com Google
+        Google
+      </button>
+      <button class="auth-social" onclick="ervaria.loginApple()">
+        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.32 2.32-1.89 4.46-3.74 4.25z"/></svg>
+        Apple
       </button>
     </div>
     <div class="auth-msg" id="authMsg"></div>
@@ -3500,68 +3263,6 @@ renderPerfil();
 </div>
 
 <!-- PROFILE MENU (injected dynamically) -->
-
-<!-- PROFILE COMPLETION MODAL -->
-<div class="profile-complete-overlay" id="profileCompleteOverlay">
-  <div class="profile-complete-card">
-    <div class="pc-header">
-      <h2>Complete seu perfil</h2>
-      <p>Precisamos de mais algumas informações para personalizar sua experiência no Ervatório.</p>
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">Nome completo</label>
-      <input type="text" id="pcName" class="pc-input" placeholder="Seu nome">
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">Email</label>
-      <input type="email" id="pcEmail" class="pc-input" placeholder="seu@email.com">
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">WhatsApp / Telefone</label>
-      <input type="tel" id="pcPhone" class="pc-input" placeholder="+55 11 99999-9999">
-    </div>
-
-    <div class="pc-row">
-      <div class="pc-field">
-        <label class="pc-label">Cidade</label>
-        <input type="text" id="pcCity" class="pc-input" placeholder="São Paulo">
-      </div>
-      <div class="pc-field">
-        <label class="pc-label">Estado</label>
-        <input type="text" id="pcState" class="pc-input" placeholder="SP">
-      </div>
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">País</label>
-      <input type="text" id="pcCountry" class="pc-input" placeholder="Brasil" value="Brasil">
-    </div>
-
-    <div class="pc-field">
-      <label class="pc-label">Qual é o seu perfil?</label>
-      <div class="pc-roles" id="pcRoles">
-        <button class="pc-role" data-role="apreciador" onclick="selectRole(this)">Apreciador de chá</button>
-        <button class="pc-role" data-role="barista" onclick="selectRole(this)">Barista</button>
-        <button class="pc-role" data-role="tea_taster" onclick="selectRole(this)">Tea Taster</button>
-        <button class="pc-role" data-role="tea_master" onclick="selectRole(this)">Tea Master</button>
-        <button class="pc-role" data-role="tea_blender" onclick="selectRole(this)">Tea Blender</button>
-        <button class="pc-role" data-role="dono_chazeria" onclick="selectRole(this)">Dono de chazeria</button>
-        <button class="pc-role" data-role="outro" onclick="selectRole(this)">Outro</button>
-      </div>
-    </div>
-
-    <div class="pc-field" id="pcOtherField" style="display:none">
-      <label class="pc-label">Especifique</label>
-      <input type="text" id="pcOtherRole" class="pc-input" placeholder="Qual é sua relação com chá?">
-    </div>
-
-    <button class="pc-submit" id="pcSubmit" onclick="submitProfile()">Salvar e entrar</button>
-    <div class="pc-msg" id="pcMsg"></div>
-  </div>
-</div>
 
 <!-- Supabase JS SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -3623,14 +3324,14 @@ const ervaria = {
   async loginGoogle() {
     const { error } = await this.client.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin + window.location.pathname,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent'
-        },
-        scopes: 'openid email profile'
-      }
+      options: { redirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) this.showMsg(error.message, true);
+  },
+  async loginApple() {
+    const { error } = await this.client.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
     if (error) this.showMsg(error.message, true);
   },
@@ -3646,40 +3347,11 @@ const ervaria = {
   },
 
   // ── LOGIN/LOGOUT CALLBACKS ──────────────────────────────
-  async onLogin() {
+  onLogin() {
     this.updateAuthUI(true);
     this.hideAuthModal();
-    // Check if profile is completed
-    const { data: profile } = await this.client
-      .from('user_profiles')
-      .select('profile_completed, display_name, email, phone, city, state, country, role')
-      .eq('id', this.user.id)
-      .maybeSingle();
-
-    if (!profile || !profile.profile_completed) {
-      // Pre-fill from Google data
-      const meta = this.user.user_metadata || {};
-      document.getElementById('pcName').value = meta.full_name || meta.name || profile?.display_name || '';
-      document.getElementById('pcEmail').value = this.user.email || '';
-      document.getElementById('pcPhone').value = profile?.phone || '';
-      document.getElementById('pcCity').value = profile?.city || '';
-      document.getElementById('pcState').value = profile?.state || '';
-      document.getElementById('pcCountry').value = profile?.country || 'Brasil';
-      if (profile?.role) {
-        document.querySelectorAll('.pc-role').forEach(b => {
-          b.classList.toggle('on', b.dataset.role === profile.role);
-        });
-      }
-      // Show profile completion
-      document.getElementById('profileCompleteOverlay').classList.add('on');
-      document.body.style.overflow = 'hidden';
-    } else {
-      this.syncFromCloud();
-      // Enter app
-      document.getElementById('landingPage').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'block';
-      toast('Bem-vindo, ' + (profile.display_name || this.user.email.split('@')[0]) + '!');
-    }
+    this.syncFromCloud();
+    toast('Bem-vindo, ' + (this.user.user_metadata?.full_name || this.user.email.split('@')[0]) + '!');
   },
   onLogout() {
     this.updateAuthUI(false);
@@ -3876,124 +3548,6 @@ savePerfil = function() {
   _origSavePerfil();
   ervaria.pushPerfil(perfilState);
 };
-
-// ── PROFILE COMPLETION ──
-let selectedRole = '';
-function selectRole(btn) {
-  document.querySelectorAll('.pc-role').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  selectedRole = btn.dataset.role;
-  document.getElementById('pcOtherField').style.display = selectedRole === 'outro' ? 'block' : 'none';
-}
-
-async function submitProfile() {
-  const name = document.getElementById('pcName').value.trim();
-  const email = document.getElementById('pcEmail').value.trim();
-  const phone = document.getElementById('pcPhone').value.trim();
-  const city = document.getElementById('pcCity').value.trim();
-  const state = document.getElementById('pcState').value.trim();
-  const country = document.getElementById('pcCountry').value.trim();
-  const otherRole = document.getElementById('pcOtherRole')?.value.trim();
-  const msg = document.getElementById('pcMsg');
-
-  if (!name) { msg.textContent = 'Preencha seu nome'; msg.style.color = '#e08080'; return; }
-  if (!email) { msg.textContent = 'Preencha seu email'; msg.style.color = '#e08080'; return; }
-  if (!selectedRole) { msg.textContent = 'Selecione seu perfil'; msg.style.color = '#e08080'; return; }
-  if (!city || !state) { msg.textContent = 'Preencha cidade e estado'; msg.style.color = '#e08080'; return; }
-
-  msg.textContent = 'Salvando...'; msg.style.color = 'var(--gold)';
-  document.getElementById('pcSubmit').disabled = true;
-
-  try {
-    const { error } = await ervaria.client
-      .from('user_profiles')
-      .update({
-        display_name: name,
-        email: email,
-        phone: phone,
-        city: city,
-        state: state,
-        country: country,
-        role: selectedRole,
-        role_other: selectedRole === 'outro' ? otherRole : null,
-        profile_completed: true
-      })
-      .eq('id', ervaria.user.id);
-
-    if (error) throw error;
-
-    // Close modal and enter app
-    document.getElementById('profileCompleteOverlay').classList.remove('on');
-    document.body.style.overflow = '';
-    document.getElementById('landingPage').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-    localStorage.setItem('erb_entered', '1');
-    ervaria.syncFromCloud();
-    ervaria.updateAuthUI(true);
-    toast('Bem-vindo ao Ervatório, ' + name + '!');
-  } catch (e) {
-    msg.textContent = 'Erro: ' + e.message; msg.style.color = '#e08080';
-  }
-  document.getElementById('pcSubmit').disabled = false;
-}
-
-// ── THEME TOGGLE ──
-function toggleTheme(){
-  document.body.classList.toggle('light');
-  const isLight = document.body.classList.contains('light');
-  localStorage.setItem('erb_theme', isLight ? 'light' : 'dark');
-  document.getElementById('themeToggle').textContent = isLight ? '☽' : '☀';
-}
-// Restore saved theme (default: light)
-(function(){
-  const saved = localStorage.getItem('erb_theme');
-  if(saved === 'dark'){
-    // User explicitly chose dark
-  } else {
-    document.body.classList.add('light');
-    document.getElementById('themeToggle').textContent = '☽';
-  }
-})();
-
-// ── LANDING PAGE ──
-function enterApp(){
-  document.getElementById('landingPage').style.display = 'none';
-  document.getElementById('appContainer').style.display = 'block';
-  localStorage.setItem('erb_entered', '1');
-}
-function backToLanding(){
-  document.getElementById('appContainer').style.display = 'none';
-  document.getElementById('landingPage').style.display = 'block';
-}
-// Skip landing if already entered before
-(function(){
-  if(localStorage.getItem('erb_entered')){
-    document.getElementById('landingPage').style.display = 'none';
-    document.getElementById('appContainer').style.display = 'block';
-  }
-})();
-
-// ── PWA INSTALL ──
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  const btn = document.getElementById('installBtn');
-  if(btn) btn.style.display = 'inline-block';
-});
-function installPWA() {
-  if(!deferredPrompt) return;
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(r => {
-    if(r.outcome === 'accepted') toast('App instalado!');
-    deferredPrompt = null;
-    document.getElementById('installBtn').style.display = 'none';
-  });
-}
-// Register service worker
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(()=>{});
-}
 
 // ── INIT SUPABASE ──
 ervaria.init();

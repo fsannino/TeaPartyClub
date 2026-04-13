@@ -1,0 +1,20 @@
+{
+  "name": "Ervatório — App de Chás",
+  "short_name": "Ervatório",
+  "description": "Catálogo inteligente de chás, infusões e ervas medicinais. Roda dos Chás, blends com IA e marketplace.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2ec",
+  "theme_color": "#9a7a2e",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["food", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%239a7a2e' width='100' height='100' rx='20'/><text x='50' y='68' text-anchor='middle' font-size='55'>🍵</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
