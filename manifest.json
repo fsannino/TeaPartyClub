@@ -55,23 +55,23 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/landing.png",
-      "sizes": "540x960",
-      "type": "image/png",
+      "src": "/screenshots/landing.jpeg",
+      "sizes": "1290x2796",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Tela inicial do Ervatório"
     },
     {
-      "src": "/screenshots/roda.png",
-      "sizes": "540x960",
-      "type": "image/png",
+      "src": "/screenshots/roda.jpeg",
+      "sizes": "1290x2796",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Roda dos Chás interativa com filtros"
     },
     {
-      "src": "/screenshots/construtor.png",
-      "sizes": "540x960",
-      "type": "image/png",
+      "src": "/screenshots/construtor.jpeg",
+      "sizes": "1290x2796",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Construtor de blends personalizados"
     }
