@@ -160,8 +160,17 @@ const SAFE_CONTEXT = {
 let wheelHov1=-1, wheelHov2=-1, wheelHov3=-1;
 const wheelCanvas = document.getElementById('filterWheel');
 const wheelCtx = wheelCanvas.getContext('2d');
-const WHEEL_SIZE = 320, WHEEL_CX = WHEEL_SIZE/2, WHEEL_CY = WHEEL_SIZE/2;
-const R_OUTER = 152, R_MIDDLE = 108, R_INNER = 70, R_CENTER = 36; // ring radii (px)
+// HiDPI: scale canvas 2x for retina sharpness
+const DPR = window.devicePixelRatio || 1;
+const WHEEL_CSS = 400; // visual size in CSS pixels (bigger)
+const WHEEL_SIZE = Math.round(WHEEL_CSS * DPR);
+wheelCanvas.width = WHEEL_SIZE;
+wheelCanvas.height = WHEEL_SIZE;
+wheelCanvas.style.width = WHEEL_CSS + 'px';
+wheelCanvas.style.height = WHEEL_CSS + 'px';
+wheelCtx.scale(DPR, DPR);
+const WHEEL_CX = WHEEL_CSS/2, WHEEL_CY = WHEEL_CSS/2;
+const R_OUTER = 190, R_MIDDLE = 135, R_INNER = 88, R_CENTER = 44; // ring radii (px) — scaled up
 
 function lightenW(hex,amt){
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
@@ -204,7 +213,7 @@ function drawRingSlices(n, rOuter, rInner, items, getColor, isSel, isHov, getLab
     const lx=WHEEL_CX+lr*Math.cos(mA), ly=WHEEL_CY+lr*Math.sin(mA);
     wheelCtx.save(); wheelCtx.translate(lx,ly); wheelCtx.rotate(mA+Math.PI/2);
     wheelCtx.fillStyle = sel?'#f0d98a': hov?'#e6c96e':'rgba(235,225,205,.75)';
-    const fsize = rOuter===R_OUTER ? 9 : rOuter===R_MIDDLE ? 8 : 8;
+    const fsize = rOuter===R_OUTER ? 11.5 : rOuter===R_MIDDLE ? 10 : 9.5;
     wheelCtx.font=`${sel?'500':'400'} ${fsize}px Jost,sans-serif`;
     wheelCtx.textAlign='center'; wheelCtx.textBaseline='middle';
     const lbl=getLabel(i); const parts=lbl.split(' ');
@@ -215,7 +224,7 @@ function drawRingSlices(n, rOuter, rInner, items, getColor, isSel, isHov, getLab
 }
 
 function drawWheel(){
-  wheelCtx.clearRect(0,0,WHEEL_SIZE,WHEEL_SIZE);
+  wheelCtx.clearRect(0,0,WHEEL_CSS,WHEEL_CSS);
 
   // Ring 1: Categories (outer)
   drawRingSlices(WHEEL_CATS.length, R_OUTER, R_MIDDLE, WHEEL_CATS,
@@ -569,8 +578,7 @@ function addToTray(id){
   if(!blendTray.includes(id)) blendTray.push(id);
   localStorage.setItem('erb_tray',JSON.stringify(blendTray));
   renderTray(); closeModal();
-  goPage('blend');
-  document.querySelectorAll('.nav-tab')[1].click();
+  goPage('criarblend');
   toast('Erva adicionada ao blend!');
 }
 
@@ -1609,11 +1617,26 @@ function goPage(id,btn){
   if(id==='shop')renderShop();
   if(id==='roda')window.initRoda();
   if(id==='perfil')renderPerfil();
-  if(id==='construtor'){buildCtrFilters();renderCtrHerbs();renderCtrBlend();}
+  if(id==='criarblend'){buildWizard();buildCtrFilters();renderCtrHerbs();renderCtrBlend();renderTray();}
   if(id==='chas')initChas();
   if(id==='cerimonia')initCerimonia();
   if(id==='marketplace')initMkt();
   if(id==='mundo')initMundo();
+}
+
+function switchBlendTab(tab){
+  const assist=document.getElementById('blendPanelAssist');
+  const manual=document.getElementById('blendPanelManual');
+  const tabA=document.getElementById('blendTabAssist');
+  const tabM=document.getElementById('blendTabManual');
+  if(tab==='assistente'){
+    assist.style.display='';manual.style.display='none';
+    tabA.classList.add('on');tabM.classList.remove('on');
+  } else {
+    assist.style.display='none';manual.style.display='';
+    tabA.classList.remove('on');tabM.classList.add('on');
+    buildCtrFilters();renderCtrHerbs();renderCtrBlend();
+  }
 }
 
 // ════════════════════════════════════════
@@ -1622,7 +1645,7 @@ function goPage(id,btn){
 const CHAS_DATA = [
   {
     id:'branco', name:'Chá Branco', emoji:'🤍', oxidation:5,
-    color:'#e8dcc8', textColor:'#3a2a1a', bgColor:'rgba(232,220,200,.12)',
+    color:'#e8dcc8', textColor:'#3a2a1a', textColorLight:'#3a2a1a', bgColor:'rgba(232,220,200,.12)',
     tagline:'O mais puro e delicado — colhido antes do despertar',
     latin:'Camellia sinensis — brotos jovens, pré-floração',
     sabores:['Mel suave','Floral','Melão','Fruta fresca','Levemente adocicado'],
@@ -1640,7 +1663,7 @@ const CHAS_DATA = [
   },
   {
     id:'verde', name:'Chá Verde', emoji:'🍃', oxidation:10,
-    color:'#4a7a3a', textColor:'#e8f5e0', bgColor:'rgba(74,122,58,.15)',
+    color:'#4a7a3a', textColor:'#e8f5e0', textColorLight:'#1a4a1a', bgColor:'rgba(74,122,58,.15)',
     tagline:'O guardião da saúde — dois mil anos de sabedoria',
     latin:'Camellia sinensis — folhas fixadas rapidamente ao calor',
     sabores:['Gramíneo','Vegetal','Algas marinhas','Castanho suave','Erva fresca'],
@@ -1658,7 +1681,7 @@ const CHAS_DATA = [
   },
   {
     id:'amarelo', name:'Chá Amarelo', emoji:'💛', oxidation:15,
-    color:'#a87a2a', textColor:'#fff8e0', bgColor:'rgba(168,122,42,.12)',
+    color:'#a87a2a', textColor:'#fff8e0', textColorLight:'#5a3a0a', bgColor:'rgba(168,122,42,.12)',
     tagline:'O raro tesouro — o segredo mais guardado da China',
     latin:'Camellia sinensis — smothering lento, oxidação controlada',
     sabores:['Mel suave','Milho','Floral discreto','Amendoado','Mais suave que o verde'],
@@ -1676,7 +1699,7 @@ const CHAS_DATA = [
   },
   {
     id:'oolong', name:'Chá Oolong', emoji:'🔵', oxidation:50,
-    color:'#2d5a7a', textColor:'#e0f0ff', bgColor:'rgba(45,90,122,.15)',
+    color:'#2d5a7a', textColor:'#e0f0ff', textColorLight:'#1a3a5a', bgColor:'rgba(45,90,122,.15)',
     tagline:'O chá azul — entre dois mundos, com a melhor de cada',
     latin:'Camellia sinensis — oxidação parcial 15-85%',
     sabores:['Floral intenso','Pêssego','Mel de flores','Frutado suave','Torrado suave (oxidado)'],
@@ -1694,7 +1717,7 @@ const CHAS_DATA = [
   },
   {
     id:'preto', name:'Chá Preto', emoji:'🖤', oxidation:100,
-    color:'#3a1a0a', textColor:'#f5d8c0', bgColor:'rgba(58,26,10,.2)',
+    color:'#3a1a0a', textColor:'#f5d8c0', textColorLight:'#3a1a0a', bgColor:'rgba(58,26,10,.2)',
     tagline:'O favorito do mundo — força, profundidade, história',
     latin:'Camellia sinensis — oxidação total, sabor robusto',
     sabores:['Malte','Caramelo','Terra','Chocolate amargo','Tanino marcante','Notas de frutas secas'],
@@ -1712,7 +1735,7 @@ const CHAS_DATA = [
   },
   {
     id:'puerh', name:'Chá Escuro (Pu-erh)', emoji:'🟤', oxidation:100,
-    color:'#2a1a0a', textColor:'#e8d0b0', bgColor:'rgba(42,26,10,.2)',
+    color:'#2a1a0a', textColor:'#e8d0b0', textColorLight:'#2a1a0a', bgColor:'rgba(42,26,10,.2)',
     tagline:'O chá que envelhece como vinho — fermentado, profundo, raro',
     latin:'Camellia sinensis — fermentação microbiana pós-colheita',
     sabores:['Terra molhada','Cogumelo','Madeira','Couro envelhecido','Tabaco suave','Compostagem mineral'],
@@ -1756,8 +1779,10 @@ function buildChaTabs(){
 function renderChaDetail(id){
   const c=CHAS_DATA.find(x=>x.id===id); if(!c)return;
   const el=document.getElementById('chaDetail'); if(!el)return;
+  const isLight=document.body.classList.contains('light');
+  const txtColor=isLight?(c.textColorLight||c.color):c.textColor;
   el.innerHTML=`
-    <div class="cha-header" style="background:${c.bgColor};border:0.5px solid ${c.color}44;color:${c.textColor}">
+    <div class="cha-header" style="background:${c.bgColor};border:0.5px solid ${c.color}44;color:${txtColor}">
       <div style="font-size:2.5rem;margin-bottom:.5rem">${c.emoji}</div>
       <div class="cha-header-name" style="color:${c.color}">${c.name}</div>
       <div class="cha-header-latin">${c.latin}</div>
