@@ -140,11 +140,10 @@
   <div class="nav-tabs">
     <button class="nav-tab on" onclick="goPage('search',this)">Busca</button>
     <button class="nav-tab" onclick="goPage('roda',this)">Roda</button>
-    <button class="nav-tab" onclick="goPage('construtor',this)">Construtor</button>
+    <button class="nav-tab" onclick="goPage('criarblend',this)">Criar Blend</button>
     <button class="nav-tab" onclick="goPage('chas',this)">Chás Tradicionais</button>
     <button class="nav-tab" onclick="goPage('mundo',this)">Chás do Mundo</button>
     <button class="nav-tab" onclick="goPage('cerimonia',this)">Cerimônia</button>
-    <button class="nav-tab" onclick="goPage('blend',this)">Blend IA</button>
     <button class="nav-tab" onclick="goPage('favs',this)">Favoritos</button>
     <button class="nav-tab" onclick="goPage('suppliers',this)">Fornecedores</button>
     <button class="nav-tab" onclick="goPage('marketplace',this)">Marketplace</button>
@@ -241,104 +240,86 @@
 </div>
 
 <!-- BLEND PAGE -->
-<div class="page" id="page-blend">
-  <div class="sec-title">Criar Blend</div>
-  <div class="sec-sub">Diga como você está e receba a combinação perfeita</div>
+<!-- CRIAR BLEND — Unified page with 2 tabs -->
+<div class="page" id="page-criarblend">
+  <div class="sec-title">Criar seu Blend</div>
+  <div class="sec-sub">Personalize sua infusão ideal</div>
 
-  <div class="blend-wizard">
-    <div class="wizard-title">Como você está?</div>
-    <div class="wizard-row" id="wizSintomas"></div>
-    <div class="wizard-title" style="margin-top:.75rem">Hora do dia</div>
-    <div class="wizard-row" id="wizHora"></div>
-    <div class="wizard-title" style="margin-top:.75rem">Preferência de sabor</div>
-    <div class="wizard-row" id="wizSabor"></div>
-    <div class="wizard-title" style="margin-top:.75rem">Observações</div>
-    <input class="wizard-input" id="wizObs" placeholder="Ex: estou grávida, tenho pressão alta, prefiro sem cafeína...">
-    <button class="gen-btn" onclick="generateBlend()">✦ Criar minha infusão personalizada</button>
+  <!-- Sub-tabs -->
+  <div class="blend-tabs">
+    <button class="blend-tab on" id="blendTabAssist" onclick="switchBlendTab('assistente')">✦ Assistente</button>
+    <button class="blend-tab" id="blendTabManual" onclick="switchBlendTab('manual')">🌿 Manual</button>
   </div>
 
-  <div class="blend-tray" id="blendTray">
-    <div class="tray-title">Ervas no blend manual</div>
-    <div class="tray-items" id="trayItems"><span class="tray-empty">Adicione ervas da busca ao blend</span></div>
-  </div>
-
-  <div id="blendResult"></div>
-</div>
-
-<!-- CONSTRUTOR PAGE -->
-<div class="page" id="page-construtor">
-  <div class="sec-title">Construtor de Blend</div>
-  <div class="sec-sub">Monte sua infusão personalizada erva por erva</div>
-
-  <div class="ctr-layout">
-
-    <!-- LEFT: herb picker -->
-    <div class="ctr-picker">
-      <div class="ctr-search-wrap">
-        <span class="search-icon" style="font-size:.85rem">⌕</span>
-        <input class="ctr-search" id="ctrSearch" type="text" placeholder="Buscar erva..." oninput="renderCtrHerbs()">
-      </div>
-      <div class="ctr-filter-row" id="ctrFilters"></div>
-      <div class="ctr-herb-list" id="ctrHerbList"></div>
+  <!-- TAB 1: Assistente (ex Blend IA) -->
+  <div id="blendPanelAssist">
+    <div class="blend-wizard">
+      <div class="wizard-title">O que você está sentindo?</div>
+      <div class="wizard-row" id="wizSintomas"></div>
+      <div class="wizard-title" style="margin-top:.75rem">Quando vai tomar?</div>
+      <div class="wizard-row" id="wizHora"></div>
+      <div class="wizard-title" style="margin-top:.75rem">Preferência de sabor</div>
+      <div class="wizard-row" id="wizSabor"></div>
+      <div class="wizard-title" style="margin-top:.75rem">Observações</div>
+      <input class="wizard-input" id="wizObs" placeholder="Ex: estou grávida, tenho pressão alta, prefiro sem cafeína...">
+      <button class="gen-btn" onclick="generateBlend()">✦ Criar minha infusão personalizada</button>
     </div>
 
-    <!-- RIGHT: blend builder -->
-    <div class="ctr-builder">
+    <div class="blend-tray" id="blendTray">
+      <div class="tray-title">Ervas no blend</div>
+      <div class="tray-items" id="trayItems"><span class="tray-empty">Adicione ervas da busca ao blend</span></div>
+    </div>
 
-      <!-- Active blend -->
-      <div class="ctr-blend-box" id="ctrBlendBox">
-        <div class="ctr-blend-empty" id="ctrBlendEmpty">
-          <div style="font-size:1.8rem;opacity:.25;margin-bottom:.5rem">🌿</div>
-          <div>Adicione ervas ao seu blend</div>
+    <div id="blendResult"></div>
+  </div>
+
+  <!-- TAB 2: Manual (ex Construtor) -->
+  <div id="blendPanelManual" style="display:none">
+    <div class="ctr-layout">
+      <div class="ctr-picker">
+        <div class="ctr-search-wrap">
+          <span class="search-icon" style="font-size:.85rem">⌕</span>
+          <input class="ctr-search" id="ctrSearch" type="text" placeholder="Buscar erva..." oninput="renderCtrHerbs()">
         </div>
-        <div id="ctrBlendItems"></div>
+        <div class="ctr-filter-row" id="ctrFilters"></div>
+        <div class="ctr-herb-list" id="ctrHerbList"></div>
       </div>
-
-      <!-- Analysis panel — shown when ≥1 herb -->
-      <div id="ctrAnalysis" style="display:none">
-
-        <!-- Blend name -->
-        <div class="ctr-section">
-          <div class="ctr-section-label">Nome do blend</div>
-          <input class="perfil-input" id="ctrBlendName" type="text" placeholder="Ex: Meu chá da noite...">
+      <div class="ctr-builder">
+        <div class="ctr-blend-box" id="ctrBlendBox">
+          <div class="ctr-blend-empty" id="ctrBlendEmpty">
+            <div style="font-size:1.8rem;opacity:.25;margin-bottom:.5rem">🌿</div>
+            <div>Adicione ervas ao seu blend</div>
+          </div>
+          <div id="ctrBlendItems"></div>
         </div>
-
-        <!-- Characteristics -->
-        <div class="ctr-section">
-          <div class="ctr-section-label">Características do blend</div>
-          <div id="ctrCharBox" class="ctr-char-box"></div>
+        <div id="ctrAnalysis" style="display:none">
+          <div class="ctr-section">
+            <div class="ctr-section-label">Nome do blend</div>
+            <input class="perfil-input" id="ctrBlendName" type="text" placeholder="Ex: Meu chá da noite...">
+          </div>
+          <div class="ctr-section">
+            <div class="ctr-section-label">Características do blend</div>
+            <div id="ctrCharBox" class="ctr-char-box"></div>
+          </div>
+          <div class="ctr-section">
+            <div class="ctr-section-label">Efeitos combinados</div>
+            <div id="ctrEffects" class="ctr-effects-grid"></div>
+          </div>
+          <div id="ctrWarnings"></div>
+          <div id="ctrSynergies"></div>
+          <div class="ctr-section">
+            <div class="ctr-section-label">Receita inteligente</div>
+            <div class="ctr-recipe-box" id="ctrRecipeBox"></div>
+          </div>
+          <div class="ctr-section">
+            <div class="ctr-section-label">Como preparar</div>
+            <div class="ctr-prep-box" id="ctrPrepBox"></div>
+          </div>
+          <div class="ctr-actions">
+            <button class="ctr-timer-btn" onclick="startBlendTimer()">⏱ Preparar agora</button>
+            <button class="ctr-save-btn" onclick="saveBlendFromCtr()">♥ Salvar blend</button>
+          </div>
         </div>
-
-        <!-- Effects -->
-        <div class="ctr-section">
-          <div class="ctr-section-label">Efeitos combinados</div>
-          <div id="ctrEffects" class="ctr-effects-grid"></div>
-        </div>
-
-        <!-- Warnings -->
-        <div id="ctrWarnings"></div>
-
-        <!-- Synergies -->
-        <div id="ctrSynergies"></div>
-
-        <!-- Smart recipe -->
-        <div class="ctr-section">
-          <div class="ctr-section-label">Receita inteligente</div>
-          <div class="ctr-recipe-box" id="ctrRecipeBox"></div>
-        </div>
-
-        <!-- Prep guide -->
-        <div class="ctr-section">
-          <div class="ctr-section-label">Como preparar</div>
-          <div class="ctr-prep-box" id="ctrPrepBox"></div>
-        </div>
-
-        <!-- Actions -->
-        <div class="ctr-actions">
-          <button class="ctr-timer-btn" onclick="startBlendTimer()">⏱ Preparar agora</button>
-          <button class="ctr-save-btn" onclick="saveBlendFromCtr()">♥ Salvar blend</button>
-        </div>
-
       </div>
     </div>
   </div>

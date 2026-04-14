@@ -578,8 +578,7 @@ function addToTray(id){
   if(!blendTray.includes(id)) blendTray.push(id);
   localStorage.setItem('erb_tray',JSON.stringify(blendTray));
   renderTray(); closeModal();
-  goPage('blend');
-  document.querySelectorAll('.nav-tab')[1].click();
+  goPage('criarblend');
   toast('Erva adicionada ao blend!');
 }
 
@@ -1618,11 +1617,26 @@ function goPage(id,btn){
   if(id==='shop')renderShop();
   if(id==='roda')window.initRoda();
   if(id==='perfil')renderPerfil();
-  if(id==='construtor'){buildCtrFilters();renderCtrHerbs();renderCtrBlend();}
+  if(id==='criarblend'){buildWizard();buildCtrFilters();renderCtrHerbs();renderCtrBlend();renderTray();}
   if(id==='chas')initChas();
   if(id==='cerimonia')initCerimonia();
   if(id==='marketplace')initMkt();
   if(id==='mundo')initMundo();
+}
+
+function switchBlendTab(tab){
+  const assist=document.getElementById('blendPanelAssist');
+  const manual=document.getElementById('blendPanelManual');
+  const tabA=document.getElementById('blendTabAssist');
+  const tabM=document.getElementById('blendTabManual');
+  if(tab==='assistente'){
+    assist.style.display='';manual.style.display='none';
+    tabA.classList.add('on');tabM.classList.remove('on');
+  } else {
+    assist.style.display='none';manual.style.display='';
+    tabA.classList.remove('on');tabM.classList.add('on');
+    buildCtrFilters();renderCtrHerbs();renderCtrBlend();
+  }
 }
 
 // ════════════════════════════════════════
