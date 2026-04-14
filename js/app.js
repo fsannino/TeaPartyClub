@@ -1618,7 +1618,7 @@ function goPage(id,btn){
   if(id==='roda')window.initRoda();
   if(id==='perfil')renderPerfil();
   if(id==='criarblend'){buildWizard();buildCtrFilters();renderCtrHerbs();renderCtrBlend();renderTray();}
-  if(id==='chas')initChas();
+  if(id==='chas'){initChas();if(typeof initFlavorWheel==='function')initFlavorWheel();}
   if(id==='cerimonia')initCerimonia();
   if(id==='marketplace')initMkt();
   if(id==='mundo')initMundo();
