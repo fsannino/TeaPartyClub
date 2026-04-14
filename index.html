@@ -130,10 +130,12 @@
 <div id="appContainer" style="display:none">
 
 <nav aria-label="Navegação principal">
-  <a class="logo" href="#" onclick="backToLanding();return false" style="cursor:pointer;text-decoration:none" title="Voltar à página inicial">Ervatório</a>
-  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">☀</button>
-    <button id="ervaria-auth-btn" class="auth-btn" onclick="ervaria.showAuthModal()">⚷ Entrar</button>
+  <div class="nav-top">
+    <a class="logo" href="#" onclick="backToLanding();return false" style="cursor:pointer;text-decoration:none" title="Voltar à página inicial">Ervatório</a>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema claro/escuro">☀</button>
+      <button id="ervaria-auth-btn" class="auth-btn" onclick="ervaria.showAuthModal()">⚷ Entrar</button>
+    </div>
   </div>
   <div class="nav-tabs">
     <button class="nav-tab on" onclick="goPage('search',this)">Busca</button>
@@ -204,7 +206,7 @@
   <!-- WHEEL SELECTOR -->
   <div class="wheel-selector-wrap">
     <div class="wheel-canvas-wrap">
-      <canvas id="filterWheel" width="320" height="320" role="img" aria-label="Roda de filtros: selecione categoria, segurança e momento do dia para filtrar ervas">
+      <canvas id="filterWheel" role="img" aria-label="Roda de filtros: selecione categoria, segurança e momento do dia para filtrar ervas">
         <!-- Fallback para leitores de tela -->
         <p>Roda interativa de filtros com 3 anéis: Categorias (Calmante, Sono, Digestivo, Estimulante, etc.), Segurança (Gestantes, Hipertensos, Crianças) e Momento (Manhã, Tarde, Noite). Use os filtros em chips abaixo como alternativa acessível.</p>
       </canvas>
