@@ -50,7 +50,7 @@
   </div>
 
   <div class="landing-features">
-    <span class="landing-feat">140+ ervas catalogadas</span>
+    <span class="landing-feat">28 ervas catalogadas</span>
     <span class="landing-feat">Roda dos Chás interativa</span>
     <span class="landing-feat">Blend IA personalizado</span>
     <span class="landing-feat">Chás de 12 países</span>
@@ -65,7 +65,7 @@
     <div class="landing-cards">
 
       <div class="landing-card">
-        <div class="landing-card-icon">🍵</div>
+        <div class="landing-card-icon" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold2);font-style:italic">Ch</div>
         <div class="landing-card-title">Para você — amante de chá</div>
         <div class="landing-card-text">Descubra chás por efeito, humor ou origem. A Roda dos Chás sugere a infusão perfeita para o seu momento. Salve favoritos, monte blends com IA e acompanhe seu diário de degustação.</div>
         <ul class="landing-card-list">
@@ -77,7 +77,7 @@
       </div>
 
       <div class="landing-card">
-        <div class="landing-card-icon">🏪</div>
+        <div class="landing-card-icon" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold2);font-style:italic">Ca</div>
         <div class="landing-card-title">Para chazerias e casas de chá</div>
         <div class="landing-card-text">Seu cardápio inteligente. Ofereça aos seus clientes uma experiência digital que complementa o atendimento presencial — com informações profissionais sobre cada erva e sugestões personalizadas.</div>
         <ul class="landing-card-list">
@@ -89,7 +89,7 @@
       </div>
 
       <div class="landing-card">
-        <div class="landing-card-icon">🧪</div>
+        <div class="landing-card-icon" style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--gold2);font-style:italic">Ts</div>
         <div class="landing-card-title">Para tea tasters e sommeliers</div>
         <div class="landing-card-text">Ferramentas profissionais para curadoria, blending e análise sensorial. Construa receitas com proporções exatas, consulte interações fitoquímicas e explore origens globais com dados técnicos.</div>
         <ul class="landing-card-list">
@@ -100,6 +100,16 @@
         </ul>
       </div>
 
+    </div>
+
+    <!-- Hero mãos -->
+    <div class="landing-hero-img" style="margin-bottom:2rem">
+      <img src="images/hero/hero-maos.png" alt="Mãos segurando xícara de chá de ervas" loading="lazy"
+           onerror="this.parentElement.style.display='none'">
+      <div class="hero-overlay">
+        <div class="hero-title" style="font-style:italic">Cada erva carrega uma história.</div>
+        <div class="hero-sub">Cada infusão, um ritual. Cada momento, uma oportunidade de reconexão.</div>
+      </div>
     </div>
 
     <!-- Collection image -->
@@ -123,15 +133,15 @@
         <button class="landing-cta" id="installBtn" onclick="installPWA()" style="display:none;font-size:.9rem;padding:12px 28px">Instalar App</button>
         <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:380px">
           <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">🍎</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-style:italic">iOS</span>
             <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">iPhone / iPad</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Safari, toque em Compartilhar (⬆) → "Adicionar à Tela de Início"</div></div>
           </div>
           <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">🤖</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-style:italic">And</span>
             <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">Android</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Chrome, toque no menu (⋮) → "Instalar app" ou "Adicionar à tela inicial"</div></div>
           </div>
           <div style="background:var(--bg3);border:0.5px solid var(--faint);border-radius:var(--r-lg);padding:1rem 1.25rem;text-align:left;display:flex;align-items:center;gap:12px">
-            <span style="font-size:1.4rem">💻</span>
+            <span style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold2);font-style:italic">Dt</span>
             <div><div style="font-size:.82rem;color:var(--cream);font-weight:400">Desktop</div><div style="font-size:.72rem;color:var(--muted);margin-top:2px">No Chrome, clique no ícone de instalação (⊕) na barra de endereço</div></div>
           </div>
         </div>
@@ -139,8 +149,12 @@
     </div>
   </div>
 
+  <div style="text-align:center;margin-bottom:2rem">
+    <button class="landing-cta" onclick="enterApp();setTimeout(()=>goPage('sobre'),100)" style="background:none;border:0.5px solid rgba(200,168,75,.3);font-size:.85rem;padding:10px 24px">Conheça o manifesto Ervatório</button>
+  </div>
+
   <div class="landing-footer">
-    <div class="landing-footer-text">Ervatório — Tea Party Club &copy; 2026</div>
+    <div class="landing-footer-text">Ervatório &copy; 2026 — Rituais naturais para corpo e mente</div>
   </div>
 </div>
 
