@@ -704,6 +704,13 @@ body.light .flavor-chip{color:var(--cream)}
 /* SELECT same style as inputs */
 select.pc-input{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7060' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer}
 select.pc-input option{background:var(--bg2);color:var(--cream)}
+/* APP HERO BANNER */
+.app-hero{width:100%;height:240px;border-radius:var(--r-lg);overflow:hidden;position:relative;margin-bottom:1.5rem}
+.app-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.app-hero-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.6));padding:22px 24px 18px}
+.app-hero-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-style:italic;color:white;line-height:1.3;margin-bottom:4px;font-weight:300;text-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.app-hero-sub{font-size:.72rem;color:rgba(255,255,255,0.8);line-height:1.5}
+@media(max-width:600px){.app-hero{height:180px}.app-hero-title{font-size:1.15rem}}
 /* INTENÇÕES */
 .intencoes-titulo{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:400}
 .intencoes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:1.25rem}
