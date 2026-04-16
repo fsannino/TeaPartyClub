@@ -25,8 +25,7 @@ const PRECACHE_ASSETS = [
   '/images/produtos/lavanda.png',
   '/images/produtos/capim-limao.png',
   '/images/produtos/matcha.png',
-  '/images/produtos/funcho.png',
-  '/images/produtos/ervas-colecao.png'
+  '/images/produtos/funcho.png'
 ];
 
 // Google Fonts to cache with stale-while-revalidate
