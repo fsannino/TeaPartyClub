@@ -39,8 +39,8 @@
       <img src="images/hero/hero-bule.png" alt="Ritual do chá — bule cerâmico servindo infusão" loading="eager"
            onerror="this.parentElement.style.display='none'">
       <div class="hero-overlay">
-        <div class="hero-title">Bem-vindo ao Ervatório</div>
-        <div class="hero-sub">Explore o mundo dos chás e infusões</div>
+        <div class="hero-title" style="font-style:italic">Transformamos ervas em rituais.</div>
+        <div class="hero-sub">Curadoria de chás e ervas com base científica e experiência sensorial.</div>
       </div>
     </div>
     <div class="landing-brand">Ervatório</div>
@@ -167,6 +167,7 @@
     <button class="nav-tab" onclick="goPage('suppliers',this)">Fornecedores</button>
     <button class="nav-tab" onclick="goPage('marketplace',this)">Marketplace</button>
     <button class="nav-tab" onclick="goPage('perfil',this)">Perfil</button>
+    <button class="nav-tab" onclick="goPage('sobre',this)">Sobre</button>
   </div>
 </nav>
 
@@ -215,6 +216,35 @@
 <div class="page on" id="page-search">
   <div class="sec-title">Buscar Ervas</div>
   <div class="sec-sub">Use a roda ou os filtros para explorar</div>
+
+  <!-- INTENÇÕES — Entrada por linguagem natural -->
+  <div class="intencoes-titulo">O que você está buscando agora?</div>
+  <div class="intencoes-grid" id="intencoesGrid">
+    <button class="intencao-card" onclick="aplicarIntencao('sono')">
+      <span class="intencao-icone">🌙</span>
+      <span class="intencao-texto">Quero dormir melhor</span>
+    </button>
+    <button class="intencao-card" onclick="aplicarIntencao('foco')">
+      <span class="intencao-icone">🧠</span>
+      <span class="intencao-texto">Preciso de foco e energia</span>
+    </button>
+    <button class="intencao-card" onclick="aplicarIntencao('digestao')">
+      <span class="intencao-icone">🌿</span>
+      <span class="intencao-texto">Barriga pesada ou desconforto</span>
+    </button>
+    <button class="intencao-card" onclick="aplicarIntencao('ansiedade')">
+      <span class="intencao-icone">🕊️</span>
+      <span class="intencao-texto">Estou ansioso ou estressado</span>
+    </button>
+    <button class="intencao-card" onclick="aplicarIntencao('imunidade')">
+      <span class="intencao-icone">🛡️</span>
+      <span class="intencao-texto">Fortalecer a imunidade</span>
+    </button>
+    <button class="intencao-card" onclick="aplicarIntencao('explorar')">
+      <span class="intencao-icone">🎡</span>
+      <span class="intencao-texto">Me ajuda a escolher</span>
+    </button>
+  </div>
 
   <div class="search-box">
     <span class="search-icon">⌕</span>
@@ -485,6 +515,11 @@
   <button class="perfil-save-btn" onclick="savePerfil()">Salvar perfil</button>
 
   <div class="perfil-recomendacoes" id="perfilRecomendacoes"></div>
+</div>
+
+<!-- SOBRE PAGE -->
+<div class="page" id="page-sobre">
+  <div id="sobreContent"></div>
 </div>
 
 <!-- TIMER MODAL -->

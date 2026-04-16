@@ -9,34 +9,34 @@ function esc(s){
 // ── DATA ──────────────────────────────────────────────────────────────────
 
 const HERBS = [
-  {id:1,n:"Camomila",lat:"Matricaria chamomilla",icon:"🌼",img:"images/produtos/camomila.png",cat:"Calmante",ef:"Calmante suave, anti-inflamatória, digestiva",detail:"Apigenina se liga aos receptores GABA, promovendo relaxamento. Ideal para insônia leve, cólicas e digestão irritada. Segura para crianças, idosos e gestantes.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2-3x ao dia",tags:["calmante","digestiva","anti-inflamatória","sono"],momento:["tarde","qualquer"]},
-  {id:2,n:"Valeriana",lat:"Valeriana officinalis",icon:"🌸",cat:"Sono",ef:"Sedativa potente, insônia, ansiedade grave",detail:"Actua diretamente no GABA. Reduz tempo para adormecer em 30-60 min. Não associar com álcool ou benzodiazepínicos. Evitar em depressão.",safe:["hipertensos"],avoid:["gestantes","antes de dirigir"],temp:"85°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"1x à noite",tags:["sono","ansiedade","sedativa","calmante"],momento:["noite"]},
-  {id:3,n:"Maracujá",lat:"Passiflora edulis",icon:"🍃",cat:"Calmante",ef:"Ansiolítico natural, relaxante, sono",detail:"Comparado a benzodiazepínicos suaves em estudos clínicos. Ideal para ansiedade com componente físico (taquicardia, tensão muscular). Seguro para uso diário.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia + noite",tags:["ansiedade","sono","calmante","taquicardia"],momento:["noite","tarde"]},
-  {id:4,n:"Melissa",lat:"Melissa officinalis",icon:"🍃",cat:"Calmante",ef:"Calmante, antidepressiva suave, digestiva",detail:"Inibe MAO-B, elevando serotonina e dopamina naturalmente. Excelente para quem 'não consegue parar de pensar'. Sabor agradável de limão. Sem risco de dependência.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["ansiedade","digestiva","calmante","antidepressiva"],momento:["tarde","noite","qualquer"]},
-  {id:5,n:"Gengibre",lat:"Zingiber officinale",icon:"🫚",cat:"Digestivo",ef:"Anti-náusea, digestivo, termogênico, antigripal",detail:"Procinético: acelera esvaziamento gástrico. Anti-inflamatório que inibe COX-2 e LOX. Eficaz quanto ibuprofeno para dor menstrual em estudos. Usar fresco para máximo efeito.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"3-4 fatias frescas / 300ml",freq:"conforme necessidade",tags:["digestivo","náusea","inflamação","termogênico","gripe"],momento:["manha","qualquer"]},
-  {id:6,n:"Chá Verde",lat:"Camellia sinensis",icon:"🍵",cat:"Estimulante",ef:"Foco, antioxidante, termogênico, metabolismo",detail:"L-teanina + cafeína: estado único de foco calmo. EGCG: antioxidante mais estudado do mundo. Tomar 30min antes de exercício potencializa queima de gordura.",safe:[],avoid:["gestantes","insônia","hipertensos sensíveis","após 16h"],temp:"75°C",tempo:"3-4 min",dose:"1 col. sopa / 200ml",freq:"1-2x manhã",tags:["foco","energia","metabolismo","antioxidante"],momento:["manha","tarde"]},
-  {id:7,n:"Hibisco",lat:"Hibiscus sabdariffa",icon:"🌺",img:"images/produtos/hibisco.png",cat:"Cardiovascular",ef:"Hipotensor, antioxidante, emagrecimento, vitamina C",detail:"Estudo JAMA: 3 xícaras/dia reduziram PA sistólica em média 7mmHg. Rico em antocianinas. Inibe amilase, reduzindo absorção de carboidratos. Vermelho intenso, sabor ácido.",safe:[],avoid:["gestantes","pressão baixa","uso com diuréticos"],temp:"90°C",tempo:"8 min",dose:"2 col. sopa / 300ml",freq:"2-3x ao dia",tags:["pressão","antioxidante","emagrecimento","vitamina C"],momento:["qualquer"]},
-  {id:8,n:"Alecrim",lat:"Rosmarinus officinalis",icon:"🌿",img:"images/produtos/alecrim.png",cat:"Estimulante",ef:"Foco, memória, circulação, estimulante",detail:"1,8-cineol no aroma já melhora desempenho cognitivo. Estimula circulação cerebral e periférica. Excelente para manhãs lentas e concentração. Sem cafeína.",safe:["hipertensos"],avoid:["gestantes (doses altas)","epilepsia"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 200ml",freq:"1-2x ao dia",tags:["foco","memória","energia","circulação"],momento:["manha","tarde"]},
-  {id:9,n:"Hortelã",lat:"Mentha piperita",icon:"🌿",img:"images/produtos/hortela-seca.png",cat:"Digestivo",ef:"Digestiva, carminativa, descongestionante, fresca",detail:"Mentol relaxa musculatura lisa intestinal. Alivia IBS em estudos clínicos. Descongestionante das vias aéreas. Frio potencializa o efeito mentolado.",safe:["hipertensos","crianças (sem óleo essencial)"],avoid:["gestantes (doses altas)","bebês (óleo)","refluxo grave"],temp:"85°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["digestivo","gases","congestão","frescor"],momento:["qualquer"]},
-  {id:10,n:"Erva-doce",lat:"Pimpinella anisum",icon:"🌾",img:"images/produtos/erva-doce.png",cat:"Digestivo",ef:"Carminativa, antigases, cólicas, expectorante",detail:"Carminativo clássico: relaxa musculatura intestinal e libera gases. Seguro até para bebês (muito diluído). Combina muito bem com camomila e hortelã.",safe:["hipertensos","crianças","gestantes (uso moderado)"],avoid:[],temp:"90°C",tempo:"7 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["gases","cólicas","digestivo","expectorante"],momento:["qualquer"]},
-  {id:11,n:"Canela",lat:"Cinnamomum zeylanicum",icon:"🌿",cat:"Metabólico",ef:"Termogênica, regula glicemia, anti-inflamatória",detail:"Regula insulina, evita pico glicêmico. Termogênica e adocicada: reduz desejo por doces. Cassia tem cumarina (limitar). Prefira canela-do-ceilão.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"95°C",tempo:"10 min",dose:"1 pau ou 1 col. / 300ml",freq:"2x ao dia",tags:["metabolismo","glicemia","termogênico","digestivo"],momento:["manha","tarde"]},
-  {id:12,n:"Cúrcuma",lat:"Curcuma longa",icon:"🫚",cat:"Anti-inflamatório",ef:"Anti-inflamatório potente, hepático, antioxidante",detail:"Curcumina: inibe COX-2. Eficaz quanto ibuprofeno em artrite em estudos. Adicionar pimenta-do-reino aumenta absorção em 2000%. Leite dourado com leite vegetal.",safe:["hipertensos"],avoid:["gestantes (doses altas)","pedras na vesícula","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá + pitada pimenta / 250ml",freq:"2x ao dia",tags:["anti-inflamatório","fígado","articulações","antioxidante"],momento:["qualquer"]},
-  {id:13,n:"Alfazema",lat:"Lavandula angustifolia",icon:"💜",img:"images/produtos/lavanda.png",cat:"Calmante",ef:"Ansiolítica, sedativa suave, dor de cabeça",detail:"Estudo Lasea: eficaz quanto lorazepam para ansiedade leve. Reduz ondas beta cerebrais. Aroma + infusão combinados têm efeito sinérgico.",safe:["hipertensos"],avoid:["gestantes"],temp:"85°C",tempo:"8 min",dose:"1 col. sopa flores / 250ml",freq:"2x ao dia",tags:["ansiedade","sono","dor de cabeça","calmante"],momento:["tarde","noite"]},
-  {id:14,n:"Boldo",lat:"Peumus boldus",icon:"🍃",cat:"Digestivo",ef:"Hepático, digestivo, alivia peso pós-refeição",detail:"Colagogo clássico: estimula produção e fluxo de bile. Alivia sensação de peso em 20-30 min. Não usar por mais de 6 semanas seguidas.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","uso prolongado"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeição gordurosa",tags:["fígado","digestivo","bile","ressaca"],momento:["qualquer"]},
-  {id:15,n:"Alcachofra",lat:"Cynara scolymus",icon:"🌱",cat:"Digestivo",ef:"Detox fígado, reduz colesterol, diurética",detail:"Cinarina: aumenta produção de bile. Colerético + detox suave e progressivo. Combina com boldo para digestão pesada.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","alergia a asteráceas"],temp:"90°C",tempo:"10 min",dose:"1-2 col. sopa / 300ml",freq:"2x ao dia",tags:["fígado","colesterol","digestivo","detox"],momento:["qualquer"]},
-  {id:16,n:"Guaco",lat:"Mikania glomerata",icon:"🍃",cat:"Respiratório",ef:"Broncodilatador, expectorante, tosse, gripe",detail:"Regulamentado pela ANVISA como fitoterápico. Broncodilatador natural mais eficaz. Pode ser usado como xarope ou chá. 3-4x ao dia em crises.",safe:["hipertensos"],avoid:["gestantes","uso prolongado sem supervisão"],temp:"90°C",tempo:"10 min",dose:"2 col. sopa / 300ml",freq:"3-4x ao dia (gripe)",tags:["tosse","bronquite","gripe","expectorante"],momento:["qualquer"]},
-  {id:17,n:"Capim-Limão",lat:"Cymbopogon citratus",icon:"🌾",img:"images/produtos/capim-limao.png",cat:"Calmante",ef:"Calmante, digestivo, antigripal, febre",detail:"Sabor cítrico agradável. Calmante sem sonolência intensa. Antipirétic e antigripal suave. Muito consumido no Brasil.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"90°C",tempo:"8 min",dose:"2-3 folhas frescas / 300ml",freq:"3x ao dia",tags:["calmante","febre","digestivo","cítrico"],momento:["qualquer"]},
-  {id:18,n:"Folha de Amora",lat:"Morus nigra",icon:"🍃",cat:"Hormonal",ef:"Menopausa, suores noturnos, fitoestrogênios",detail:"Fitoestrogênios reduzem sintomas da menopausa. Estudo: reduz calores em 50% em 8 semanas. Hipoglicemiante suave.",safe:["hipertensos"],avoid:["gestantes","câncer hormônio-dependente"],temp:"88°C",tempo:"10 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia",tags:["menopausa","hormônios","fitoestrogênio","hipoglicemiante"],momento:["tarde","noite"]},
-  {id:19,n:"Erva Cidreira",lat:"Lippia alba",icon:"🍃",cat:"Calmante",ef:"Calmante suave, digestiva, ansiedade",detail:"Calmante brasileiro clássico. Suave e seguro para toda a família. Ideal para estresse diário leve sem causar sedação.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["calmante","ansiedade","digestivo","família"],momento:["tarde","noite","qualquer"]},
-  {id:20,n:"Espinheira Santa",lat:"Maytenus ilicifolia",icon:"🌿",cat:"Digestivo",ef:"Gastrite, úlcera, acidez, antiácido natural",detail:"Antiácido e cicatrizante natural da mucosa gástrica. Regulado pela ANVISA. Tomar em jejum e antes das refeições.",safe:["hipertensos"],avoid:["gestantes","amamentação"],temp:"88°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia em jejum",tags:["gastrite","úlcera","acidez","estômago"],momento:["qualquer"]},
-  {id:21,n:"Carqueja",lat:"Baccharis trimera",icon:"🌿",cat:"Metabólico",ef:"Termogênica, digestiva, saciedade, diabetes",detail:"Termogênica e reduz absorção de gordura. Auxiliar no emagrecimento. Amargo: combinar com canela para suavizar.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"antes das refeições",tags:["emagrecimento","termogênico","diabetes","fígado"],momento:["manha","tarde"]},
-  {id:22,n:"Ginkgo Biloba",lat:"Ginkgo biloba",icon:"🍃",cat:"Cognitivo",ef:"Memória, circulação cerebral, concentração",detail:"Aumenta fluxo sanguíneo cerebral. Resultados em 4-6 semanas de uso contínuo. Evitar com anticoagulantes.",safe:["hipertensos"],avoid:["gestantes","anticoagulantes","antes de cirurgia"],temp:"90°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"2x ao dia",tags:["memória","foco","circulação","cognitivo"],momento:["manha","tarde"]},
-  {id:23,n:"Hibisco Azul",lat:"Clitoria ternatea",icon:"💙",cat:"Cognitivo",ef:"Antioxidante, memória, ansiedade, muda de cor",detail:"Muda de roxo para rosa/vermelho com limão (antocianinas sensíveis ao pH). Antioxidante cerebral. Estudos mostram melhora em testes cognitivos.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"5 min",dose:"1-2 col. sopa / 250ml",freq:"1-2x ao dia",tags:["cognitivo","antioxidante","memória","beleza"],momento:["tarde","qualquer"]},
-  {id:24,n:"Calêndula",lat:"Calendula officinalis",icon:"🌸",cat:"Pele",ef:"Cicatrizante, anti-inflamatória, antifúngica",detail:"Cicatrizante interno e externo. Anti-inflamatória da mucosa e pele. Usar também como compressa.",safe:["hipertensos"],avoid:["gestantes","alergia a asteráceas"],temp:"88°C",tempo:"8 min",dose:"1-2 col. sopa flores / 250ml",freq:"2-3x ao dia",tags:["pele","cicatrizante","anti-inflamatório","gastrite"],momento:["qualquer"]},
-  {id:25,n:"Rooibos",lat:"Aspalathus linearis",icon:"🍃",cat:"Antioxidante",ef:"Antioxidante potente, sem cafeína, anti-aging",detail:"Antioxidante 50x mais potente que chá verde segundo alguns estudos. Sem cafeína: ideal à tarde e noite. Rico em minerais.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"95°C",tempo:"5-7 min",dose:"1-2 col. sopa / 300ml",freq:"a qualquer hora",tags:["antioxidante","sem cafeína","anti-aging","pele"],momento:["tarde","noite","qualquer"]},
-  {id:26,n:"Ashwagandha",lat:"Withania somnifera",icon:"🌿",cat:"Adaptogênico",ef:"Reduz cortisol, estresse, energia, libido",detail:"Reduce cortisol em até 30% em estudos. Adaptogênico: acalma sob estresse, energiza sob fadiga. Resultados em 4-8 semanas.",safe:["hipertensos"],avoid:["gestantes","hipertireoidismo","doenças autoimunes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá pó / 250ml",freq:"2x ao dia",tags:["adaptogênico","estresse","cortisol","libido"],momento:["tarde","noite"]},
-  {id:27,n:"Guaraná",lat:"Paullinia cupana",icon:"🫐",cat:"Estimulante",ef:"Estimulante, foco, metabolismo, emagrecimento",detail:"Cafeína de liberação mais lenta que o café. Menos pico e queda. Rico em taninos e guaranina.",safe:[],avoid:["gestantes","hipertensos","insônia","crianças","após 15h"],temp:"85°C",tempo:"5 min",dose:"1/2 col. chá pó / 250ml",freq:"1x manhã",tags:["energia","foco","metabolismo","estimulante"],momento:["manha"]},
-  {id:28,n:"Tomilho",lat:"Thymus vulgaris",icon:"🌿",cat:"Respiratório",ef:"Expectorante, antisséptico, tosse, bronquite",detail:"Timol: antisséptico pulmonar potente. Usado como xarope na Europa há séculos. Dissolve muco e desinfeta vias aéreas.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia",tags:["tosse","expectorante","bronquite","antisséptico"],momento:["qualquer"]},
+  {id:1,n:"Camomila",lat:"Matricaria chamomilla",icon:"🌼",img:"images/produtos/camomila.png",tagline:"Relaxamento e digestão leve",cat:"Calmante",ef:"Calmante suave, anti-inflamatória, digestiva",detail:"Apigenina se liga aos receptores GABA, promovendo relaxamento. Ideal para insônia leve, cólicas e digestão irritada. Segura para crianças, idosos e gestantes.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2-3x ao dia",tags:["calmante","digestiva","anti-inflamatória","sono"],momento:["tarde","qualquer"]},
+  {id:2,n:"Valeriana",lat:"Valeriana officinalis",icon:"🌸",tagline:"Sedação natural para noites difíceis",cat:"Sono",ef:"Sedativa potente, insônia, ansiedade grave",detail:"Actua diretamente no GABA. Reduz tempo para adormecer em 30-60 min. Não associar com álcool ou benzodiazepínicos. Evitar em depressão.",safe:["hipertensos"],avoid:["gestantes","antes de dirigir"],temp:"85°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"1x à noite",tags:["sono","ansiedade","sedativa","calmante"],momento:["noite"]},
+  {id:3,n:"Maracujá",lat:"Passiflora edulis",icon:"🍃",tagline:"Ansiolítico natural e relaxante muscular",cat:"Calmante",ef:"Ansiolítico natural, relaxante, sono",detail:"Comparado a benzodiazepínicos suaves em estudos clínicos. Ideal para ansiedade com componente físico (taquicardia, tensão muscular). Seguro para uso diário.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"85°C",tempo:"8 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia + noite",tags:["ansiedade","sono","calmante","taquicardia"],momento:["noite","tarde"]},
+  {id:4,n:"Melissa",lat:"Melissa officinalis",icon:"🍃",tagline:"Calma cítrica e equilíbrio mental",cat:"Calmante",ef:"Calmante, antidepressiva suave, digestiva",detail:"Inibe MAO-B, elevando serotonina e dopamina naturalmente. Excelente para quem 'não consegue parar de pensar'. Sabor agradável de limão. Sem risco de dependência.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["ansiedade","digestiva","calmante","antidepressiva"],momento:["tarde","noite","qualquer"]},
+  {id:5,n:"Gengibre",lat:"Zingiber officinale",icon:"🫚",tagline:"Ativação digestiva e imunidade vibrante",cat:"Digestivo",ef:"Anti-náusea, digestivo, termogênico, antigripal",detail:"Procinético: acelera esvaziamento gástrico. Anti-inflamatório que inibe COX-2 e LOX. Eficaz quanto ibuprofeno para dor menstrual em estudos. Usar fresco para máximo efeito.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"3-4 fatias frescas / 300ml",freq:"conforme necessidade",tags:["digestivo","náusea","inflamação","termogênico","gripe"],momento:["manha","qualquer"]},
+  {id:6,n:"Chá Verde",lat:"Camellia sinensis",icon:"🍵",tagline:"Energia limpa e foco natural",cat:"Estimulante",ef:"Foco, antioxidante, termogênico, metabolismo",detail:"L-teanina + cafeína: estado único de foco calmo. EGCG: antioxidante mais estudado do mundo. Tomar 30min antes de exercício potencializa queima de gordura.",safe:[],avoid:["gestantes","insônia","hipertensos sensíveis","após 16h"],temp:"75°C",tempo:"3-4 min",dose:"1 col. sopa / 200ml",freq:"1-2x manhã",tags:["foco","energia","metabolismo","antioxidante"],momento:["manha","tarde"]},
+  {id:7,n:"Hibisco",lat:"Hibiscus sabdariffa",icon:"🌺",img:"images/produtos/hibisco.png",tagline:"Equilíbrio metabólico e vitamina C",cat:"Cardiovascular",ef:"Hipotensor, antioxidante, emagrecimento, vitamina C",detail:"Estudo JAMA: 3 xícaras/dia reduziram PA sistólica em média 7mmHg. Rico em antocianinas. Inibe amilase, reduzindo absorção de carboidratos. Vermelho intenso, sabor ácido.",safe:[],avoid:["gestantes","pressão baixa","uso com diuréticos"],temp:"90°C",tempo:"8 min",dose:"2 col. sopa / 300ml",freq:"2-3x ao dia",tags:["pressão","antioxidante","emagrecimento","vitamina C"],momento:["qualquer"]},
+  {id:8,n:"Alecrim",lat:"Rosmarinus officinalis",icon:"🌿",img:"images/produtos/alecrim.png",tagline:"Foco, memória e despertar natural",cat:"Estimulante",ef:"Foco, memória, circulação, estimulante",detail:"1,8-cineol no aroma já melhora desempenho cognitivo. Estimula circulação cerebral e periférica. Excelente para manhãs lentas e concentração. Sem cafeína.",safe:["hipertensos"],avoid:["gestantes (doses altas)","epilepsia"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 200ml",freq:"1-2x ao dia",tags:["foco","memória","energia","circulação"],momento:["manha","tarde"]},
+  {id:9,n:"Hortelã",lat:"Mentha piperita",icon:"🌿",img:"images/produtos/hortela-fresca.png",tagline:"Frescor digestivo e leveza",cat:"Digestivo",ef:"Digestiva, carminativa, descongestionante, fresca",detail:"Mentol relaxa musculatura lisa intestinal. Alivia IBS em estudos clínicos. Descongestionante das vias aéreas. Frio potencializa o efeito mentolado.",safe:["hipertensos","crianças (sem óleo essencial)"],avoid:["gestantes (doses altas)","bebês (óleo)","refluxo grave"],temp:"85°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["digestivo","gases","congestão","frescor"],momento:["qualquer"]},
+  {id:10,n:"Erva-doce",lat:"Pimpinella anisum",icon:"🌾",img:"images/produtos/erva-doce.png",tagline:"Antigases e conforto abdominal",cat:"Digestivo",ef:"Carminativa, antigases, cólicas, expectorante",detail:"Carminativo clássico: relaxa musculatura intestinal e libera gases. Seguro até para bebês (muito diluído). Combina muito bem com camomila e hortelã.",safe:["hipertensos","crianças","gestantes (uso moderado)"],avoid:[],temp:"90°C",tempo:"7 min",dose:"1 col. sopa / 250ml",freq:"após refeições",tags:["gases","cólicas","digestivo","expectorante"],momento:["qualquer"]},
+  {id:11,n:"Canela",lat:"Cinnamomum zeylanicum",icon:"🌿",tagline:"Termogênica e reguladora de glicemia",cat:"Metabólico",ef:"Termogênica, regula glicemia, anti-inflamatória",detail:"Regula insulina, evita pico glicêmico. Termogênica e adocicada: reduz desejo por doces. Cassia tem cumarina (limitar). Prefira canela-do-ceilão.",safe:["hipertensos"],avoid:["gestantes (doses altas)","anticoagulantes"],temp:"95°C",tempo:"10 min",dose:"1 pau ou 1 col. / 300ml",freq:"2x ao dia",tags:["metabolismo","glicemia","termogênico","digestivo"],momento:["manha","tarde"]},
+  {id:12,n:"Cúrcuma",lat:"Curcuma longa",icon:"🫚",tagline:"Anti-inflamatório potente e protetor hepático",cat:"Anti-inflamatório",ef:"Anti-inflamatório potente, hepático, antioxidante",detail:"Curcumina: inibe COX-2. Eficaz quanto ibuprofeno em artrite em estudos. Adicionar pimenta-do-reino aumenta absorção em 2000%. Leite dourado com leite vegetal.",safe:["hipertensos"],avoid:["gestantes (doses altas)","pedras na vesícula","anticoagulantes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá + pitada pimenta / 250ml",freq:"2x ao dia",tags:["anti-inflamatório","fígado","articulações","antioxidante"],momento:["qualquer"]},
+  {id:13,n:"Alfazema",lat:"Lavandula angustifolia",icon:"💜",img:"images/produtos/lavanda.png",tagline:"Delicadeza floral e calma profunda",cat:"Calmante",ef:"Ansiolítica, sedativa suave, dor de cabeça",detail:"Estudo Lasea: eficaz quanto lorazepam para ansiedade leve. Reduz ondas beta cerebrais. Aroma + infusão combinados têm efeito sinérgico.",safe:["hipertensos"],avoid:["gestantes"],temp:"85°C",tempo:"8 min",dose:"1 col. sopa flores / 250ml",freq:"2x ao dia",tags:["ansiedade","sono","dor de cabeça","calmante"],momento:["tarde","noite"]},
+  {id:14,n:"Boldo",lat:"Peumus boldus",icon:"🍃",tagline:"Recuperação e proteção digestiva",cat:"Digestivo",ef:"Hepático, digestivo, alivia peso pós-refeição",detail:"Colagogo clássico: estimula produção e fluxo de bile. Alivia sensação de peso em 20-30 min. Não usar por mais de 6 semanas seguidas.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","uso prolongado"],temp:"90°C",tempo:"5 min",dose:"1 col. sopa / 250ml",freq:"após refeição gordurosa",tags:["fígado","digestivo","bile","ressaca"],momento:["qualquer"]},
+  {id:15,n:"Alcachofra",lat:"Cynara scolymus",icon:"🌱",tagline:"Detox hepático e redução de colesterol",cat:"Digestivo",ef:"Detox fígado, reduz colesterol, diurética",detail:"Cinarina: aumenta produção de bile. Colerético + detox suave e progressivo. Combina com boldo para digestão pesada.",safe:["hipertensos"],avoid:["gestantes","obstrução biliar","alergia a asteráceas"],temp:"90°C",tempo:"10 min",dose:"1-2 col. sopa / 300ml",freq:"2x ao dia",tags:["fígado","colesterol","digestivo","detox"],momento:["qualquer"]},
+  {id:16,n:"Guaco",lat:"Mikania glomerata",icon:"🍃",tagline:"Respiração livre e alívio natural",cat:"Respiratório",ef:"Broncodilatador, expectorante, tosse, gripe",detail:"Regulamentado pela ANVISA como fitoterápico. Broncodilatador natural mais eficaz. Pode ser usado como xarope ou chá. 3-4x ao dia em crises.",safe:["hipertensos"],avoid:["gestantes","uso prolongado sem supervisão"],temp:"90°C",tempo:"10 min",dose:"2 col. sopa / 300ml",freq:"3-4x ao dia (gripe)",tags:["tosse","bronquite","gripe","expectorante"],momento:["qualquer"]},
+  {id:17,n:"Capim-Limão",lat:"Cymbopogon citratus",icon:"🌾",img:"images/produtos/capim-limao.png",tagline:"Calmante tropical e digestivo cítrico",cat:"Calmante",ef:"Calmante, digestivo, antigripal, febre",detail:"Sabor cítrico agradável. Calmante sem sonolência intensa. Antipirétic e antigripal suave. Muito consumido no Brasil.",safe:["gestantes","hipertensos","crianças"],avoid:[],temp:"90°C",tempo:"8 min",dose:"2-3 folhas frescas / 300ml",freq:"3x ao dia",tags:["calmante","febre","digestivo","cítrico"],momento:["qualquer"]},
+  {id:18,n:"Folha de Amora",lat:"Morus nigra",icon:"🍃",tagline:"Equilíbrio hormonal e menopausa",cat:"Hormonal",ef:"Menopausa, suores noturnos, fitoestrogênios",detail:"Fitoestrogênios reduzem sintomas da menopausa. Estudo: reduz calores em 50% em 8 semanas. Hipoglicemiante suave.",safe:["hipertensos"],avoid:["gestantes","câncer hormônio-dependente"],temp:"88°C",tempo:"10 min",dose:"1-2 col. sopa / 250ml",freq:"2x ao dia",tags:["menopausa","hormônios","fitoestrogênio","hipoglicemiante"],momento:["tarde","noite"]},
+  {id:19,n:"Erva Cidreira",lat:"Lippia alba",icon:"🍃",tagline:"Calma suave para toda a família",cat:"Calmante",ef:"Calmante suave, digestiva, ansiedade",detail:"Calmante brasileiro clássico. Suave e seguro para toda a família. Ideal para estresse diário leve sem causar sedação.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"85°C",tempo:"7 min",dose:"1-2 col. sopa / 250ml",freq:"3x ao dia",tags:["calmante","ansiedade","digestivo","família"],momento:["tarde","noite","qualquer"]},
+  {id:20,n:"Espinheira Santa",lat:"Maytenus ilicifolia",icon:"🌿",tagline:"Antiácido natural e protetor gástrico",cat:"Digestivo",ef:"Gastrite, úlcera, acidez, antiácido natural",detail:"Antiácido e cicatrizante natural da mucosa gástrica. Regulado pela ANVISA. Tomar em jejum e antes das refeições.",safe:["hipertensos"],avoid:["gestantes","amamentação"],temp:"88°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia em jejum",tags:["gastrite","úlcera","acidez","estômago"],momento:["qualquer"]},
+  {id:21,n:"Carqueja",lat:"Baccharis trimera",icon:"🌿",tagline:"Controle metabólico e detox hepático",cat:"Metabólico",ef:"Termogênica, digestiva, saciedade, diabetes",detail:"Termogênica e reduz absorção de gordura. Auxiliar no emagrecimento. Amargo: combinar com canela para suavizar.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"antes das refeições",tags:["emagrecimento","termogênico","diabetes","fígado"],momento:["manha","tarde"]},
+  {id:22,n:"Ginkgo Biloba",lat:"Ginkgo biloba",icon:"🍃",tagline:"Memória e circulação cerebral",cat:"Cognitivo",ef:"Memória, circulação cerebral, concentração",detail:"Aumenta fluxo sanguíneo cerebral. Resultados em 4-6 semanas de uso contínuo. Evitar com anticoagulantes.",safe:["hipertensos"],avoid:["gestantes","anticoagulantes","antes de cirurgia"],temp:"90°C",tempo:"10 min",dose:"1 col. sopa / 250ml",freq:"2x ao dia",tags:["memória","foco","circulação","cognitivo"],momento:["manha","tarde"]},
+  {id:23,n:"Hibisco Azul",lat:"Clitoria ternatea",icon:"💙",tagline:"Antioxidante cerebral que muda de cor",cat:"Cognitivo",ef:"Antioxidante, memória, ansiedade, muda de cor",detail:"Muda de roxo para rosa/vermelho com limão (antocianinas sensíveis ao pH). Antioxidante cerebral. Estudos mostram melhora em testes cognitivos.",safe:["hipertensos"],avoid:["gestantes"],temp:"90°C",tempo:"5 min",dose:"1-2 col. sopa / 250ml",freq:"1-2x ao dia",tags:["cognitivo","antioxidante","memória","beleza"],momento:["tarde","qualquer"]},
+  {id:24,n:"Calêndula",lat:"Calendula officinalis",icon:"🌸",tagline:"Cicatrizante floral e regenerador",cat:"Pele",ef:"Cicatrizante, anti-inflamatória, antifúngica",detail:"Cicatrizante interno e externo. Anti-inflamatória da mucosa e pele. Usar também como compressa.",safe:["hipertensos"],avoid:["gestantes","alergia a asteráceas"],temp:"88°C",tempo:"8 min",dose:"1-2 col. sopa flores / 250ml",freq:"2-3x ao dia",tags:["pele","cicatrizante","anti-inflamatório","gastrite"],momento:["qualquer"]},
+  {id:25,n:"Rooibos",lat:"Aspalathus linearis",icon:"🍃",tagline:"Noite sem cafeína, antioxidante único",cat:"Antioxidante",ef:"Antioxidante potente, sem cafeína, anti-aging",detail:"Antioxidante 50x mais potente que chá verde segundo alguns estudos. Sem cafeína: ideal à tarde e noite. Rico em minerais.",safe:["gestantes","crianças","hipertensos"],avoid:[],temp:"95°C",tempo:"5-7 min",dose:"1-2 col. sopa / 300ml",freq:"a qualquer hora",tags:["antioxidante","sem cafeína","anti-aging","pele"],momento:["tarde","noite","qualquer"]},
+  {id:26,n:"Ashwagandha",lat:"Withania somnifera",icon:"🌿",tagline:"Adaptógeno para estresse e cognição",cat:"Adaptogênico",ef:"Reduz cortisol, estresse, energia, libido",detail:"Reduce cortisol em até 30% em estudos. Adaptogênico: acalma sob estresse, energiza sob fadiga. Resultados em 4-8 semanas.",safe:["hipertensos"],avoid:["gestantes","hipertireoidismo","doenças autoimunes"],temp:"90°C",tempo:"10 min",dose:"1 col. chá pó / 250ml",freq:"2x ao dia",tags:["adaptogênico","estresse","cortisol","libido"],momento:["tarde","noite"]},
+  {id:27,n:"Guaraná",lat:"Paullinia cupana",icon:"🫐",tagline:"Energia profunda sul-americana",cat:"Estimulante",ef:"Estimulante, foco, metabolismo, emagrecimento",detail:"Cafeína de liberação mais lenta que o café. Menos pico e queda. Rico em taninos e guaranina.",safe:[],avoid:["gestantes","hipertensos","insônia","crianças","após 15h"],temp:"85°C",tempo:"5 min",dose:"1/2 col. chá pó / 250ml",freq:"1x manhã",tags:["energia","foco","metabolismo","estimulante"],momento:["manha"]},
+  {id:28,n:"Tomilho",lat:"Thymus vulgaris",icon:"🌿",tagline:"Antisséptico pulmonar e expectorante",cat:"Respiratório",ef:"Expectorante, antisséptico, tosse, bronquite",detail:"Timol: antisséptico pulmonar potente. Usado como xarope na Europa há séculos. Dissolve muco e desinfeta vias aéreas.",safe:["hipertensos"],avoid:["gestantes (doses altas)"],temp:"90°C",tempo:"8 min",dose:"1 col. sopa / 250ml",freq:"3x ao dia",tags:["tosse","expectorante","bronquite","antisséptico"],momento:["qualquer"]},
 ];
 
 const SUPPLIERS = [
@@ -93,6 +93,7 @@ function goPage(id,btn){
   if(id==='shop') renderShop();
   if(id==='roda') initRoda();
   if(id==='perfil') renderPerfil();
+  if(id==='sobre') renderSobre();
 }
 
 // ── FILTER STATE — 3 independent dimensions ──
@@ -389,6 +390,28 @@ function clearAllFilters(){
   toast('Filtros limpos');
 }
 
+// ── INTENÇÕES — entrada por linguagem natural ──
+function aplicarIntencao(intencao){
+  const mapa = {
+    'sono':       {cat:'Sono',     safe:'',          momento:'noite'},
+    'foco':       {cat:'Estimulante', safe:'',       momento:'manha'},
+    'digestao':   {cat:'Digestivo',safe:'',           momento:''},
+    'ansiedade':  {cat:'Calmante', safe:'',           momento:''},
+    'imunidade':  {cat:'Todos',    safe:'',           momento:'', search:'imunidade'},
+    'explorar':   null,
+  };
+  if(intencao==='explorar'){ goPage('roda',document.querySelector('.nav-tab:nth-child(2)')); return; }
+  const filtros = mapa[intencao];
+  if(!filtros) return;
+  activeFilters.cat = filtros.cat;
+  activeFilters.safe = filtros.safe;
+  activeFilters.momento = filtros.momento;
+  if(filtros.search) document.getElementById('searchInput').value = filtros.search;
+  drawWheel(); buildFilters(); renderHerbs();
+  document.getElementById('herbGrid').scrollIntoView({behavior:'smooth',block:'start'});
+  toast('Mostrando ervas para: '+intencao);
+}
+
 function buildFilters(){
   const row = document.getElementById('filterRow');
   row.innerHTML = '';
@@ -461,6 +484,7 @@ function buildHerbCards(){
         <button class="hc-fav ${favorites.includes(h.id)?'on':''}" onclick="toggleFav(event,${h.id})" title="Favoritar" aria-label="Favoritar ${esc(h.n)}">♥</button>
       </div>
       <div class="hc-name">${esc(h.n)}</div>
+      ${h.tagline ? `<div class="hc-tagline">${esc(h.tagline)}</div>` : ''}
       <div class="hc-latin">${esc(h.lat)}</div>
       <div class="hc-effect">${esc(h.ef)}</div>
       <div class="hc-tags">
@@ -512,6 +536,7 @@ function openHerbModal(id){
       : `<div style="font-size:2rem;margin-bottom:.5rem">${h.icon}</div>`
     }
     <div class="modal-herb-name">${esc(h.n)}</div>
+    ${h.tagline ? `<div class="modal-tagline">${esc(h.tagline)}</div>` : ''}
     <div class="modal-latin">${esc(h.lat)}</div>
     <div class="modal-section">
       <div class="modal-label">Sobre</div>
@@ -1653,7 +1678,7 @@ function switchBlendTab(tab){
 // ════════════════════════════════════════
 const CHAS_DATA = [
   {
-    id:'branco', name:'Chá Branco', emoji:'🤍', oxidation:5,
+    id:'branco', name:'Chá Branco', emoji:'🤍', tagline:'O mais sutil — antioxidante puro', oxidation:5,
     color:'#e8dcc8', textColor:'#3a2a1a', textColorLight:'#3a2a1a', bgColor:'rgba(232,220,200,.12)',
     tagline:'O mais puro e delicado — colhido antes do despertar',
     latin:'Camellia sinensis — brotos jovens, pré-floração',
@@ -1671,7 +1696,7 @@ const CHAS_DATA = [
     regioes:['Fujian, China (Bai Hao Yinzhen, Bai Mudan)','Darjeeling, Índia','Sri Lanka','Nepal'],
   },
   {
-    id:'verde', name:'Chá Verde', emoji:'🍃', oxidation:10,
+    id:'verde', name:'Chá Verde', emoji:'🍃', tagline:'Energia limpa e foco natural', oxidation:10,
     color:'#4a7a3a', textColor:'#e8f5e0', textColorLight:'#1a4a1a', bgColor:'rgba(74,122,58,.15)',
     tagline:'O guardião da saúde — dois mil anos de sabedoria',
     latin:'Camellia sinensis — folhas fixadas rapidamente ao calor',
@@ -1689,7 +1714,7 @@ const CHAS_DATA = [
     regioes:['Uji, Japão (Matcha, Gyokuro)','Shizuoka, Japão (Sencha)','Fujian, China (Dragonwell/Longjing)','Zhejiang, China','Darjeeling, Índia'],
   },
   {
-    id:'amarelo', name:'Chá Amarelo', emoji:'💛', oxidation:15,
+    id:'amarelo', name:'Chá Amarelo', emoji:'💛', tagline:'O raro tesouro imperial da China', oxidation:15,
     color:'#a87a2a', textColor:'#fff8e0', textColorLight:'#5a3a0a', bgColor:'rgba(168,122,42,.12)',
     tagline:'O raro tesouro — o segredo mais guardado da China',
     latin:'Camellia sinensis — smothering lento, oxidação controlada',
@@ -1707,7 +1732,7 @@ const CHAS_DATA = [
     regioes:['Ilha Junshan, Hunan (Junshan Yinzhen)','Sichuan (Meng Ding Huangya)','Anhui (Huo Shan Huangya)'],
   },
   {
-    id:'oolong', name:'Chá Oolong', emoji:'🔵', oxidation:50,
+    id:'oolong', name:'Chá Oolong', emoji:'🔵', tagline:'Complexidade entre o verde e o preto', oxidation:50,
     color:'#2d5a7a', textColor:'#e0f0ff', textColorLight:'#1a3a5a', bgColor:'rgba(45,90,122,.15)',
     tagline:'O chá azul — entre dois mundos, com a melhor de cada',
     latin:'Camellia sinensis — oxidação parcial 15-85%',
@@ -1725,7 +1750,7 @@ const CHAS_DATA = [
     regioes:['Alishan e Li Shan, Taiwan (High Mountain)','Wuyi, Fujian, China (Da Hong Pao, Shui Xian)','Anxi, Fujian (Tie Guan Yin)','Darjeeling, Índia'],
   },
   {
-    id:'preto', name:'Chá Preto', emoji:'🖤', oxidation:100,
+    id:'preto', name:'Chá Preto', emoji:'🖤', tagline:'Corpo, presença e energia duradoura', oxidation:100,
     color:'#3a1a0a', textColor:'#f5d8c0', textColorLight:'#3a1a0a', bgColor:'rgba(58,26,10,.2)',
     tagline:'O favorito do mundo — força, profundidade, história',
     latin:'Camellia sinensis — oxidação total, sabor robusto',
@@ -1743,7 +1768,7 @@ const CHAS_DATA = [
     regioes:['Assam, Índia (forte, maltado)','Darjeeling, Índia (floral, Champagne dos chás)','Sri Lanka / Ceylon','Keemun, China (fumado, notas de vinho)','Nilgiri, Índia'],
   },
   {
-    id:'puerh', name:'Chá Escuro (Pu-erh)', emoji:'🟤', oxidation:100,
+    id:'puerh', name:'Chá Escuro (Pu-erh)', emoji:'🟤', tagline:'O vinho dos chás — fermentado único', oxidation:100,
     color:'#2a1a0a', textColor:'#e8d0b0', textColorLight:'#2a1a0a', bgColor:'rgba(42,26,10,.2)',
     tagline:'O chá que envelhece como vinho — fermentado, profundo, raro',
     latin:'Camellia sinensis — fermentação microbiana pós-colheita',
@@ -2328,6 +2353,63 @@ function renderBrasilContent(){
       <div style="font-size:.82rem;color:var(--cream2);line-height:1.7">Ilex paraguariensis — não é Camellia sinensis, mas é o "chá" mais consumido no Brasil. Tem mais cafeína que muitos chás verdes. O chimarrão, o tereré e o mate gelado são expressões de uma cultura única.</div>
       <div style="margin-top:.75rem;display:flex;flex-wrap:wrap;gap:8px">
         ${[{n:'Chimarrão',r:'Rio Grande do Sul',c:'Quente, cuia e bomba'},{n:'Tereré',r:'MS, MT, Paraguai',c:'Gelado com ervas'},{n:'Mate Gelado',r:'São Paulo',c:'Industrializado'},{n:'Mate Torrado',r:'Todo Brasil',c:'Defumado, em saquinho'}].map(m=>`<div style="background:rgba(45,90,42,.1);border:0.5px solid rgba(45,90,42,.2);border-radius:var(--r-md);padding:.5rem .75rem"><div style="font-size:.8rem;font-weight:400;color:var(--cream)">${m.n}</div><div style="font-size:.68rem;color:#4a8a4a">${m.r}</div><div style="font-size:.68rem;color:var(--muted)">${m.c}</div></div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── SOBRE ──
+function renderSobre(){
+  const el=document.getElementById('sobreContent'); if(!el)return;
+  el.innerHTML=`
+    <div class="sobre-wrap">
+      <div class="sobre-hero-wrap">
+        <img src="images/hero/hero-maos.png" alt="Ritual do chá" class="sobre-hero-photo"
+          loading="lazy" onerror="this.style.display='none'">
+      </div>
+
+      <div class="sobre-body">
+        <div class="sobre-tag">Manifesto</div>
+        <div class="sobre-titulo">Transformamos ervas em rituais.</div>
+        <div class="sobre-texto">Vivemos em um mundo acelerado, desconectado dos ciclos naturais. O corpo pede pausa. A mente pede clareza. A vida pede presença.</div>
+        <div class="sobre-texto">O Ervatório nasce do resgate desse equilíbrio. Acreditamos que o cuidado começa no simples — na água aquecida, na folha escolhida, no tempo respeitado.</div>
+        <div class="sobre-destaque">"Cada erva carrega uma história. Cada infusão, um ritual. Cada momento, uma oportunidade de reconexão."</div>
+        <div class="sobre-texto">Unimos tradição e ciência. Brasil e mundo. Natureza e precisão. Selecionamos, estudamos e apresentamos ervas com propósito — não como produto, mas como experiência.</div>
+
+        <div class="sobre-tag" style="margin-top:2rem">Nossos pilares</div>
+        <div class="sobre-pilares">
+          ${[
+            {i:'🌿',n:'Natural',d:'Fitoterapia real, com base científica e tradição'},
+            {i:'🧠',n:'Inteligente',d:'Cada erva documentada com rigor técnico e acessibilidade'},
+            {i:'🕊️',n:'Sensorial',d:'Experiência completa — aroma, preparo, momento, ritual'},
+            {i:'🇧🇷',n:'Brasileiro',d:'Biodiversidade única do Cerrado, Mata Atlântica e Amazônia'},
+          ].map(p=>`
+            <div class="sobre-pilar">
+              <div style="font-size:1.4rem;margin-bottom:.5rem">${p.i}</div>
+              <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:var(--gold2);margin-bottom:.25rem">${p.n}</div>
+              <div style="font-size:.75rem;color:var(--cream2);line-height:1.6">${p.d}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="sobre-tag" style="margin-top:2rem">Nossas linhas</div>
+        <div class="sobre-linhas">
+          ${[
+            {n:'Essencial',d:'Ervas brasileiras puras, curadoria de origem e qualidade',c:'#2d5a3a',bg:'rgba(45,90,58,.1)'},
+            {n:'Global',d:'Matcha, oolong, rooibos — o melhor do mundo em curadoria',c:'#2d4a6b',bg:'rgba(45,74,107,.1)'},
+            {n:'Funcional',d:'Blends com objetivo claro — sono, foco, digestão, imunidade',c:'#6b4a1a',bg:'rgba(107,74,26,.1)'},
+            {n:'Ritual',d:'Kits completos com erva, acessório e guia de preparo',c:'#5a2d6b',bg:'rgba(90,45,107,.1)'},
+          ].map(l=>`
+            <div class="sobre-linha" style="background:${l.bg};border-left:3px solid ${l.c}">
+              <div style="font-size:.85rem;font-weight:400;color:var(--cream);margin-bottom:.2rem">${l.n}</div>
+              <div style="font-size:.72rem;color:var(--cream2);line-height:1.5">${l.d}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:1.5rem">
+          <button class="add-blend-btn" onclick="goPage('search')" style="flex:1;min-width:140px">Explorar o catálogo</button>
+          <button class="add-blend-btn" onclick="goPage('roda')" style="flex:1;min-width:140px;background:rgba(200,168,75,.15)">🎡 Roda dos Chás</button>
+        </div>
       </div>
     </div>`;
 }
